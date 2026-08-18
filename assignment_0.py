@@ -8,7 +8,7 @@ from models import pendulum as model
 params = {
     "gravity": 9.81,  # gravity m/s^2)
     "length": 1,  # rod length (m)
-    "mass": 1,  # point mass at end of rod (kg)
+    "mass": 0.2,  # point mass at end of rod (kg)
     "damping_coeff": 0.0,  # damping coefficient (kg*m^2/s)
 }
 
@@ -26,8 +26,8 @@ state_traj[:, 0] = initial_state
 
 # simulation loop
 for step, t in enumerate(time_traj[:-1]):
-    state_traj[:, t + 1] = state_traj[:, t + 1] + timestep * model.dynamics(
-        t, state_traj[:, t], params
+    state_traj[:, step + 1] = state_traj[:, step] + timestep * model.dynamics(
+        t, state_traj[:, step], params
     )
 
 # sanity check the energies: since there is no actuation, and no damping, total energy should stay
@@ -37,8 +37,14 @@ for step, t in enumerate(time_traj[:-1]):
 potential_energy, kinetic_energy = model.calculate_energy(state_traj, params)
 
 plt.figure()
-plt.plot(time_traj, potential_energy)
-plt.plot(time_traj, kinetic_energy)
-# todo add units, etc., and legend
+plt.plot(time_traj, potential_energy, label="Potential energy")
+plt.plot(time_traj, kinetic_energy, label="Kinetic energy")
+plt.plot(time_traj, potential_energy + kinetic_energy, label="Total energy")
+plt.xlabel("Time (s)")
+plt.ylabel("Energy (J)")
+plt.title("Pendulum energy")
+plt.legend()
+plt.tight_layout()
+plt.show()
 
-# todo make a phase portrait plot
+# TODO: make a phase portrait plot
