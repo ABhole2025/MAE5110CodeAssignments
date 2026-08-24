@@ -1,11 +1,12 @@
 # Assignment 0
 
-Assignment 0 is pass/fail (it's not graded, but you will be asked to drop the class if you do not do it), and the learning objectives are for you to familiarize yourself with some coding tools, as well as coding style:
+Assignment 0 is pass/fail (it's not graded, but you will be asked to drop the class if you do not do it), and the learning objectives are for you to familiarize yourself with the following tools:
 
 - git
 - uv
-- VS Code (optional, highly recommended), Python debugger
+- VS Code, Python debugger
 
+as well as some basic debugging habits and coding style.
 ## Git ready
 
 If you don't already have it, install [git](https://github.com/git-guides).
@@ -23,9 +24,9 @@ If you're not familiar with environment managers, or why they are important, see
 ## Pendulum simulation
 _Before_ running the code: read through the pendulum simulation in assignment_0.py, and predict what you expect to happen. Then run it.
 
-Set up the [Python debugger in VS Code or your favorite editor](https://code.visualstudio.com/docs/python/debugging), and step through the code, using the debugger to follow the codeflow into different parts of the code. Yes, this codebase is tiny and you don't really need to do this to understand where things are implemented; in more complex code-bases (e.g. the RL codebase you will work with in this class), following through the code once is a good habit to have.
+Set up the [Python debugger in VS Code](https://code.visualstudio.com/docs/python/debugging), and step through the code, using the debugger to follow the codeflow into different parts of the code. Yes, this codebase is tiny and you don't really need to do this to understand where things are implemented; in more complex code-bases (e.g. the RL codebase you will work with in this class), following through the code once is a good habit to have.
 
-Sketch the pendulum, including coordinate system, and use it to verify your intuition/predictions of the numerical results. Plot a phase portrait.
+Sketch the pendulum, including coordinate system, and use it to verify your intuition/predictions of the numerical results.
 ## Create a module for numerical integrators.
 
 In `assignment_0.py`, the integration step is currently written out explicitly in the script's simulation loop with a simple Explicit Euler method. This integration method works, but is very sensitive and typically requires a small timestep. Run a sweep and find the largest timestep where the integration stays stable. Think about how you would do this. _Before_ you run the code, predict what you expect to see. Get into the habit of predicting what you expect to happen instead of just reacting to bugs when you see them (there is strong evidence for why this is powerful in the theory of Reinforcement Learning).
@@ -41,3 +42,12 @@ Next, implement a [fourth-order Runge-Kutta scheme](https://en.wikipedia.org/wik
 Your final task is to implement the dynamics of a bouncing ball.
 Similar to the pendulum, you'll want to run some sanity checks to make sure it works well.
 Before implementing, briefly describe the dynamics you expect to see and what checks you think make sense.
+
+## Bonus: polish your tools
+
+I highly recommend changing you shell to zsh instead of bash, and setting up [powerLevel10k](https://github.com/romkatv/powerlevel10k), with the following plugins: `git`, `sh-autosuggestions`, `history-substring-search`, `zsh-syntax-highlighting`.
+
+In VSCode, I recommend the following extensions: `GitLess`, `indent-rainbow`, `Peacock (color-code your editors for different projects)`, `Python Indent`, `Rainbow CSV`, `Trailing Spaces`, `Ruff`.
+You can also set up a font that supports ligatures, like [FiraCode](https://github.com/tonsky/FiraCode).
+
+On macOS, get [iTerm2](https://iterm2.com), and [HomeBrew](https://brew.sh).
