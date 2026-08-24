@@ -13,6 +13,13 @@ If you don't already have it, install [git](https://github.com/git-guides).
 We will use git a lot. You can use it in the command line interface (CLI) or with a graphical user interface (GUI).
 Especially if you aren't very familiar with git, I strongly recommend you to start with the CLI; it's much simpler and will force you to understand what you're doing.
 
+Once you are in the CLI, you need to tell `git` about who you are. This means that you need to run the following:
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "Your Email"
+```
+
 Once you're ready, clone this repo.
 
 ## Set up your UV environment.
