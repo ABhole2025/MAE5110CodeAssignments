@@ -2,15 +2,15 @@
 
 Assignment 0 is pass/fail (it's not graded, but you will be asked to drop the class if you do not do it), and the learning objectives are for you to familiarize yourself with the following tools:
 
-- git
-- uv
+- `git`
+- `uv`
 - VS Code, Python debugger
 
 as well as some basic debugging habits and coding style.
 
 Linux and the command line interface (CLI) is standard in robotics, and you'll be expected to be comfortable with it.
-If your laptop runs macOS, it will have the same unix system under the hood and that will work for the 2D simulations; make sure you have the \href{https://developer.apple.com/documentation/xcode/installing-the-command-line-tools}{\texttt{XCode Command Tools}} installed.
-If your laptop runs Windows, start by setting up \href{https://learn.microsoft.com/en-us/windows/wsl/install}{Windows Subsystem for Linux (WSL)}.
+If your laptop runs macOS, it will have the same `unix` system under the hood and that will work for the 2D simulations; make sure you have the [XCode Command Line Tools](https://developer.apple.com/documentation/xcode/installing-the-command-line-tools) installed.
+If your laptop runs Windows, start by setting up [the Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/en-us/windows/wsl/install).
 
 ## Git ready
 
