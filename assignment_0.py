@@ -1,17 +1,18 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
+from integrators import explicit_euler
+from integrators import rk4
 from models import pendulum as model
 
-# Basic simulation of the pendulum
 
+# Basic simulation of the pendulum
 params = {
     "gravity": 9.81,  # gravity m/s^2)
     "length": 1,  # rod length (m)
     "mass": 0.2,  # point mass at end of rod (kg)
     "damping_coeff": 0.0,  # damping coefficient (kg*m^2/s)
 }
-
 
 # some set-up
 initial_state = np.array([np.pi / 4, 0.0])
@@ -42,9 +43,152 @@ plt.plot(time_traj, kinetic_energy, label="Kinetic energy")
 plt.plot(time_traj, potential_energy + kinetic_energy, label="Total energy")
 plt.xlabel("Time (s)")
 plt.ylabel("Energy (J)")
-plt.title("Pendulum energy")
+plt.title("Pendulum energy - default (euler)")
 plt.legend()
 plt.tight_layout()
 plt.show()
 
-# TODO: make a phase portrait plot
+plt.figure()
+plt.plot(state_traj[0, :], state_traj[1, :])
+plt.xlabel("Angle (rad)")
+plt.ylabel("Angular velocity (rad/s)")
+plt.title("Default Euler: Phase portrait")
+plt.tight_layout()
+plt.show()
+
+
+def run_simulation(timestep, integrator, sim_time=5.0):
+
+    n_timesteps = int(sim_time / timestep) + 1
+    time_traj = np.arange(n_timesteps) * timestep
+
+    state_traj = np.zeros((2, n_timesteps))
+    state_traj[:, 0] = initial_state
+
+    for step, t in enumerate(time_traj[:-1]):
+        state_traj[:, step + 1] = integrator(t, state_traj[:, step], timestep, model.dynamics, params
+        )
+
+    potential_energy, kinetic_energy = model.calculate_energy(state_traj, params)
+    return state_traj, time_traj, potential_energy, kinetic_energy
+
+
+# euler sweep
+
+timesteps = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 5e-3, 1e-2]
+
+plt.figure()
+for dt in timesteps:
+    state_traj, time_traj, PE, KE = run_simulation(dt, explicit_euler)
+    plt.plot(time_traj, PE + KE, label=f"dt={dt}")
+
+plt.xlabel("Time (s)")
+plt.ylabel("Energy (J)")
+plt.title("Euler: Total energy vs timestep")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+plt.figure()
+for dt in timesteps:
+    state_traj, time_traj, PE, KE = run_simulation(dt, explicit_euler)
+    plt.plot(state_traj[0, :], state_traj[1, :], label=f"dt={dt}")
+
+plt.xlabel("Angle (rad)")
+plt.ylabel("Angular velocity (rad/s)")
+plt.title("Euler: Phase portraits")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# RK4
+dt_rk4 = 1e-5
+state_traj, time_traj, PE, KE = run_simulation(dt_rk4, rk4)
+
+plt.figure()
+plt.plot(time_traj, PE, label="Potential")
+plt.plot(time_traj, KE, label="Kinetic")
+plt.plot(time_traj, PE + KE, label="Total")
+plt.xlabel("Time (s)")
+plt.ylabel("Energy (J)")
+plt.title("Basic RK4: Energy")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+plt.figure()
+plt.plot(state_traj[0, :], state_traj[1, :])
+plt.xlabel("Angle (rad)")
+plt.ylabel("Angular velocity (rad/s)")
+plt.title("Basic RK4: Phase portrait")
+plt.tight_layout()
+plt.show()
+
+
+'''
+# RK4 SWEEP
+plt.figure()
+for dt in timesteps:
+    state_traj, time_traj, PE, KE = run_simulation(dt, rk4)
+    plt.plot(time_traj, PE + KE, label=f"dt={dt}")
+
+plt.xlabel("Time (s)")
+plt.ylabel("Energy (J)")
+plt.title("RK4: Total energy vs timestep")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+
+plt.figure()
+for dt in timesteps:
+    state_traj, time_traj, PE, KE = run_simulation(dt, rk4)
+    plt.plot(state_traj[0, :], state_traj[1, :], label=f"dt={dt}")
+
+plt.xlabel("Angle (rad)")
+plt.ylabel("Angular velocity (rad/s)")
+plt.title("RK4: Phase portraits")
+plt.legend()
+plt.tight_layout()
+plt.show()
+'''
+
+
+#timing the methods
+import timeit
+# Same timestep for both
+dt_same = 1e-4
+
+time_euler_same = timeit.timeit(
+    stmt="run_simulation(dt_same, explicit_euler)",
+    setup="from __main__ import run_simulation, explicit_euler, dt_same",
+    number=1)
+
+time_rk4_same = timeit.timeit(
+    stmt="run_simulation(dt_same, rk4)",
+    setup="from __main__ import run_simulation, rk4, dt_same",
+    number=1)
+
+print("\n=== TIMEIT: Same dt ===")
+print(f"Euler (dt={dt_same}): {time_euler_same:.4f} seconds")
+print(f"RK4   (dt={dt_same}): {time_rk4_same:.4f} seconds")
+
+
+# Largest stable timestep for each
+dt_euler = 1e-4
+dt_rk4 = 1e-3
+
+time_euler_max = timeit.timeit(
+    stmt="run_simulation(dt_euler, explicit_euler)",
+    setup="from __main__ import run_simulation, explicit_euler, dt_euler",
+    number=1)
+
+time_rk4_max = timeit.timeit(
+    stmt="run_simulation(dt_rk4, rk4)",
+    setup="from __main__ import run_simulation, rk4, dt_rk4",
+    number=1)
+
+print("\n=== TIMEIT: Each integrator's largest stable dt ===")
+print(f"Euler (dt={dt_euler}): {time_euler_max:.4f} seconds")
+print(f"RK4   (dt={dt_rk4}): {time_rk4_max:.4f} seconds")
+

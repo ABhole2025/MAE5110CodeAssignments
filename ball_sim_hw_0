@@ -1,0 +1,66 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+from integrators import rk4  # or explicit_euler
+from models import bouncing_ball
+
+params = bouncing_ball.generate_params()
+initial_state = np.array([1.0, 0.0])  # start 1m above ground
+
+def run_ball_sim(dt, sim_time=5.0):
+    n_steps = int(sim_time / dt) + 1
+    time = np.arange(n_steps) * dt
+
+    state = np.zeros((2, n_steps))
+    state[:, 0] = initial_state
+
+    for i, t in enumerate(time[:-1]):
+        # continuous dynamics
+        state[:, i+1] = rk4(t, state[:, i], dt, bouncing_ball.dynamics, params)
+
+        # collision event
+        state[:, i+1] = bouncing_ball.collision(state[:, i+1], params)
+
+    return time, state
+
+#sanity check plots
+
+#y/t plot
+time, state = run_ball_sim(dt=0.001, sim_time=5.0)
+
+y = state[0, :]
+v = state[1, :]
+
+plt.figure()
+plt.plot(time, y)
+plt.xlabel("Time (s)")
+plt.ylabel("Height (m)")
+plt.title("Bouncing Ball: Height vs Time")
+plt.grid(True)
+plt.show()
+
+
+#energy plot
+KE, PE = bouncing_ball.calculate_energy(state, params)
+total_energy = KE + PE
+
+plt.figure()
+plt.plot(time, KE, label="Kinetic")
+plt.plot(time, PE, label="Potential")
+plt.plot(time, total_energy, label="Total")
+plt.xlabel("Time (s)")
+plt.ylabel("Energy (J)")
+plt.title("Bouncing Ball: Energy vs Time")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+#phase portrait
+plt.figure()
+plt.plot(y, v)
+plt.xlabel("Height (m)")
+plt.ylabel("Velocity (m/s)")
+plt.title("Bouncing Ball: Phase Portrait")
+plt.grid(True)
+plt.show()
