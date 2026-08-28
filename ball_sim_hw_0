@@ -37,8 +37,8 @@ plt.xlabel("Time (s)")
 plt.ylabel("Height (m)")
 plt.title("Bouncing Ball: Height vs Time")
 plt.grid(True)
-plt.show()
-
+plt.savefig("Bouncing Ball: Height vs Time.png")
+plt.close()
 
 #energy plot
 KE, PE = bouncing_ball.calculate_energy(state, params)
@@ -53,8 +53,8 @@ plt.ylabel("Energy (J)")
 plt.title("Bouncing Ball: Energy vs Time")
 plt.legend()
 plt.grid(True)
-plt.show()
-
+plt.savefig("Bouncing Ball: Energy vs Time.png")
+plt.close()
 
 #phase portrait
 plt.figure()
@@ -63,4 +63,5 @@ plt.xlabel("Height (m)")
 plt.ylabel("Velocity (m/s)")
 plt.title("Bouncing Ball: Phase Portrait")
 plt.grid(True)
-plt.show()
+plt.savefig("Bouncing Ball: Phase Portrait.png")
+plt.close()

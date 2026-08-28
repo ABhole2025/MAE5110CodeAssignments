@@ -1,3 +1,6 @@
+import time
+start = time.time()
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -44,7 +47,8 @@ plt.ylabel("Energy (J)")
 plt.title("Pendulum energy - default (euler)")
 plt.legend()
 plt.tight_layout()
-plt.show()
+plt.savefig("Pendulum energy - default (euler).png")
+plt.close()
 
 plt.figure()
 plt.plot(state_traj[0, :], state_traj[1, :])
@@ -52,8 +56,8 @@ plt.xlabel("Angle (rad)")
 plt.ylabel("Angular velocity (rad/s)")
 plt.title("Default Euler: Phase portrait")
 plt.tight_layout()
-plt.show()
-
+plt.savefig("Default Euler: Phase portrait.png")
+plt.close()
 
 def run_simulation(timestep, integrator, sim_time=5.0):
 
@@ -72,8 +76,6 @@ def run_simulation(timestep, integrator, sim_time=5.0):
 
 
 timesteps_for_sweep = [
-    1e-6, 2e-6, 5e-6,
-    1e-5, 2e-5, 5e-5,
     1e-4, 2e-4, 5e-4,
     1e-3, 2e-3, 5e-3,
     1e-2, 2e-2, 5e-2,
@@ -81,7 +83,7 @@ timesteps_for_sweep = [
 
 # euler sweep
 
-def is_stable(dt, integrator, tol=0.05):
+def is_stable(dt, integrator, tol=0.01):
     state_traj, time_traj, PE, KE = run_simulation(dt, integrator)
     E = PE + KE
     E0 = E[0]
@@ -97,15 +99,16 @@ for dt in timesteps_for_sweep:
 dt_euler_max = max(stable_euler)
 print("Euler largest stable dt:", dt_euler_max)
 
-'''
+
 #plot of euler sweep
 plt.figure()
-for dt in timesteps_euler:
+for dt in timesteps_for_sweep:
     state_traj, time_traj, PE, KE = run_simulation(dt, explicit_euler)
     plt.plot(time_traj, PE + KE, label=f"dt={dt}")
 plt.legend()
-plt.show()
-'''
+plt.savefig("euler sweep.png")
+plt.close()
+
 
 # RK4
 dt_rk4 = 1e-5
@@ -120,7 +123,8 @@ plt.ylabel("Energy (J)")
 plt.title("Basic RK4: Energy")
 plt.legend()
 plt.tight_layout()
-plt.show()
+plt.savefig("Basic RK4: Energy.png")
+plt.close()
 
 plt.figure()
 plt.plot(state_traj[0, :], state_traj[1, :])
@@ -128,7 +132,8 @@ plt.xlabel("Angle (rad)")
 plt.ylabel("Angular velocity (rad/s)")
 plt.title("Basic RK4: Phase portrait")
 plt.tight_layout()
-plt.show()
+plt.savefig("Basic RK4: Phase portrait.png")
+plt.close()
 
 
 # RK4 SWEEP
@@ -140,15 +145,16 @@ for dt in timesteps_for_sweep:
 dt_rk4_max = max(stable_rk4)
 print("RK4 largest stable dt:", dt_rk4_max)
 
-'''
+
 #plot of rk4 sweep
 plt.figure()
-for dt in timesteps_euler:
-    state_traj, time_traj, PE, KE = run_simulation(dt, explicit_euler)
+for dt in timesteps_for_sweep:
+    state_traj, time_traj, PE, KE = run_simulation(dt, rk4)
     plt.plot(time_traj, PE + KE, label=f"dt={dt}")
 plt.legend()
-plt.show()
-'''
+plt.savefig("rk4 sweep.png")
+plt.close()
+
 
 
 #timing the methods
@@ -190,3 +196,25 @@ print("\n=== TIMEIT: Each integrator's largest stable dt ===")
 print(f"Euler (dt={dt_euler}): {time_euler_max:.4f} seconds")
 print(f"RK4   (dt={dt_rk4}): {time_rk4_max:.4f} seconds")
 
+print("Total runtime:", time.time() - start)
+
+
+
+def plot_relative_energy_error(integrator, name):
+    plt.figure()
+    for dt in timesteps_for_sweep:
+        state_traj, time_traj, PE, KE = run_simulation(dt, integrator)
+        E = PE + KE
+        E0 = E[0]
+        rel_err = (E - E0) / E0
+        plt.plot(time_traj, rel_err, label=f"dt={dt}")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Relative energy error")
+    plt.title(f"{name}: Relative Energy Error")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"{name} relative energy error.png")
+    plt.close()
+
+plot_relative_energy_error(explicit_euler, "Euler")
+plot_relative_energy_error(rk4, "RK4")
