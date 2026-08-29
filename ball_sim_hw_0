@@ -40,6 +40,17 @@ plt.grid(True)
 plt.savefig("Bouncing Ball: Height vs Time.png")
 plt.close()
 
+# velocity vs time plot
+plt.figure()
+plt.plot(time, v)
+plt.xlabel("Time (s)")
+plt.ylabel("Velocity (m/s)")
+plt.title("Bouncing Ball: Velocity vs Time")
+plt.grid(True)
+plt.savefig("Bouncing Ball: Velocity vs Time.png")
+plt.close()
+
+
 #energy plot
 KE, PE = bouncing_ball.calculate_energy(state, params)
 total_energy = KE + PE
