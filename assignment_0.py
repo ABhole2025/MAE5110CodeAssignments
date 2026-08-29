@@ -99,7 +99,7 @@ for dt in timesteps_for_sweep:
 dt_euler_max = max(stable_euler)
 print("Euler largest stable dt:", dt_euler_max)
 
-
+'''
 #plot of euler sweep
 plt.figure()
 for dt in timesteps_for_sweep:
@@ -108,7 +108,7 @@ for dt in timesteps_for_sweep:
 plt.legend()
 plt.savefig("euler sweep.png")
 plt.close()
-
+'''
 
 # RK4
 dt_rk4 = 1e-5
@@ -145,7 +145,7 @@ for dt in timesteps_for_sweep:
 dt_rk4_max = max(stable_rk4)
 print("RK4 largest stable dt:", dt_rk4_max)
 
-
+'''
 #plot of rk4 sweep
 plt.figure()
 for dt in timesteps_for_sweep:
@@ -154,7 +154,7 @@ for dt in timesteps_for_sweep:
 plt.legend()
 plt.savefig("rk4 sweep.png")
 plt.close()
-
+'''
 
 
 #timing the methods
