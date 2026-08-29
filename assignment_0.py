@@ -112,6 +112,7 @@ plt.savefig("euler sweep.png")
 plt.close()
 '''
 
+'''
 # RK4
 dt_rk4 = 1e-5
 state_traj, time_traj, PE, KE = run_simulation(dt_rk4, rk4)
@@ -138,6 +139,7 @@ plt.tight_layout()
 plt.savefig("Basic RK4: Phase portrait.png")
 plt.show()
 plt.close()
+'''
 
 
 # RK4 SWEEP
