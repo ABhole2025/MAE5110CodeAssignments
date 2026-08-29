@@ -38,6 +38,7 @@ plt.ylabel("Height (m)")
 plt.title("Bouncing Ball: Height vs Time")
 plt.grid(True)
 plt.savefig("Bouncing Ball: Height vs Time.png")
+plt.show()
 plt.close()
 
 # velocity vs time plot
@@ -48,6 +49,7 @@ plt.ylabel("Velocity (m/s)")
 plt.title("Bouncing Ball: Velocity vs Time")
 plt.grid(True)
 plt.savefig("Bouncing Ball: Velocity vs Time.png")
+plt.show()
 plt.close()
 
 
@@ -65,6 +67,7 @@ plt.title("Bouncing Ball: Energy vs Time")
 plt.legend()
 plt.grid(True)
 plt.savefig("Bouncing Ball: Energy vs Time.png")
+plt.show()
 plt.close()
 
 #phase portrait
@@ -75,4 +78,5 @@ plt.ylabel("Velocity (m/s)")
 plt.title("Bouncing Ball: Phase Portrait")
 plt.grid(True)
 plt.savefig("Bouncing Ball: Phase Portrait.png")
+plt.show()
 plt.close()

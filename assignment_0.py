@@ -48,6 +48,7 @@ plt.title("Pendulum energy - default (euler)")
 plt.legend()
 plt.tight_layout()
 plt.savefig("Pendulum energy - default (euler).png")
+plt.show()
 plt.close()
 
 plt.figure()
@@ -57,6 +58,7 @@ plt.ylabel("Angular velocity (rad/s)")
 plt.title("Default Euler: Phase portrait")
 plt.tight_layout()
 plt.savefig("Default Euler: Phase portrait.png")
+plt.show()
 plt.close()
 
 def run_simulation(timestep, integrator, sim_time=5.0):
@@ -124,6 +126,7 @@ plt.title("Basic RK4: Energy")
 plt.legend()
 plt.tight_layout()
 plt.savefig("Basic RK4: Energy.png")
+plt.show()
 plt.close()
 
 plt.figure()
@@ -133,6 +136,7 @@ plt.ylabel("Angular velocity (rad/s)")
 plt.title("Basic RK4: Phase portrait")
 plt.tight_layout()
 plt.savefig("Basic RK4: Phase portrait.png")
+plt.show()
 plt.close()
 
 
@@ -199,7 +203,7 @@ print(f"RK4   (dt={dt_rk4}): {time_rk4_max:.4f} seconds")
 print("Total runtime:", time.time() - start)
 
 
-
+'''
 def plot_relative_energy_error(integrator, name):
     plt.figure()
     for dt in timesteps_for_sweep:
@@ -218,3 +222,4 @@ def plot_relative_energy_error(integrator, name):
 
 plot_relative_energy_error(explicit_euler, "Euler")
 plot_relative_energy_error(rk4, "RK4")
+'''
