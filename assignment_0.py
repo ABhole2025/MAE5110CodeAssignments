@@ -73,7 +73,7 @@ def run_simulation(timestep, integrator, sim_time=5.0):
         state_traj[:, step + 1] = integrator(t, state_traj[:, step], timestep, model.dynamics, params
         )
 
-    potential_energy, kinetic_energy = model.calculate_energy(state_traj, params)
+    kinetic_energy, potential_energy = model.calculate_energy(state_traj, params)
     return state_traj, time_traj, potential_energy, kinetic_energy
 
 
@@ -112,7 +112,7 @@ plt.savefig("euler sweep.png")
 plt.close()
 '''
 
-'''
+
 # RK4
 dt_rk4 = 1e-5
 state_traj, time_traj, PE, KE = run_simulation(dt_rk4, rk4)
@@ -139,7 +139,7 @@ plt.tight_layout()
 plt.savefig("Basic RK4: Phase portrait.png")
 plt.show()
 plt.close()
-'''
+
 
 
 # RK4 SWEEP
