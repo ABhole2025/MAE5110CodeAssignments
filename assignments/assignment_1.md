@@ -81,7 +81,7 @@ Try to write code that can be read as easily as a Steinbeck novel. It should be 
   - _bad_: `m`
   - _good_: `mass` or `pendulum_mass`. Consider your use-case if the extra specification is useful.
 - function names should start with a verb that describes what will happen.
-  - _bad_: `def event_guard(self)` 
+  - _bad_: `def event_guard(self)`
   - _good_: `def detect_event(self)`.
 - Use pronounceable names: we're better at remembering things we can say
   - _bad_: `dPdx`
