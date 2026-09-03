@@ -6,18 +6,17 @@ from integrators import rk4
 
 def rimless_wheel_continuous(t, state, params):
     """
-    Continuous dynamics of the rimless wheel when pivoting on stance spoke.
+    Continuous dynamics of the rimless wheel while pivoting
+    on the stance spoke.
     """
-    #theta is angle from upright vertical. theta_dot is angular velocity
-    theta, theta_dot = state #theta
+    theta, theta_dot = state
 
     g = params["gravity"]
     l = params["spoke_length"]
     gamma = params["slope_angle"]
 
-    # Inverted pendulum dynamics on a slope
-    #theta_ddot is angular acceleration
-    theta_ddot = (g / l) * np.sin(theta - gamma)
+    # Equation of motion
+    theta_ddot = (g / l) * np.sin(theta+gamma)
 
     return np.array([theta_dot, theta_ddot])
 
@@ -26,50 +25,45 @@ def generate_params():
     return {
         "gravity": 9.81,
         "spoke_length": 1.0,
-        "slope_angle": 2,   # radians
-        "num_spokes": 8       # number of spokes
+        "slope_angle": np.deg2rad(20),  # 20 degrees, converted to radians
+        "num_spokes": 8
     }
 
 
 def detect_impact(wheel_state, params):
     """
-    Return True if the next spoke hits the ground.
-    Impact occurs when the stance spoke angle reaches +alpha.
+    Return True when the stance spoke reaches the impact angle +alpha.
     """
-    angle, angular_velocity = wheel_state
+    theta, theta_dot = wheel_state
+
     num_spokes = params["num_spokes"]
     alpha = np.pi / num_spokes
-    gamma = params["slope_angle"]
 
-    return angle >= alpha
-
+    return theta >= alpha
 
 
 def spoke_reset(wheel_state, params):
     """
-    When a new spoke contacts the ground:
-    - angle jumps backward by 2*alpha
-    - angular velocity is multiplied by cos(2*alpha)
+    Reset dynamics at impact.
+
+    The new stance spoke is 2*alpha away from the old one,
+    so the coordinate changes by -2*alpha.
+
+    Angular momentum conservation gives:
+        theta_dot_plus = theta_dot_minus * cos(2*alpha)
     """
-    angle, angular_velocity = wheel_state
+    theta, theta_dot = wheel_state
 
     num_spokes = params["num_spokes"]
     alpha = np.pi / num_spokes
 
-    new_angle = angle - 2 * alpha
+    new_theta = theta - 2 * alpha
+    new_theta_dot = theta_dot * np.cos(2 * alpha)
 
-    new_angular_velocity = angular_velocity * np.cos(2 * alpha)
-
-    return np.array([new_angle, new_angular_velocity])
+    return np.array([new_theta, new_theta_dot])
 
 
 def simulate_rimless_wheel(initial_state, params, time_step, total_time):
-
-    pivot_x_current = 0.0
-    pivot_y_current = 0.0
-
-    pivot_x = []
-    pivot_y = []
 
     num_steps = int(total_time / time_step)
 
@@ -82,49 +76,66 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
 
     for step in range(num_steps):
 
-        # Record state
+        # Record the current state
         times[step] = current_time
         angles[step] = wheel_state[0]
         angular_velocities[step] = wheel_state[1]
 
-
+        # Check for an impact
         if detect_impact(wheel_state, params):
             wheel_state = spoke_reset(wheel_state, params)
-            l = params["spoke_length"]
-            num_spokes = params["num_spokes"]
-            alpha = np.pi / num_spokes
-            gamma = params["slope_angle"]
 
-            step = 2 * l * np.sin(alpha)
-
-            pivot_x_current += step * np.sin(gamma)
-            pivot_y_current -= step * np.cos(gamma)
-
-
-
-        wheel_state = rk4(current_time, wheel_state, time_step,
-                        rimless_wheel_continuous, params)
-
-        num_spokes = params["num_spokes"]
-        alpha = np.pi / num_spokes
-
-        theta = wheel_state[0]
-
-        while theta > alpha:
-            theta -= 2*alpha
-        while theta < -alpha:
-            theta += 2*alpha
-
-        wheel_state[0] = theta
-
-        pivot_x.append(pivot_x_current)
-        pivot_y.append(pivot_y_current)
-
+        # Integrate the continuous dynamics
+        wheel_state = rk4(
+            current_time,
+            wheel_state,
+            time_step,
+            rimless_wheel_continuous,
+            params
+        )
 
         current_time += time_step
 
-    return times, angles, angular_velocities, pivot_x, pivot_y
+    return times, angles, angular_velocities
 
-#Sanity checks
 
+params = generate_params()
+params["slope_angle"] = np.deg2rad(40)
+
+initial_state = np.array([np.deg2rad(0), 0.0])
+
+times, angles, angular_velocities = simulate_rimless_wheel(
+    initial_state,
+    params,
+    time_step=0.001,
+    total_time=2.0
+)
+
+plt.plot(times, angles)
+plt.xlabel("Time (s)")
+plt.ylabel("Theta (rad)")
+plt.title("Rimless Wheel Angle")
+plt.savefig("Rimless Wheel Angle")
+plt.close()
+
+'''
+params = generate_params()
+
+alpha = np.pi / params["num_spokes"]
+
+before = np.array([alpha, 2.0])
+after = spoke_reset(before, params)
+
+print("Before:", before)
+print("After:", after)
+'''
+'''
+for N in [4, 8, 16]:
+    params = generate_params()
+    params["num_spokes"] = N
+
+    alpha = np.pi / N
+
+    print("N =", N, "alpha =", alpha)
+'''
 
