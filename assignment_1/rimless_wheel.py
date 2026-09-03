@@ -65,6 +65,12 @@ def spoke_reset(wheel_state, params):
 
 def simulate_rimless_wheel(initial_state, params, time_step, total_time):
 
+    pivot_x_current = 0.0
+    pivot_y_current = 0.0
+
+    pivot_x = []
+    pivot_y = []
+
     num_steps = int(total_time / time_step)
 
     times = np.zeros(num_steps)
@@ -84,6 +90,16 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
 
         if detect_impact(wheel_state, params):
             wheel_state = spoke_reset(wheel_state, params)
+            l = params["spoke_length"]
+            num_spokes = params["num_spokes"]
+            alpha = np.pi / num_spokes
+            gamma = params["slope_angle"]
+
+            step = 2 * l * np.sin(alpha)
+
+            pivot_x_current += step * np.sin(gamma)
+            pivot_y_current -= step * np.cos(gamma)
+
 
 
         wheel_state = rk4(current_time, wheel_state, time_step,
@@ -101,19 +117,21 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
 
         wheel_state[0] = theta
 
+        pivot_x.append(pivot_x_current)
+        pivot_y.append(pivot_y_current)
+
+
         current_time += time_step
 
-    return times, angles, angular_velocities
-
-
+    return times, angles, angular_velocities, pivot_x, pivot_y
 
 #Sanity checks
 params = generate_params()
 params["slope_angle"] = 0.0   # flat ground
 
-initial_state = np.array([0.2, 1.5])
+initial_state = np.array([0.0, 1.5])
 
-times, angles, angular_velocities = simulate_rimless_wheel(
+times, angles, angular_velocities, px, py = simulate_rimless_wheel(
     initial_state, params, time_step=0.001, total_time=10.0
 )
 
@@ -128,11 +146,12 @@ plt.close()
 params = generate_params()
 params["slope_angle"] = 0.2   # downhill
 
-initial_state = np.array([0.0, 0.0])
+initial_state = np.array([0.2, 1.5])
 
-times, angles, angular_velocities = simulate_rimless_wheel(
-    initial_state, params, time_step=0.001, total_time=5.0
+times, angles, angular_velocities, px, py = simulate_rimless_wheel(
+    initial_state, params, time_step=0.001, total_time=10.0
 )
+
 
 plt.plot(times, angles)
 plt.title("Sanity Check 2: Downhill Accelerating Sawtooth")
@@ -140,5 +159,45 @@ plt.xlabel("Time")
 plt.ylabel("Angle (theta)")
 plt.grid()
 plt.savefig("Downhill Accelerating Sawtooth")
+plt.close()
+
+
+def compute_mass_trajectory(angles, pivot_x, pivot_y, params):
+    l = params["spoke_length"]
+    x = pivot_x + l * np.sin(angles)
+    y = pivot_y + l * np.cos(angles)
+    return x, y
+
+
+times, angles, angular_velocities, px, py = simulate_rimless_wheel(
+    initial_state, params, time_step=0.001, total_time=10.0
+)
+
+x, y = compute_mass_trajectory(angles, px, py, params)
+
+plt.figure()
+plt.plot(x, y)
+plt.gca().set_aspect('equal', 'box')
+plt.title("Mass Trajectory – Flat Ground")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid()
+plt.savefig("Flat_Trajectory")
+plt.close()
+
+times, angles, angular_velocities, px, py = simulate_rimless_wheel(
+    initial_state, params, time_step=0.001, total_time=5.0
+)
+
+x, y = compute_mass_trajectory(angles, px, py, params)
+
+plt.figure()
+plt.plot(x, y)
+plt.gca().set_aspect('equal', 'box')
+plt.title("Mass Trajectory – Downhill")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid()
+plt.savefig("Downhill_Trajectory")
 plt.close()
 
