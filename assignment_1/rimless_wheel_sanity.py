@@ -2,21 +2,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import rimless_wheel as model
 
-# ============================================================
-# Sanity Check 1: Full rimless-wheel simulation
-# ============================================================
+# Sanity Check 1: Angle vs time plot
 
 params = model.generate_params()
-params["slope_angle"] = np.deg2rad(10)
+params["slope_angle"] = np.deg2rad(20)
 
-initial_state = np.array([np.deg2rad(0.5), 2.0])
+initial_state = np.array([np.deg2rad(25), 0])
 
 times, angles, angular_velocities = model.simulate_rimless_wheel(
     initial_state,
     params,
     time_step=0.001,
-    total_time=10.0
+    total_time=20.0
 )
+
+print("theta:", np.rad2deg(angles[:10]))
+print("theta_dot:", angular_velocities[:10])
 
 plt.figure()
 plt.plot(times, angles)
@@ -28,50 +29,63 @@ plt.savefig("Rimless Wheel Angle.png")
 plt.close()
 
 
-# ============================================================
-# Sanity Check 2: Impact/reset
-# ============================================================
+# Sanity Check 2: theta vs theta_dot
 
-alpha = np.pi / params["num_spokes"]
-gamma = params["slope_angle"]
+plt.figure()
 
-impact_angle = -gamma + 2 * alpha
+plt.plot(angles, angular_velocities)
 
-# Artificial pre-impact state
-theta_dot_before = 2.0
-before = np.array([impact_angle, theta_dot_before])
+plt.xlabel(r"$\theta$ (rad)")
+plt.ylabel(r"$\dot{\theta}$ (rad/s)")
+plt.title("Rimless Wheel Phase Portrait")
+plt.grid()
 
-# Apply the reset
-after = model.spoke_reset(before, params)
+plt.savefig("Rimless Wheel Phase Portrait.png")
+plt.close()
 
-# Calculate expected values
-expected_theta = impact_angle - 2 * alpha
-expected_theta_dot = theta_dot_before * np.cos(2 * alpha)
+'''
+initial_conditions = [
+    (20, 0),
+    (24, 0),
+    (25, 0),
+    (26, 0),
+    (30, 0),]
 
-print("\nImpact/reset sanity check:")
+plt.figure()
 
-print(
-    f"Before: theta = {np.rad2deg(before[0]):.2f}°, "
-    f"theta_dot = {before[1]:.3f} rad/s"
-)
+for theta_deg, theta_dot in initial_conditions:
+    params = model.generate_params()
 
-print(
-    f"After:  theta = {np.rad2deg(after[0]):.2f}°, "
-    f"theta_dot = {after[1]:.3f} rad/s"
-)
+    initial_state = np.array([
+        np.deg2rad(theta_deg),
+        theta_dot
+    ])
 
-print(
-    f"Expected theta = {np.rad2deg(expected_theta):.2f}°"
-)
+    times, angles, angular_velocities = model.simulate_rimless_wheel(
+        initial_state,
+        params,
+        time_step=0.001,
+        total_time=20.0
+    )
 
-print(
-    f"Expected theta_dot = {expected_theta_dot:.3f} rad/s"
-)
+    plt.plot(
+        np.rad2deg(angles),
+        angular_velocities,
+        label=f"({theta_deg}°, {theta_dot})"
+    )
 
+plt.xlabel(r"$\theta$ (degrees)")
+plt.ylabel(r"$\dot{\theta}$ (rad/s)")
+plt.title("Rimless Wheel Phase Portrait")
+plt.legend()
+plt.grid()
+plt.savefig("Rimless Wheel Phase Portrait sweep.png")
+plt.close()
 
-# ============================================================
-# Sanity Check 3: Slope-angle sweep
-# ============================================================
+'''
+
+'''
+# Sanity Check 3: Slope angle sweep
 
 plt.figure()
 
@@ -112,3 +126,4 @@ plt.legend()
 plt.grid()
 plt.savefig("Rimless Wheel Slope Sweep.png")
 plt.close()
+'''

@@ -43,7 +43,7 @@ def detect_impact(wheel_state, params):
 
     impact_angle = -gamma + 2 * alpha
 
-    return theta >= impact_angle
+    return theta >= impact_angle and theta_dot > 0
 
 
 def spoke_reset(wheel_state, params):
@@ -81,7 +81,9 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
 
         # Check for an impact
         if detect_impact(wheel_state, params):
+
             wheel_state = spoke_reset(wheel_state, params)
+
 
         # Integrate the continuous dynamics
         wheel_state = rk4(
