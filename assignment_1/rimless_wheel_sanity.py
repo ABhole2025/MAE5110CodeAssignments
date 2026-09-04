@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
-from assignment_1 import rimless_wheel as model
+import rimless_wheel as model
 
 # ============================================================
 # Sanity Check 1: Full rimless-wheel simulation
