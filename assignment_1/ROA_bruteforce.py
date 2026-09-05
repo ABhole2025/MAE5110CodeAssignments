@@ -11,10 +11,16 @@ params["slope_angle"] = np.deg2rad(20)
 
 params["num_spokes"] = 8
 
-
 # State-space grid
-theta_values = np.linspace((-np.pi/params["num_spokes"])+params["slope_angle"],
-                            (np.pi/params["num_spokes"])+params["slope_angle"], 100)
+alpha = np.pi / params["num_spokes"]
+gamma = params["slope_angle"]
+
+theta_values = np.linspace(
+    -gamma,
+    2 * alpha - gamma,
+    100
+)
+
 theta_dot_values = np.linspace(-5.0, 5.0, 100)
 
 results = -np.ones(
