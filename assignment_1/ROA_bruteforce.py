@@ -20,7 +20,7 @@ gamma = params["slope_angle"]
 
 theta_values = np.linspace(0, 2*np.pi, 360, endpoint=False)
 
-theta_dot_values = np.linspace(0, 5.0, 360)
+theta_dot_values = np.linspace(0, 18, 360)
 
 results = -np.ones(
     (len(theta_values), len(theta_dot_values))
@@ -62,23 +62,6 @@ def get_impact_velocities(initial_state, params, time_step, total_time):
     return np.array(impact_velocities)
 
 
-'''
-initial_state = np.array([
-    -params["slope_angle"],
-    0.0
-])
-
-impact_velocities = get_impact_velocities(
-    initial_state,
-    params,
-    time_step=0.005,
-    total_time=20.0
-)
-
-print(impact_velocities)
-'''
-
-
 def classify_state(initial_state, params, time_step, total_time):
 
     gamma = params["slope_angle"]
@@ -112,42 +95,6 @@ def classify_state(initial_state, params, time_step, total_time):
         return 1
 
     return -1
-
-
-'''
-# Test equilibrium
-equilibrium_state = np.array([
-    -params["slope_angle"],
-    0.0
-])
-
-print(
-    "Equilibrium:",
-    classify_state(
-        equilibrium_state,
-        params,
-        0.005,
-        20.0
-    )
-)
-
-
-# Test a walking initial condition
-walking_state = np.array([
-    np.deg2rad(20),
-    0.0
-])
-
-print(
-    "Walking:",
-    classify_state(
-        walking_state,
-        params,
-        0.005,
-        20.0
-    )
-)
-'''
 
 unclassified_states = []
 
@@ -184,3 +131,50 @@ for state in unclassified_states:
         "theta_dot =",
         state[1]
     )
+
+
+from matplotlib.colors import ListedColormap
+
+cmap = ListedColormap([
+    "gray",    # -1 = unclassified
+    "blue",    #  0 = equilibrium
+    "orange"   #  1 = limit cycle
+])
+
+plot_results = results + 1
+
+plt.figure(figsize=(9, 7))
+
+plt.imshow(
+    plot_results.T,
+    origin="lower",
+    extent=[
+        np.rad2deg(theta_values[0]),
+        np.rad2deg(theta_values[-1]),
+        theta_dot_values[0],
+        theta_dot_values[-1]
+    ],
+    aspect="auto",
+    cmap=cmap,
+    vmin=0,
+    vmax=2
+)
+
+plt.xlabel(r"$\theta$ (degrees)")
+plt.ylabel(r"$\dot{\theta}$ (rad/s)")
+plt.title("Rimless Wheel Region of Attraction")
+
+cbar = plt.colorbar(
+    ticks=[0, 1, 2]
+)
+
+cbar.ax.set_yticklabels([
+    "Unclassified",
+    "Equilibrium",
+    "Limit cycle"
+])
+
+cbar.set_label("Attractor")
+
+plt.savefig("Rimless Wheel RoA.png", dpi=300)
+plt.close()
