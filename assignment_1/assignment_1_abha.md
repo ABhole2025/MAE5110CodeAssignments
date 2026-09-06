@@ -42,5 +42,9 @@ Estimated Floquet multiplier: 0.47984806404537395
 
 4.
 
+The Floquet multiplier remained essentially constant as slope inclination was varied from 5° to 35°. The numerical value was approximately 0.480
+
+
+
 -------------------------------------------------------------------------
 

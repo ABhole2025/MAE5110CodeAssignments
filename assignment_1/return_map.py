@@ -179,3 +179,94 @@ plt.savefig(
 )
 
 plt.close()
+
+# ---------------------------------------------------------
+# Floquet multiplier sweep: number of spokes
+# ---------------------------------------------------------
+
+params["slope_angle"] = np.deg2rad(20)
+
+spoke_numbers = np.arange(6, 13)
+
+floquet_values_spokes = []
+
+epsilon = 0.01
+time_step = 0.001
+
+for N in spoke_numbers:
+
+    print(f"Sweeping N = {N} spokes")
+
+    # Update number of spokes
+    params["num_spokes"] = N
+
+    # Geometry
+    alpha = np.pi / N
+
+    # Theoretical pre-impact fixed point
+    v_minus_star = np.sqrt(
+        2 * g / (
+            l * (1 + np.cos(2 * alpha))
+        )
+    )
+
+    # Post-impact fixed point
+    v_plus_star = (
+        v_minus_star
+        * np.cos(2 * alpha)
+    )
+
+    # Perturb post-impact velocity
+    v_plus_low = v_plus_star - epsilon
+    v_plus_high = v_plus_star + epsilon
+
+    # Simulate one step from each perturbation
+    v_next_low = get_next_post_impact_velocity(
+        v_plus_low,
+        params,
+        time_step
+    )
+
+    v_next_high = get_next_post_impact_velocity(
+        v_plus_high,
+        params,
+        time_step
+    )
+
+    # Estimate Floquet multiplier
+    floquet = (
+        v_next_high - v_next_low
+    ) / (2 * epsilon)
+
+    floquet_values_spokes.append(floquet)
+
+    print(f"  Fixed point: {v_minus_star:.4f} rad/s")
+    print(f"  Floquet multiplier: {floquet:.6f}")
+
+
+# ---------------------------------------------------------
+# Plot results
+# ---------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+plt.plot(
+    spoke_numbers,
+    floquet_values_spokes,
+    "o-",
+    label="Numerical Floquet multiplier"
+)
+
+plt.xlabel("Number of spokes")
+plt.ylabel("Floquet multiplier")
+plt.title("Floquet Multiplier vs. Number of Spokes")
+
+plt.grid(True)
+plt.legend()
+
+plt.savefig(
+    "Floquet vs Number of Spokes.png",
+    dpi=300
+)
+
+plt.close()
