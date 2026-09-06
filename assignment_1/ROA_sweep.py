@@ -7,10 +7,16 @@ from matplotlib.colors import ListedColormap
 
 
 def angle_difference(a, b):
+
     return (a - b + np.pi) % (2 * np.pi) - np.pi
 
 
-def get_impact_velocities(initial_state, params, time_step, total_time):
+def get_impact_velocities(
+    initial_state,
+    params,
+    time_step,
+    total_time
+):
     """
     Simulate the rimless wheel and record the angular velocity
     immediately before each impact.
@@ -50,7 +56,12 @@ def get_impact_velocities(initial_state, params, time_step, total_time):
     return np.array(impact_velocities)
 
 
-def classify_state(initial_state, params, time_step, total_time):
+def classify_state(
+    initial_state,
+    params,
+    time_step,
+    total_time
+):
 
     gamma = params["slope_angle"]
 
@@ -61,6 +72,7 @@ def classify_state(initial_state, params, time_step, total_time):
         abs(angle_difference(theta0, -gamma)) < 1e-3
         and abs(theta_dot0) < 1e-3
     ):
+
         return 0
 
     impact_velocities = get_impact_velocities(
@@ -72,6 +84,7 @@ def classify_state(initial_state, params, time_step, total_time):
 
     # If there aren't enough impacts, we can't classify it
     if len(impact_velocities) < 5:
+
         return -1
 
     # Look at the final few impact velocities
@@ -80,18 +93,26 @@ def classify_state(initial_state, params, time_step, total_time):
     # Check whether they have settled to approximately
     # the same value
     if np.max(tail) - np.min(tail) < 0.05:
+
         return 1
 
     return -1
 
 
-def compute_roa(params, theta_values, theta_dot_values):
+def compute_roa(
+    params,
+    theta_values,
+    theta_dot_values
+):
     """
     Compute the RoA classification over the entire state-space grid.
     """
 
     results = -np.ones(
-        (len(theta_values), len(theta_dot_values))
+        (
+            len(theta_values),
+            len(theta_dot_values)
+        )
     )
 
     for i, theta in enumerate(theta_values):
@@ -119,9 +140,79 @@ def compute_roa(params, theta_values, theta_dot_values):
     return results
 
 
-# ---------------------------------------------------------
+def print_sweep_summary(
+    parameter_values,
+    results_list,
+    parameter_name
+):
+    """
+    Print summary statistics for an entire parameter sweep.
+    """
+
+    print("\n\n")
+    print("============================================================")
+    print(f"{parameter_name} SWEEP SUMMARY")
+    print("============================================================")
+
+    total_states = results_list[0].size
+
+    for value, results in zip(
+        parameter_values,
+        results_list
+    ):
+
+        num_equilibrium = np.sum(
+            results == 0
+        )
+
+        num_limit_cycle = np.sum(
+            results == 1
+        )
+
+        num_unclassified = np.sum(
+            results == -1
+        )
+
+        equilibrium_percent = (
+            100 * num_equilibrium / total_states
+        )
+
+        limit_cycle_percent = (
+            100 * num_limit_cycle / total_states
+        )
+
+        unclassified_percent = (
+            100 * num_unclassified / total_states
+        )
+
+        print(
+            f"{parameter_name} = {value}"
+        )
+
+        print(
+            f"  Equilibrium:  "
+            f"{num_equilibrium:5d} "
+            f"({equilibrium_percent:6.2f}%)"
+        )
+
+        print(
+            f"  Limit cycle:  "
+            f"{num_limit_cycle:5d} "
+            f"({limit_cycle_percent:6.2f}%)"
+        )
+
+        print(
+            f"  Unclassified: "
+            f"{num_unclassified:5d} "
+            f"({unclassified_percent:6.2f}%)"
+        )
+
+        print()
+
+
+# ============================================================
 # State-space grid
-# ---------------------------------------------------------
+# ============================================================
 
 theta_values = np.linspace(
     -np.pi,
@@ -137,30 +228,52 @@ theta_dot_values = np.linspace(
 )
 
 
-# ---------------------------------------------------------
+# ============================================================
 # Initial parameters
-# ---------------------------------------------------------
+# ============================================================
 
 params = model.generate_params()
 
 params["slope_angle"] = np.deg2rad(20)
 params["num_spokes"] = 8
 
-# ---------------------------------------------------------
-# Sweep slope inclination
-# ---------------------------------------------------------
 
-slope_angles_deg = np.arange(5, 36, 5)
+# ============================================================
+# Color map
+# ============================================================
+
+cmap = ListedColormap([
+    "gray",      # -1 = unclassified
+    "blue",      #  0 = equilibrium
+    "orange"     #  1 = limit cycle
+])
+
+
+# ============================================================
+# SWEEP 1: Slope inclination
+# ============================================================
+
+slope_angles_deg = np.arange(
+    5,
+    36,
+    5
+)
 
 slope_results = []
+
 
 for slope_deg in slope_angles_deg:
 
     print("\n===================================")
-    print(f"Slope = {slope_deg} degrees")
+    print(
+        f"Slope = {slope_deg} degrees"
+    )
     print("===================================")
 
-    params["slope_angle"] = np.deg2rad(slope_deg)
+    params["slope_angle"] = np.deg2rad(
+        slope_deg
+    )
+
     params["num_spokes"] = 8
 
     results = compute_roa(
@@ -171,27 +284,34 @@ for slope_deg in slope_angles_deg:
 
     slope_results.append(results)
 
-# ---------------------------------------------------------
-# Plot slope sweep
-# ---------------------------------------------------------
 
-cmap = ListedColormap([
-    "gray",      # -1 = unclassified
-    "blue",      #  0 = equilibrium
-    "orange"     #  1 = limit cycle
-])
+# ============================================================
+# Console summary: slope sweep
+# ============================================================
+
+print_sweep_summary(
+    slope_angles_deg,
+    slope_results,
+    "Slope"
+)
+
+
+# ============================================================
+# Plot slope sweep
+# ============================================================
 
 fig, axes = plt.subplots(
     2,
     4,
-    figsize=(16, 8),
-    sharex=True,
-    sharey=True
+    figsize=(17, 8)
 )
 
 axes = axes.flatten()
 
-for k, slope_deg in enumerate(slope_angles_deg):
+
+for k, slope_deg in enumerate(
+    slope_angles_deg
+):
 
     ax = axes[k]
 
@@ -201,10 +321,10 @@ for k, slope_deg in enumerate(slope_angles_deg):
         plot_results.T,
         origin="lower",
         extent=[
-            np.rad2deg(theta_values[0]),
-            np.rad2deg(theta_values[-1]),
-            theta_dot_values[0],
-            theta_dot_values[-1]
+            -180,
+            180,
+            0,
+            18
         ],
         aspect="auto",
         cmap=cmap,
@@ -216,20 +336,43 @@ for k, slope_deg in enumerate(slope_angles_deg):
         f"Slope = {slope_deg}°"
     )
 
-    ax.set_xlabel(r"$\theta$ (degrees)")
-    ax.set_ylabel(r"$\dot{\theta}$ (rad/s)")
+    # Every subplot gets its own axes
+    ax.set_xlabel(
+        r"$\theta$ (degrees)"
+    )
+
+    ax.set_ylabel(
+        r"$\dot{\theta}$ (rad/s)"
+    )
+
+    # Explicitly show numerical ticks
+    ax.set_xticks([
+        -180,
+        -90,
+        0,
+        90,
+        180
+    ])
+
+    ax.set_yticks([
+        0,
+        6,
+        12,
+        18
+    ])
 
 
-# Hide unused 8th subplot
+# Hide unused eighth subplot
 axes[-1].axis("off")
 
 
 # Shared colorbar
 cbar = fig.colorbar(
     im,
-    ax=axes.tolist(),
+    ax=axes,
     ticks=[0, 1, 2],
-    shrink=0.9
+    shrink=0.85,
+    pad=0.03
 )
 
 cbar.ax.set_yticklabels([
@@ -238,7 +381,9 @@ cbar.ax.set_yticklabels([
     "Limit cycle"
 ])
 
-cbar.set_label("Attractor")
+cbar.set_label(
+    "Classification"
+)
 
 
 fig.suptitle(
@@ -254,3 +399,164 @@ plt.savefig(
 )
 
 plt.close()
+
+
+print("\nSlope sweep complete.")
+print("Saved: RoA Slope Sweep.png")
+
+
+# ============================================================
+# SWEEP 2: Number of spokes
+# ============================================================
+
+spoke_numbers = np.arange(
+    6,
+    13
+)
+
+spoke_results = []
+
+
+for N in spoke_numbers:
+
+    print("\n===================================")
+    print(
+        f"Number of spokes = {N}"
+    )
+    print("===================================")
+
+    params["slope_angle"] = np.deg2rad(20)
+
+    params["num_spokes"] = N
+
+    results = compute_roa(
+        params,
+        theta_values,
+        theta_dot_values
+    )
+
+    spoke_results.append(results)
+
+
+# ============================================================
+# Console summary: spoke sweep
+# ============================================================
+
+print_sweep_summary(
+    spoke_numbers,
+    spoke_results,
+    "Number of spokes"
+)
+
+
+# ============================================================
+# Plot spoke sweep
+# ============================================================
+
+fig, axes = plt.subplots(
+    2,
+    4,
+    figsize=(17, 8)
+)
+
+axes = axes.flatten()
+
+
+for k, N in enumerate(
+    spoke_numbers
+):
+
+    ax = axes[k]
+
+    plot_results = spoke_results[k] + 1
+
+    im = ax.imshow(
+        plot_results.T,
+        origin="lower",
+        extent=[
+            -180,
+            180,
+            0,
+            18
+        ],
+        aspect="auto",
+        cmap=cmap,
+        vmin=0,
+        vmax=2
+    )
+
+    ax.set_title(
+        f"N = {N} spokes"
+    )
+
+    # Every subplot gets its own axes
+    ax.set_xlabel(
+        r"$\theta$ (degrees)"
+    )
+
+    ax.set_ylabel(
+        r"$\dot{\theta}$ (rad/s)"
+    )
+
+    # Explicitly show numerical ticks
+    ax.set_xticks([
+        -180,
+        -90,
+        0,
+        90,
+        180
+    ])
+
+    ax.set_yticks([
+        0,
+        6,
+        12,
+        18
+    ])
+
+
+# Hide unused eighth subplot
+axes[-1].axis("off")
+
+
+# Shared colorbar
+cbar = fig.colorbar(
+    im,
+    ax=axes,
+    ticks=[0, 1, 2],
+    shrink=0.85,
+    pad=0.03
+)
+
+cbar.ax.set_yticklabels([
+    "Unclassified",
+    "Equilibrium",
+    "Limit cycle"
+])
+
+cbar.set_label(
+    "Classification"
+)
+
+
+fig.suptitle(
+    "Rimless Wheel RoA vs. Number of Spokes",
+    fontsize=16
+)
+
+plt.tight_layout()
+
+plt.savefig(
+    "RoA Spoke Sweep.png",
+    dpi=300
+)
+
+plt.close()
+
+
+print("\nSpoke sweep complete.")
+print("Saved: RoA Spoke Sweep.png")
+
+print("\n============================================================")
+print("ALL RoA SWEEPS COMPLETE")
+print("============================================================")
