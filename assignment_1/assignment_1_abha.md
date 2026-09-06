@@ -12,6 +12,7 @@ Assignment 1 Deliverable - A markdown file reporting:
 4. visualization and discussion of how the slope and number of spokes affects the RoA and local convergence (10 pts)
 
 -------------------------------------------------------------------------
+-------------------------------------------------------------------------
 
 1.
 
@@ -27,7 +28,15 @@ Number of unclassified points: 0)
 
 -------------------------------------------------------------------------
 
-3.
+3. (N=8, Slope=20 degrees, initial_state = np.array([
+    np.deg2rad(25), 0]))
+
+Pre-impact fixed point: 3.393514872020504 rad/s
+Post-impact fixed point: 2.3995773780630976 rad/s
+Perturbed post-impact velocities:
+Low: 2.389577378063098 -> 2.3943976217546945
+High: 2.4095773780630974 -> 2.403994583035602
+Estimated Floquet multiplier: 0.47984806404537395
 
 -------------------------------------------------------------------------
 

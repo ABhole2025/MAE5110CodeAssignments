@@ -92,113 +92,90 @@ def get_next_post_impact_velocity(post_impact_velocity, params, time_step):
 
 '''text break'''
 
+# ---------------------------------------------------------
+# Floquet multiplier sweep: slope angle
+# ---------------------------------------------------------
 
-initial_state = np.array([
-    np.deg2rad(25), 0])
+g = params["gravity"]
+l = params["spoke_length"]
+N = params["num_spokes"]
 
-impact_velocities = get_impact_velocities(
-    initial_state,
-    params,
-    time_step=0.001,
-    total_time=100.0
-)
+alpha = np.pi / N
 
-print("Number of impacts:", len(impact_velocities))
-print("Impact velocities:")
-print(impact_velocities)
+slope_angles_deg = np.arange(5, 36, 5)
 
-v_current = impact_velocities[:-1]
-v_next = impact_velocities[1:]
+floquet_values = []
 
-# Find the fixed point: where v_next is closest to v_current
-fixed_point_index = np.argmin(np.abs(v_next - v_current))
-
-v_minus_star = v_current[fixed_point_index]
-
-print("Pre-impact fixed point:", v_minus_star, "rad/s")
-
-# Convert the pre-impact fixed point to the post-impact fixed point
-v_plus_star = v_minus_star * np.cos(2 * alpha)
-
-print("Post-impact fixed point:", v_plus_star, "rad/s")
-
-# Small perturbation
 epsilon = 0.01
+time_step = 0.001
 
-v_plus_low = v_plus_star - epsilon
-v_plus_high = v_plus_star + epsilon
+for slope_deg in slope_angles_deg:
 
-# Simulate one step from each perturbed state
-v_next_low = get_next_post_impact_velocity(
-    v_plus_low,
-    params,
-    time_step=0.001
-)
+    print(f"Sweeping slope = {slope_deg} degrees")
 
-v_next_high = get_next_post_impact_velocity(
-    v_plus_high,
-    params,
-    time_step=0.001
-)
+    # Update slope
+    params["slope_angle"] = np.deg2rad(slope_deg)
 
-print("Perturbed post-impact velocities:")
-print("Low:", v_plus_low, "->", v_next_low)
-print("High:", v_plus_high, "->", v_next_high)
+    # Theoretical pre-impact fixed point
+    v_minus_star = np.sqrt(
+        2 * g / (l * (1 + np.cos(2 * alpha)))
+    )
+
+    # Convert to post-impact fixed point
+    v_plus_star = (
+        v_minus_star
+        * np.cos(2 * alpha)
+    )
+
+    # Perturb post-impact velocity
+    v_plus_low = v_plus_star - epsilon
+    v_plus_high = v_plus_star + epsilon
+
+    # Simulate one step from each perturbation
+    v_next_low = get_next_post_impact_velocity(
+        v_plus_low,
+        params,
+        time_step
+    )
+
+    v_next_high = get_next_post_impact_velocity(
+        v_plus_high,
+        params,
+        time_step
+    )
+
+    # Finite-difference estimate of return-map slope
+    floquet = (
+        v_next_high - v_next_low
+    ) / (2 * epsilon)
+
+    floquet_values.append(floquet)
+
+    print(f"  Fixed point: {v_minus_star:.4f} rad/s")
+    print(f"  Floquet multiplier: {floquet:.6f}")
 
 
-floquet_multiplier = (
-    v_next_high - v_next_low
-) / (2 * epsilon)
-
-print("Estimated Floquet multiplier:", floquet_multiplier)
-
-
-'''text break'''
-
-
-plt.figure(figsize=(7, 7))
-
-plt.plot(
-    v_current,
-    v_next,
-    "o",
-    markersize=4,
-    label="Return map"
-)
-
-# Identity line
-v = np.linspace(
-    min(v_current.min(), v_next.min()),
-    max(v_current.max(), v_next.max()),
-    100
-)
-
-plt.plot(
-    v,
-    v,
-    "--",
-    label=r"$y=x$"
-)
+plt.figure(figsize=(7, 5))
 
 plt.plot(
-    v_minus_star,
-    v_minus_star,
-    "ro",
-    markersize=8,
-    label=f"Fixed point = {v_minus_star:.3f} rad/s"
+    slope_angles_deg,
+    floquet_values,
+    "o-",
+    label="Floquet multiplier"
 )
 
-plt.xlabel(r"Current impact velocity $\dot{\theta}_k^-$ (rad/s)")
-plt.ylabel(r"Next impact velocity $\dot{\theta}_{k+1}^-$ (rad/s)")
-plt.title("Rimless Wheel Return Map")
+plt.xlabel("Slope inclination (degrees)")
+plt.ylabel("Floquet multiplier")
+plt.title("Floquet Multiplier vs. Slope Inclination")
 
-plt.legend()
+plt.ylim(0.45, 0.55)
+
 plt.grid(True)
+plt.legend()
 
-plt.savefig("Rimless Wheel Return Map.png", dpi=300)
+plt.savefig(
+    "Floquet vs Slope.png",
+    dpi=300
+)
+
 plt.close()
-
-
-
-
-
