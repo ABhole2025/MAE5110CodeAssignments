@@ -18,10 +18,10 @@ gamma = params["slope_angle"]
 theta_values = np.linspace(
     -gamma,
     2 * alpha - gamma,
-    100
+    21
 )
 
-theta_dot_values = np.linspace(-5.0, 5.0, 100)
+theta_dot_values = np.linspace(0, 5.0, 21)
 
 results = -np.ones(
     (len(theta_values), len(theta_dot_values))
@@ -150,21 +150,39 @@ print(
 )
 '''
 
+unclassified_states = []
+
 for i, theta in enumerate(theta_values):
+    print(f"Row {i + 1}/{len(theta_values)}")
+
     for j, theta_dot in enumerate(theta_dot_values):
+        initial_state = np.array([theta, theta_dot])
 
-        initial_state = np.array([
-            theta,
-            theta_dot
-        ])
-
-        results[i, j] = classify_state(
+        classification = classify_state(
             initial_state,
             params,
             time_step=0.005,
             total_time=20.0
         )
 
+        results[i, j] = classification
+
+        if classification == -1:
+            if abs(theta + gamma) > 1e-6:
+                if len(unclassified_states) < 20:
+                    unclassified_states.append(initial_state.copy())
+
 print("Number of equilibrium points:", np.sum(results == 0))
 print("Number of limit-cycle points:", np.sum(results == 1))
 print("Number of unclassified points:", np.sum(results == -1))
+
+
+print("\nExample unclassified states:")
+
+for state in unclassified_states:
+    print(
+        "theta =",
+        np.rad2deg(state[0]),
+        "theta_dot =",
+        state[1]
+    )

@@ -81,7 +81,6 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
 
         # Check for an impact
         if detect_impact(wheel_state, params):
-
             wheel_state = spoke_reset(wheel_state, params)
 
 
@@ -92,6 +91,12 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
             time_step,
             rimless_wheel_continuous,
             params
+        )
+
+        # Wrap theta to [-pi, pi)
+        wheel_state[0] = (
+            (wheel_state[0] + np.pi) % (2 * np.pi)
+            - np.pi
         )
 
         current_time += time_step

@@ -1,13 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import rimless_wheel as model
+from integrators import rk4
 
 # Sanity Check 1: Angle vs time plot
 
 params = model.generate_params()
 params["slope_angle"] = np.deg2rad(20)
 
-initial_state = np.array([np.deg2rad(25), 0])
+initial_state = np.array([np.deg2rad(-17.5), -5])
 
 times, angles, angular_velocities = model.simulate_rimless_wheel(
     initial_state,
@@ -127,3 +128,64 @@ plt.grid()
 plt.savefig("Rimless Wheel Slope Sweep.png")
 plt.close()
 '''
+
+
+def simulate_trajectory(initial_state, params, time_step, total_time):
+    num_steps = int(total_time / time_step)
+
+    state = initial_state.copy()
+    current_time = 0.0
+
+    times = []
+    states = []
+
+    for step in range(num_steps):
+
+        times.append(current_time)
+        states.append(state.copy())
+
+        if model.detect_impact(state, params):
+            state = model.spoke_reset(state, params)
+
+        state = rk4(
+            current_time,
+            state,
+            time_step,
+            model.rimless_wheel_continuous,
+            params
+        )
+
+        current_time += time_step
+
+    return np.array(times), np.array(states)
+
+initial_state = np.array([
+    np.deg2rad(-17.75),
+    -5.0
+])
+
+times, states = simulate_trajectory(
+    initial_state,
+    params,
+    time_step=0.005,
+    total_time=20.0
+)
+
+theta = states[:, 0]
+theta_dot = states[:, 1]
+
+plt.figure()
+plt.plot(times, np.rad2deg(theta))
+plt.xlabel("Time (s)")
+plt.ylabel(r"$\theta$ (deg)")
+plt.title("Example Unclassified Trajectory theta")
+plt.savefig("Example Unclassified Trajectory theta")
+plt.close()
+
+plt.figure()
+plt.plot(times, theta_dot)
+plt.xlabel("Time (s)")
+plt.ylabel(r"$\dot{\theta}$ (rad/s)")
+plt.title("Example Unclassified Trajectory theta_dot")
+plt.savefig("Example Unclassified Trajectory theta_dot")
+plt.close()
