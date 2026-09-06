@@ -5,6 +5,9 @@ import rimless_wheel as model
 from integrators import rk4
 
 
+def angle_difference(a, b):
+    return (a - b + np.pi) % (2 * np.pi) - np.pi
+
 params = model.generate_params()
 
 params["slope_angle"] = np.deg2rad(20)
@@ -15,13 +18,9 @@ params["num_spokes"] = 8
 alpha = np.pi / params["num_spokes"]
 gamma = params["slope_angle"]
 
-theta_values = np.linspace(
-    -gamma,
-    2 * alpha - gamma,
-    21
-)
+theta_values = np.linspace(0, 2*np.pi, 360, endpoint=False)
 
-theta_dot_values = np.linspace(0, 5.0, 21)
+theta_dot_values = np.linspace(0, 5.0, 360)
 
 results = -np.ones(
     (len(theta_values), len(theta_dot_values))
@@ -88,9 +87,9 @@ def classify_state(initial_state, params, time_step, total_time):
 
     # Check for the equilibrium
     if (
-        abs(theta0 + gamma) < 1e-3
+        abs(angle_difference(theta0, -gamma)) < 1e-3
         and abs(theta_dot0) < 1e-3
-    ):
+):
         return 0
 
     impact_velocities = get_impact_velocities(
@@ -167,10 +166,9 @@ for i, theta in enumerate(theta_values):
 
         results[i, j] = classification
 
-        if classification == -1:
-            if abs(theta + gamma) > 1e-6:
-                if len(unclassified_states) < 20:
-                    unclassified_states.append(initial_state.copy())
+        if classification == -1 and abs(angle_difference(theta, -gamma)) > 1e-6:  # noqa: SIM102
+            if len(unclassified_states) < 20:
+                unclassified_states.append(initial_state.copy())
 
 print("Number of equilibrium points:", np.sum(results == 0))
 print("Number of limit-cycle points:", np.sum(results == 1))
