@@ -15,6 +15,7 @@ Assignment 1 Deliverable - A markdown file reporting:
 -------------------------------------------------------------------------
 
 1.
+Sanity Check 1: Plotted angle (theta) vs time just to get a general sense of movement and whether it matched the Idea I had in my head. For instance, a wheel staying stationary would be a striaght line, while a rolling wheel would have a periodic sawtooth plot as the angle resets after each impact.
 
 -------------------------------------------------------------------------
 
@@ -23,7 +24,7 @@ Number of limit-cycle points: 9235
 Number of unclassified points: 966)
 
 (note for 0 to 2pi, 0 to 18, 360x360: Number of equilibrium points: 1
-Number of limit-cycle points: 129600
+Number of limit-cycle points: 12599
 Number of unclassified points: 0)
 
 -------------------------------------------------------------------------
