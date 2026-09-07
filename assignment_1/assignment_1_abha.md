@@ -44,7 +44,83 @@ Estimated Floquet multiplier: 0.47984806404537395
 
 The Floquet multiplier remained essentially constant as slope inclination was varied from 5° to 35°. The numerical value was approximately 0.480
 
+============================================================
+Slope SWEEP SUMMARY
+============================================================
+Slope = 5
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   8909 ( 89.09%)
+  Unclassified:  1091 ( 10.91%)
 
+Slope = 10
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   8960 ( 89.60%)
+  Unclassified:  1040 ( 10.40%)
+
+Slope = 15
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9005 ( 90.05%)
+  Unclassified:   995 (  9.95%)
+
+Slope = 20
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9055 ( 90.55%)
+  Unclassified:   945 (  9.45%)
+
+Slope = 25
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9101 ( 91.01%)
+  Unclassified:   899 (  8.99%)
+
+Slope = 30
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9147 ( 91.47%)
+  Unclassified:   853 (  8.53%)
+
+Slope = 35
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9200 ( 92.00%)
+  Unclassified:   800 (  8.00%)
+
+
+
+============================================================
+Number of spokes SWEEP SUMMARY
+============================================================
+Number of spokes = 6
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9054 ( 90.54%)
+  Unclassified:   946 (  9.46%)
+
+Number of spokes = 7
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9055 ( 90.55%)
+  Unclassified:   945 (  9.45%)
+
+Number of spokes = 8
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9055 ( 90.55%)
+  Unclassified:   945 (  9.45%)
+
+Number of spokes = 9
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9055 ( 90.55%)
+  Unclassified:   945 (  9.45%)
+
+Number of spokes = 10
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9055 ( 90.55%)
+  Unclassified:   945 (  9.45%)
+
+Number of spokes = 11
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9055 ( 90.55%)
+  Unclassified:   945 (  9.45%)
+
+Number of spokes = 12
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   9055 ( 90.55%)
+  Unclassified:   945 (  9.45%)
 
 -------------------------------------------------------------------------
 

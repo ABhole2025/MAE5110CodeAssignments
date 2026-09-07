@@ -217,14 +217,14 @@ def print_sweep_summary(
 theta_values = np.linspace(
     -np.pi,
     np.pi,
-    101,
+    100,
     endpoint=False
 )
 
 theta_dot_values = np.linspace(
     0,
     18,
-    101
+    100
 )
 
 
