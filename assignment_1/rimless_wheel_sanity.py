@@ -28,7 +28,7 @@ times, angles, angular_velocities = model.simulate_rimless_wheel(
     initial_state,
     params,
     time_step=0.001,
-    total_time=20.0
+    total_time=5.0
 )
 
 print("theta:", np.rad2deg(angles[:10]))
@@ -61,11 +61,11 @@ plt.close()
 
 # Choose ONE initial condition at a time here.
 # Change these values when you want to test another state.
-'''
+
 params = model.generate_params()
 params["slope_angle"] = np.deg2rad(40)
 
-theta_deg = -40
+theta_deg = 10
 theta_dot = 0
 
 initial_state = np.array([
@@ -103,14 +103,15 @@ plt.savefig(
 plt.close()
 
 
+'''
 # ============================================================
 # Sanity Check 2: Multiple initial conditions
 # ============================================================
-'''
-'''
+
+
 #initial_conditions = [
-#    (40, 0)
-]
+#    (40, 0)]
+
 
 plt.figure()
 
@@ -219,7 +220,6 @@ plt.close()
 # Example Unclassified Trajectory
 # ============================================================
 
-'''
 def simulate_trajectory(
     initial_state,
     params,
@@ -270,8 +270,8 @@ def simulate_trajectory(
 
 
 initial_state = np.array([
-    np.deg2rad(-17.75),
-    -5.0
+    np.deg2rad(-20),
+    0
 ])
 
 times, states = simulate_trajectory(
@@ -323,4 +323,3 @@ plt.savefig(
 )
 
 plt.close()
-'''

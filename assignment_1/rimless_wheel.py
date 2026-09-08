@@ -7,7 +7,7 @@ def generate_params():
     return {
         "gravity": 9.81,
         "spoke_length": 1.0,
-        "slope_angle": np.deg2rad(20),  # 20 degrees, converted to radians
+        "slope_angle": np.deg2rad(20),
         "num_spokes": 8
     }
 
@@ -73,17 +73,14 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
 
     for step in range(num_steps):
 
-        # Record the current state
         times[step] = current_time
         angles[step] = wheel_state[0]
         angular_velocities[step] = wheel_state[1]
 
-        # Check for an impact
         if detect_impact(wheel_state, params):
             wheel_state = spoke_reset(wheel_state, params)
 
 
-        # Integrate the continuous dynamics
         wheel_state = rk4(
             current_time,
             wheel_state,
@@ -92,7 +89,6 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
             params
         )
 
-        # Wrap theta to [-pi, pi)
         wheel_state[0] = (
             (wheel_state[0] + np.pi) % (2 * np.pi)
             - np.pi
