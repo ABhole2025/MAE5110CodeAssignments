@@ -157,4 +157,3 @@ Over the sampled $101\times101$ state-space grid, changing the number of spokes 
 However, the number of spokes does affect the local stability of the walking cycle. The Floquet multiplier increased as the number of spokes increased, making $\lambda$ larger and closer to 1. Therefore, although the measured global RoA changed very little in this sweep, increasing the number of spokes causes perturbations to decay more slowly from one step to the next.
 
 ![Number of spokes sweep for RoA](assignment_1/RoA%20Spoke%20Sweep.png)
-
