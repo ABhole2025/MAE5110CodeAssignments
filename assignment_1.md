@@ -22,8 +22,8 @@ I first plotted the stance-spoke angle $\theta$ versus time to get a general sen
 
 The figure below shows two example simulations with zero initial angular velocity. The first uses $(\theta,\dot{\theta})=(20^\circ,0)$, while the second uses $(\theta,\dot{\theta})=(-40^\circ,0)$ with a slope angle of $40^\circ$.
 
-![Initial conditions (20^\circ,0)](assignment_1/20_0_angle_time plot.png)
-![Initial conditions (-40^\circ,0)](assignment_1/slope_40_minus40_0_angle_time.png)
+![Initial conditions (20°, 0)](assignment_1/20_0_angle_time%20plot.png)
+![Initial conditions (-40°, 0)](assignment_1/slope_40_minus40_0_angle_time.png)
 
 These plots provide a qualitative check that the continuous dynamics and impact/reset behavior produce the expected rimless-wheel motion.
 
@@ -31,7 +31,7 @@ These plots provide a qualitative check that the continuous dynamics and impact/
 
 I also plotted the trajectory in state space, using $\theta$ and $\dot{\theta}$ as the state variables. The initial condition for this test was $(\theta,\dot{\theta})=(10^\circ,0)$.
 
-![Initial conditions (10^\circ,0)](assignment_1/phase_10_0_plot.png)
+![Initial conditions (10°, 0)](assignment_1/phase_10_0_plot.png)
 
 The phase portrait provides an additional qualitative check of the simulated dynamics by showing how angular position and angular velocity evolve together through the continuous and impact phases of the motion.
 
@@ -47,7 +47,7 @@ For a $101\times101$ grid with $\theta\in[-\pi,\pi)$ and $\dot{\theta}\in[0,18]$
 - Limit cycle: 9235 points
 - Unclassified: 966 points
 
-(assignment_1/Rimless_Wheel_RoA_101x101_minuspi_to_pi.png)
+![RoA, 101×101 grid](assignment_1/Rimless_Wheel_RoA_101x101_minuspi_to_pi.png)
 
 Having run the rimless wheel sim on it's own before this, I found an unstable equlilibium at $(\theta,\dot{\theta})=(-\gamma,0)$. For the $20^\circ$ slope used here, this corresponds to approximately $(-20^\circ,0)$. The equilibrium does not appear in the $101\times101$ grid because the finite grid spacing is too coarse sample this exact point. However, a finre grid could not be used due to computing time constraints. Therefore, the absence of an equilibrium point in the classification is a consequence of the grid resolution rather than the equilibrium being absent from the system.
 
@@ -57,7 +57,7 @@ I also repeated the calculation using a finer $360\times360$ grid with $\theta\i
 - Limit cycle: 129599 points
 - Unclassified: 0 points
 
-(assignment_1/Rimless Wheel RoA 360x360 0to2pi 0to18.png)
+![RoA, 360×360 grid](assignment_1/Rimless%20Wheel%20RoA%20360x360%200to2pi%200to18.png)
 
 The finer grid happened to include the equilibrium point, while all other sampled initial conditions were classified as converging to the walking limit cycle. The equilibrium point is a single point on the plot and due to the fine resolution, it is not visible, even though it is on there.
 
@@ -85,7 +85,7 @@ $$
 \dot{\theta}^+_* = 2.400\ \text{rad/s}.
 $$
 
-![Return map](assignment_1/Rimless Wheel Return Map.png)
+![Return map](assignment_1/Rimless%20Wheel%20Return%20Map.png)
 
 To estimate the Floquet multiplier, I perturbed the post-impact fixed point by $\pm0.01$ rad/s and measured the resulting post-impact velocity at the next crossing. The perturbations produced
 
@@ -114,7 +114,7 @@ Since $|\lambda|<1$, small perturbations from the fixed point decay from one ste
 
 The Floquet multiplier remained essentially constant as slope inclination was varied from $5^\circ$ to $35^\circ$. The numerical value was approximately $0.480$.
 
-![Slope sweep for Floquet Multiplier](assignment_1/Floquet vs Slope.png)
+![Slope sweep for Floquet multiplier](assignment_1/Floquet%20vs%20Slope.png)
 
 Each sweep used a $101\times101$ grid, for a total of 10,201 initial conditions.
 
@@ -132,14 +132,15 @@ As the slope angle increased, the fraction of initial conditions classified as c
 
 Increasing the slope slightly increased the region classified as belonging to the walking limit cycle over the sampled state space. However, the Floquet multiplier remained approximately $0.480$, indicating that the slope had little effect on the local convergence rate of the limit cycle.
 
-![Slope sweep for RoA](assignment_1/RoA Slope Sweep.png)
+![Slope sweep for RoA](assignment_1/RoA%20Slope%20Sweep.png)
 
 
 ### Number of Spokes Sweep
 
 The number of spokes was varied from 6 to 12 while keeping the slope angle fixed at $20^\circ$. The same $101\times101$ grid was used for each case.
 
-![Number of spokes sweep for Floquet Multiplier](assignment_1/Floquet vs Number of Spokes.png)
+![Number of spokes sweep for Floquet multiplier](assignment_1/Floquet%20vs%20Number%20of%20Spokes.png)
+
 
 | Number of spokes | Equilibrium | Limit cycle | Unclassified |
 |---:|---:|---:|---:|
@@ -155,5 +156,5 @@ Over the sampled $101\times101$ state-space grid, changing the number of spokes 
 
 However, the number of spokes does affect the local stability of the walking cycle. The Floquet multiplier increased as the number of spokes increased, making $\lambda$ larger and closer to 1. Therefore, although the measured global RoA changed very little in this sweep, increasing the number of spokes causes perturbations to decay more slowly from one step to the next.
 
-![Number of spokes sweep for RoA](assignment_1/RoA Spoke Sweep.png)
+![Number of spokes sweep for RoA](assignment_1/RoA%20Spoke%20Sweep.png)
 
