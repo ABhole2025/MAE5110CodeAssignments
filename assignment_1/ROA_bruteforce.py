@@ -129,8 +129,7 @@ for state in unclassified_states:
         "theta =",
         np.rad2deg(state[0]),
         "theta_dot =",
-        state[1]
-    )
+        state[1])
 
 
 from matplotlib.colors import ListedColormap
@@ -138,8 +137,8 @@ from matplotlib.colors import ListedColormap
 cmap = ListedColormap([
     "gray",    # -1 = unclassified
     "blue",    #  0 = equilibrium
-    "orange"   #  1 = limit cycle
-])
+    "orange"])   #  1 = limit cycle
+
 
 plot_results = results + 1
 
@@ -152,27 +151,19 @@ plt.imshow(
         np.rad2deg(theta_values[0]),
         np.rad2deg(theta_values[-1]),
         theta_dot_values[0],
-        theta_dot_values[-1]
-    ],
-    aspect="auto",
-    cmap=cmap,
-    vmin=0,
-    vmax=2
-)
+        theta_dot_values[-1]], aspect="auto", cmap=cmap, vmin=0, vmax=2)
 
 plt.xlabel(r"$\theta$ (degrees)")
 plt.ylabel(r"$\dot{\theta}$ (rad/s)")
 plt.title("Rimless Wheel Region of Attraction")
 
 cbar = plt.colorbar(
-    ticks=[0, 1, 2]
-)
+    ticks=[0, 1, 2])
 
 cbar.ax.set_yticklabels([
     "Unclassified",
     "Equilibrium",
-    "Limit cycle"
-])
+    "Limit cycle"])
 
 cbar.set_label("Attractor")
 

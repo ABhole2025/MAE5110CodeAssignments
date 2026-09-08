@@ -15,8 +15,8 @@ def get_impact_velocities(
     initial_state,
     params,
     time_step,
-    total_time
-):
+    total_time):
+
     """
     Simulate the rimless wheel and record the angular velocity
     immediately before each impact.
