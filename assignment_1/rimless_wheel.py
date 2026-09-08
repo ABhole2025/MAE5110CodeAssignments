@@ -8,8 +8,7 @@ def generate_params():
         "gravity": 9.81,
         "spoke_length": 1.0,
         "slope_angle": np.deg2rad(20),
-        "num_spokes": 8
-    }
+        "num_spokes": 8}
 
 def rimless_wheel_continuous(t, state, params):
     """
@@ -86,14 +85,37 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
             wheel_state,
             time_step,
             rimless_wheel_continuous,
-            params
-        )
+            params)
 
         wheel_state[0] = (
-            (wheel_state[0] + np.pi) % (2 * np.pi)
-            - np.pi
-        )
+            (wheel_state[0] + np.pi) % (2 * np.pi) - np.pi)
 
         current_time += time_step
 
     return times, angles, angular_velocities
+
+
+'''
+### Running the rimless wheel
+
+Make sure `rimless_wheel.py` and the integrator you will use are in the same directory.
+
+```python
+import numpy as np
+import rimless_wheel as model
+
+I used rk4.py from 'integrators' which I implemented in assignment 0
+
+i.e.
+from integrators import rk4
+
+params = model.generate_params()
+
+initial_state = np.array([np.deg2rad(10),0.0])
+
+times, angles, angular_velocities = model.simulate_rimless_wheel(
+    initial_state,
+    params,
+    time_step=0.001,
+    total_time=10.0)
+'''
