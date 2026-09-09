@@ -16,50 +16,154 @@ Assignment 1 Deliverable - A markdown file reporting:
 
 ## 1. Sanity Checks
 
-MODEL NOTES
+## 1. Sanity Checks
 
-IMPORTANT note for this model
+### Model Notes
 
-theta is measured from the global upward vertical.
-Positive theta is counterclockwise; negative theta is clockwise.
-The downhill slope direction is clockwise.
+For the current model, I use the following angle convention:
 
-At impact, the old stance spoke is at θ = -γ - α. The adjacent spoke is located at +α relative to the global vertical. Switching to the new stance spoke therefore requires an angular coordinate shift of γ + 2α.
+* $\theta$ is measured from the **global upward vertical**.
+* Positive $\theta$ is counterclockwise, while negative $\theta$ is clockwise.
+* The downhill direction of the slope is clockwise.
+* The slope angle is denoted by $\gamma$.
+* The angle between adjacent spokes is $2\alpha$, where
+
+  $$
+  \alpha = \frac{\pi}{N}.
+  $$
+
+With this convention, the continuous dynamics while a single spoke is in contact with the ground are
+
+$$
+\ddot{\theta}
+=
+-\frac{g}{l}\sin(\theta+\gamma).
+$$
+
+Therefore, the continuous-time state-space dynamics are
+
+$$
+\dot{\theta} = \dot{\theta},
+\qquad
+\ddot{\theta}
+=
+-\frac{g}{l}\sin(\theta+\gamma).
+$$
+
+The $\gamma$ term appears because $\theta$ is measured relative to the **global vertical**, rather than relative to the slope normal.
+
+#### Impact and Reset
+
+An impact occurs when the next spoke reaches the slope. The pre-impact stance-spoke angle is
+
+$$
+\theta^- = -\gamma-\alpha.
+$$
+
+At this instant, the adjacent spoke becomes the new stance spoke. The new stance spoke is at $+\alpha$ relative to the global vertical, so the angular coordinate is shifted by
+
+$$
+\gamma+2\alpha.
+$$
+
+So the angle reset is
+
+$$
+\theta^+
+=
+\theta^-+\gamma+2\alpha.
+$$
+
+The new spoke then begins its trajectory at
+
+$$
+\theta^+ = \alpha.
+$$
+
+The angular velocity is reset using conservation of angular momentum about the new contact point:
+
+$$
+\dot{\theta}^+
+=
+\dot{\theta}^-\cos(2\alpha).
+$$
+
+Therefore, the complete impact/reset map used in the simulation is
+
+$$
+\boxed{
+\theta^+ = \theta^-+\gamma+2\alpha,
+\qquad
+\dot{\theta}^+ =
+\dot{\theta}^-\cos(2\alpha)
+}
+$$
+
+These continuous dynamics and discrete impact/reset dynamics together define the hybrid rimless-wheel model used in the simulation.
 
 ### 1.1 Angle vs. Time
 
-I first plotted the stance-spoke angle $\theta$ versus time to get a general sense of the wheel's motion and verify that the simulation behaved as expected. For a stationary wheel, I would expect $\theta$ to remain constant, producing a horizontal line. In contrast, a rolling rimless wheel should produce a periodic sawtooth-like trajectory, since the stance spoke angle increases until impact and then resets when the next spoke becomes the stance spoke.
+I first plotted the stance-spoke angle $\theta$ versus time to get a general sense of the wheel's motion and verify that the simulation behaved as expected. For a stationary wheel, I would expect $\theta$ to remain approximately constant. In contrast, a rolling rimless wheel should produce a periodic sawtooth-like trajectory: during each stance phase, $\theta$ evolves continuously until the next spoke reaches the slope, at which point the stance spoke switches and the angle is reset.
 
-The figure below shows two example simulations with zero initial angular velocity. The first uses $(\theta,\dot{\theta})=(20^\circ,0)$, while the second uses $(\theta,\dot{\theta})=(-40^\circ,0)$ with a slope angle of $40^\circ$.
+The figure below shows (example)
 
-![Initial conditions (20°, 0)](assignment_1/20_0_angle_time%20plot.png) (note - need to change)
-![Initial conditions (-40°, 0)](assignment_1/slope_40_minus40_0_angle_time.png) (note-need to change)
-
-These plots provide a qualitative check that the continuous dynamics and impact/reset behavior produce the expected rimless-wheel motion.
+![Initial conditions](assignment_1/angle_time_plot.png)
 
 ### 1.2 Phase Portrait
 
 I also plotted the trajectory in state space, using $\theta$ and $\dot{\theta}$ as the state variables. The initial condition for this test was $(\theta,\dot{\theta})=(10^\circ,0)$.
 
-![Initial conditions (10°, 0)](assignment_1/phase_10_0_plot.png)
+![Phase portrait](assignment_1/phase_10_0_plot.png)
 
-The phase portrait provides an additional qualitative check of the simulated dynamics by showing how angular position and angular velocity evolve together through the continuous and impact phases of the motion.
+The phase portrait provides an additional qualitative check of the simulated dynamics by showing how angular position and angular velocity evolve together during the continuous stance phase and across discrete impacts. The repeated trajectory associated with successive impacts also provides a visual indication of the wheel approaching its periodic rolling gait.
+
 
 -------------------------------------------------------------------------
 
 ## 2. Region of Attraction
 
-I estimated the region of attraction (RoA) by simulating a grid of initial conditions and classifying each trajectory based on its long-term behavior. A trajectory was classified as converging to the walking limit cycle if its final five impact velocities differed by less than 0.05 rad/s.
+I estimated the region of attraction (RoA) by simulating a grid of initial conditions and classifying each trajectory based on its long-term behavior. A trajectory was classified as converging to the walking limit cycle if the final five impact velocities differed by less than $0.05$ rad/s.
 
-For a $101\times101$ grid with $\theta\in[-\pi,\pi)$ and $\dot{\theta}\in[0,18]$ rad/s, the simulation produced:
+For a $200\times200$ grid with
 
-- Equilibrium: 0 points
-- Limit cycle: 9235 points
-- Unclassified: 966 points
+$$
+\theta\in[-\pi,\pi)
+$$
 
-![RoA, 200x200 grid](Rimless Wheel RoA_sep9_200x200.png)
+and
 
-Having run the rimless wheel sim on it's own before this, I found an unstable equlilibium at $(\theta,\dot{\theta})=(-\gamma,0)$. For the $20^\circ$ slope used here, this corresponds to approximately $(-20^\circ,0)$. The equilibrium does not appear in the $101\times101$ grid because the finite grid spacing is too coarse sample this exact point. However, a finre grid could not be used due to computing time constraints. Therefore, the absence of an equilibrium point in the classification is a consequence of the grid resolution rather than the equilibrium being absent from the system.
+$$
+\dot{\theta}\in[-18,18]\text{ rad/s},
+$$
+
+the simulation produced:
+
+* **Equilibrium:** 0 points
+* **Limit cycle:** 20,732 points
+* **Unclassified:** 19,268 points
+
+![RoA, 200x200 grid](Rimless%20Wheel%20RoA_sep9_200x200.png)
+
+The resulting plot shows a broad region of initial conditions that converge to the periodic walking gait. The unclassified region represents initial conditions for which the trajectory did not satisfy the limit-cycle classification criterion within the simulation time; therefore, these points are not necessarily unstable or divergent.
+
+### Equilibrium
+
+I also identified an equilibrium of the continuous dynamics at
+
+$$
+(\theta,\dot{\theta})=(-\gamma,0).
+$$
+
+For the $20^\circ$ slope used in this particular simulation, this corresponds to approximately
+
+$$
+(\theta,\dot{\theta})=(-20^\circ,0).
+$$
+
+This equilibrium is **unstable**, so it is not an attractor and is therefore not part of the region of attraction of the walking limit cycle. I included it in the classification mainly as a reference point and as a useful check on the continuous dynamics.
+
+The equilibrium does not appear in the color map as one of the 200×200 grid points because the finite grid does not necessarily contain the exact value $\theta=-\gamma$. Therefore, the reported value of zero equilibrium points does **not** indicate that the equilibrium is absent from the system. A finer grid could sample the equilibrium more closely, but the 200×200 grid was used because of the computational cost of the simulations.
+
 
 -------------------------------------------------------------------------
 
@@ -132,6 +236,44 @@ Increasing the slope slightly increased the region classified as belonging to th
 
 ![Slope sweep for RoA](assignment_1/RoA%20Slope%20Sweep.png)
 
+============================================================
+Slope SWEEP SUMMARY (newest, 100x100, velocity -18 to 18)
+============================================================
+Slope = 5
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5030 ( 50.30%)
+  Unclassified:  4970 ( 49.70%)
+
+Slope = 10
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5081 ( 50.81%)
+  Unclassified:  4919 ( 49.19%)
+
+Slope = 15
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5123 ( 51.23%)
+  Unclassified:  4877 ( 48.77%)
+
+Slope = 20
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5171 ( 51.71%)
+  Unclassified:  4829 ( 48.29%)
+
+Slope = 25
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5221 ( 52.21%)
+  Unclassified:  4779 ( 47.79%)
+
+Slope = 30
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5263 ( 52.63%)
+  Unclassified:  4737 ( 47.37%)
+
+Slope = 35
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5316 ( 53.16%)
+  Unclassified:  4684 ( 46.84%)
+
 
 ### Number of Spokes Sweep
 
@@ -155,3 +297,41 @@ Over the sampled $101\times101$ state-space grid, changing the number of spokes 
 However, the number of spokes does affect the local stability of the walking cycle. The Floquet multiplier increased as the number of spokes increased, making $\lambda$ larger and closer to 1. Therefore, although the measured global RoA changed very little in this sweep, increasing the number of spokes causes perturbations to decay more slowly from one step to the next.
 
 ![Number of spokes sweep for RoA](assignment_1/RoA%20Spoke%20Sweep.png)
+
+============================================================
+Number of spokes SWEEP SUMMARY (latest)
+============================================================
+Number of spokes = 6
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5170 ( 51.70%)
+  Unclassified:  4830 ( 48.30%)
+
+Number of spokes = 7
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5171 ( 51.71%)
+  Unclassified:  4829 ( 48.29%)
+
+Number of spokes = 8
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5171 ( 51.71%)
+  Unclassified:  4829 ( 48.29%)
+
+Number of spokes = 9
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5171 ( 51.71%)
+  Unclassified:  4829 ( 48.29%)
+
+Number of spokes = 10
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5171 ( 51.71%)
+  Unclassified:  4829 ( 48.29%)
+
+Number of spokes = 11
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5171 ( 51.71%)
+  Unclassified:  4829 ( 48.29%)
+
+Number of spokes = 12
+  Equilibrium:      0 (  0.00%)
+  Limit cycle:   5171 ( 51.71%)
+  Unclassified:  4829 ( 48.29%)
