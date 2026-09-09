@@ -16,14 +16,24 @@ Assignment 1 Deliverable - A markdown file reporting:
 
 ## 1. Sanity Checks
 
+MODEL NOTES
+
+IMPORTANT note for this model
+
+theta is measured from the global upward vertical.
+Positive theta is counterclockwise; negative theta is clockwise.
+The downhill slope direction is clockwise.
+
+At impact, the old stance spoke is at θ = -γ - α. The adjacent spoke is located at +α relative to the global vertical. Switching to the new stance spoke therefore requires an angular coordinate shift of γ + 2α.
+
 ### 1.1 Angle vs. Time
 
 I first plotted the stance-spoke angle $\theta$ versus time to get a general sense of the wheel's motion and verify that the simulation behaved as expected. For a stationary wheel, I would expect $\theta$ to remain constant, producing a horizontal line. In contrast, a rolling rimless wheel should produce a periodic sawtooth-like trajectory, since the stance spoke angle increases until impact and then resets when the next spoke becomes the stance spoke.
 
 The figure below shows two example simulations with zero initial angular velocity. The first uses $(\theta,\dot{\theta})=(20^\circ,0)$, while the second uses $(\theta,\dot{\theta})=(-40^\circ,0)$ with a slope angle of $40^\circ$.
 
-![Initial conditions (20°, 0)](assignment_1/20_0_angle_time%20plot.png)
-![Initial conditions (-40°, 0)](assignment_1/slope_40_minus40_0_angle_time.png)
+![Initial conditions (20°, 0)](assignment_1/20_0_angle_time%20plot.png) (note - need to change)
+![Initial conditions (-40°, 0)](assignment_1/slope_40_minus40_0_angle_time.png) (note-need to change)
 
 These plots provide a qualitative check that the continuous dynamics and impact/reset behavior produce the expected rimless-wheel motion.
 
@@ -47,21 +57,9 @@ For a $101\times101$ grid with $\theta\in[-\pi,\pi)$ and $\dot{\theta}\in[0,18]$
 - Limit cycle: 9235 points
 - Unclassified: 966 points
 
-![RoA, 101×101 grid](assignment_1/Rimless_Wheel_RoA_101x101_minuspi_to_pi.png)
+![RoA, 200x200 grid](Rimless Wheel RoA_sep9_200x200.png)
 
 Having run the rimless wheel sim on it's own before this, I found an unstable equlilibium at $(\theta,\dot{\theta})=(-\gamma,0)$. For the $20^\circ$ slope used here, this corresponds to approximately $(-20^\circ,0)$. The equilibrium does not appear in the $101\times101$ grid because the finite grid spacing is too coarse sample this exact point. However, a finre grid could not be used due to computing time constraints. Therefore, the absence of an equilibrium point in the classification is a consequence of the grid resolution rather than the equilibrium being absent from the system.
-
-I also repeated the calculation using a finer $360\times360$ grid with $\theta\in[0,2\pi)$ and $\dot{\theta}\in[0,18]$ rad/s - such a fine grid was only used on this one occasion because it was too time-consuming to do repeatedly. This produced:
-
-- Equilibrium: 1 point
-- Limit cycle: 129599 points
-- Unclassified: 0 points
-
-![RoA, 360×360 grid](assignment_1/Rimless%20Wheel%20RoA%20360x360%200to2pi%200to18.png)
-
-The finer grid happened to include the equilibrium point, while all other sampled initial conditions were classified as converging to the walking limit cycle. The equilibrium point is a single point on the plot and due to the fine resolution, it is not visible, even though it is on there.
-
-This result is consistent with the expected behavior of the model.
 
 -------------------------------------------------------------------------
 

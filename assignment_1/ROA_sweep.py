@@ -40,16 +40,14 @@ def get_impact_velocities(
             # Apply impact reset
             wheel_state = model.spoke_reset(
                 wheel_state,
-                params
-            )
+                params)
 
         wheel_state = rk4(
             current_time,
             wheel_state,
             time_step,
             model.rimless_wheel_continuous,
-            params
-        )
+            params)
 
         current_time += time_step
 
@@ -60,8 +58,7 @@ def classify_state(
     initial_state,
     params,
     time_step,
-    total_time
-):
+    total_time):
 
     gamma = params["slope_angle"]
 
@@ -70,8 +67,7 @@ def classify_state(
     # Check for the equilibrium
     if (
         abs(angle_difference(theta0, -gamma)) < 1e-3
-        and abs(theta_dot0) < 1e-3
-    ):
+        and abs(theta_dot0) < 1e-3):
 
         return 0
 
@@ -79,8 +75,7 @@ def classify_state(
         initial_state,
         params,
         time_step,
-        total_time
-    )
+        total_time)
 
     # If there aren't enough impacts, we can't classify it
     if len(impact_velocities) < 5:
@@ -102,8 +97,7 @@ def classify_state(
 def compute_roa(
     params,
     theta_values,
-    theta_dot_values
-):
+    theta_dot_values):
     """
     Compute the RoA classification over the entire state-space grid.
     """
@@ -112,28 +106,24 @@ def compute_roa(
         (
             len(theta_values),
             len(theta_dot_values)
-        )
-    )
+        ))
 
     for i, theta in enumerate(theta_values):
 
         print(
-            f"Row {i + 1}/{len(theta_values)}"
-        )
+            f"Row {i + 1}/{len(theta_values)}")
 
         for j, theta_dot in enumerate(theta_dot_values):
 
             initial_state = np.array([
                 theta,
-                theta_dot
-            ])
+                theta_dot])
 
             classification = classify_state(
                 initial_state,
                 params,
                 time_step=0.005,
-                total_time=20.0
-            )
+                total_time=20.0)
 
             results[i, j] = classification
 
@@ -158,54 +148,43 @@ def print_sweep_summary(
 
     for value, results in zip(
         parameter_values,
-        results_list
-    ):
+        results_list):
 
         num_equilibrium = np.sum(
-            results == 0
-        )
+            results == 0)
 
         num_limit_cycle = np.sum(
-            results == 1
-        )
+            results == 1)
 
         num_unclassified = np.sum(
-            results == -1
-        )
+            results == -1)
 
         equilibrium_percent = (
-            100 * num_equilibrium / total_states
-        )
+            100 * num_equilibrium / total_states)
 
         limit_cycle_percent = (
-            100 * num_limit_cycle / total_states
-        )
+            100 * num_limit_cycle / total_states)
 
         unclassified_percent = (
-            100 * num_unclassified / total_states
-        )
+            100 * num_unclassified / total_states)
 
         print(
-            f"{parameter_name} = {value}"
-        )
+            f"{parameter_name} = {value}")
 
         print(
             f"  Equilibrium:  "
             f"{num_equilibrium:5d} "
-            f"({equilibrium_percent:6.2f}%)"
-        )
+            f"({equilibrium_percent:6.2f}%)")
 
         print(
             f"  Limit cycle:  "
             f"{num_limit_cycle:5d} "
-            f"({limit_cycle_percent:6.2f}%)"
-        )
+            f"({limit_cycle_percent:6.2f}%)")
 
         print(
             f"  Unclassified: "
             f"{num_unclassified:5d} "
-            f"({unclassified_percent:6.2f}%)"
-        )
+            f"({unclassified_percent:6.2f}%)")
 
         print()
 
@@ -218,14 +197,12 @@ theta_values = np.linspace(
     -np.pi,
     np.pi,
     100,
-    endpoint=False
-)
+    endpoint=False)
 
 theta_dot_values = np.linspace(
-    0,
+    -18,
     18,
-    100
-)
+    100)
 
 
 # ============================================================
@@ -245,8 +222,8 @@ params["num_spokes"] = 8
 cmap = ListedColormap([
     "gray",      # -1 = unclassified
     "blue",      #  0 = equilibrium
-    "orange"     #  1 = limit cycle
-])
+    "orange"])     #  1 = limit cycle
+
 
 
 # ============================================================
@@ -256,8 +233,7 @@ cmap = ListedColormap([
 slope_angles_deg = np.arange(
     5,
     36,
-    5
-)
+    5)
 
 slope_results = []
 
@@ -266,21 +242,18 @@ for slope_deg in slope_angles_deg:
 
     print("\n===================================")
     print(
-        f"Slope = {slope_deg} degrees"
-    )
+        f"Slope = {slope_deg} degrees")
     print("===================================")
 
     params["slope_angle"] = np.deg2rad(
-        slope_deg
-    )
+        slope_deg)
 
     params["num_spokes"] = 8
 
     results = compute_roa(
         params,
         theta_values,
-        theta_dot_values
-    )
+        theta_dot_values)
 
     slope_results.append(results)
 
@@ -292,8 +265,7 @@ for slope_deg in slope_angles_deg:
 print_sweep_summary(
     slope_angles_deg,
     slope_results,
-    "Slope"
-)
+    "Slope")
 
 
 # ============================================================
@@ -303,15 +275,13 @@ print_sweep_summary(
 fig, axes = plt.subplots(
     2,
     4,
-    figsize=(17, 8)
-)
+    figsize=(17, 8))
 
 axes = axes.flatten()
 
 
 for k, slope_deg in enumerate(
-    slope_angles_deg
-):
+    slope_angles_deg):
 
     ax = axes[k]
 
@@ -323,27 +293,23 @@ for k, slope_deg in enumerate(
         extent=[
             -180,
             180,
-            0,
+            -18,
             18
         ],
         aspect="auto",
         cmap=cmap,
         vmin=0,
-        vmax=2
-    )
+        vmax=2)
 
     ax.set_title(
-        f"Slope = {slope_deg}°"
-    )
+        f"Slope = {slope_deg}°")
 
     # Every subplot gets its own axes
     ax.set_xlabel(
-        r"$\theta$ (degrees)"
-    )
+        r"$\theta$ (degrees)")
 
     ax.set_ylabel(
-        r"$\dot{\theta}$ (rad/s)"
-    )
+        r"$\dot{\theta}$ (rad/s)")
 
     # Explicitly show numerical ticks
     ax.set_xticks([
@@ -351,15 +317,14 @@ for k, slope_deg in enumerate(
         -90,
         0,
         90,
-        180
-    ])
+        180])
 
     ax.set_yticks([
-        0,
-        6,
-        12,
-        18
-    ])
+    -18,
+    -9,
+    0,
+    9,
+    18])
 
 
 # Hide unused eighth subplot
@@ -372,31 +337,26 @@ cbar = fig.colorbar(
     ax=axes,
     ticks=[0, 1, 2],
     shrink=0.85,
-    pad=0.03
-)
+    pad=0.03)
 
 cbar.ax.set_yticklabels([
     "Unclassified",
     "Equilibrium",
-    "Limit cycle"
-])
+    "Limit cycle"])
 
 cbar.set_label(
-    "Classification"
-)
+    "Classification")
 
 
 fig.suptitle(
     "Rimless Wheel RoA vs. Slope Inclination",
-    fontsize=16
-)
+    fontsize=16)
 
 plt.tight_layout()
 
 plt.savefig(
     "RoA Slope Sweep.png",
-    dpi=300
-)
+    dpi=300)
 
 plt.close()
 
@@ -411,8 +371,7 @@ print("Saved: RoA Slope Sweep.png")
 
 spoke_numbers = np.arange(
     6,
-    13
-)
+    13)
 
 spoke_results = []
 
@@ -421,8 +380,7 @@ for N in spoke_numbers:
 
     print("\n===================================")
     print(
-        f"Number of spokes = {N}"
-    )
+        f"Number of spokes = {N}")
     print("===================================")
 
     params["slope_angle"] = np.deg2rad(20)
@@ -432,8 +390,7 @@ for N in spoke_numbers:
     results = compute_roa(
         params,
         theta_values,
-        theta_dot_values
-    )
+        theta_dot_values)
 
     spoke_results.append(results)
 
@@ -445,8 +402,7 @@ for N in spoke_numbers:
 print_sweep_summary(
     spoke_numbers,
     spoke_results,
-    "Number of spokes"
-)
+    "Number of spokes")
 
 
 # ============================================================
@@ -456,15 +412,13 @@ print_sweep_summary(
 fig, axes = plt.subplots(
     2,
     4,
-    figsize=(17, 8)
-)
+    figsize=(17, 8))
 
 axes = axes.flatten()
 
 
 for k, N in enumerate(
-    spoke_numbers
-):
+    spoke_numbers):
 
     ax = axes[k]
 
@@ -476,27 +430,22 @@ for k, N in enumerate(
         extent=[
             -180,
             180,
-            0,
-            18
-        ],
+            -18,
+            18],
         aspect="auto",
         cmap=cmap,
         vmin=0,
-        vmax=2
-    )
+        vmax=2)
 
     ax.set_title(
-        f"N = {N} spokes"
-    )
+        f"N = {N} spokes")
 
     # Every subplot gets its own axes
     ax.set_xlabel(
-        r"$\theta$ (degrees)"
-    )
+        r"$\theta$ (degrees)")
 
     ax.set_ylabel(
-        r"$\dot{\theta}$ (rad/s)"
-    )
+        r"$\dot{\theta}$ (rad/s)")
 
     # Explicitly show numerical ticks
     ax.set_xticks([
@@ -504,15 +453,14 @@ for k, N in enumerate(
         -90,
         0,
         90,
-        180
-    ])
+        180])
 
     ax.set_yticks([
-        0,
-        6,
-        12,
-        18
-    ])
+    -18,
+    -9,
+    0,
+    9,
+    18])
 
 
 # Hide unused eighth subplot
@@ -525,31 +473,26 @@ cbar = fig.colorbar(
     ax=axes,
     ticks=[0, 1, 2],
     shrink=0.85,
-    pad=0.03
-)
+    pad=0.03)
 
 cbar.ax.set_yticklabels([
     "Unclassified",
     "Equilibrium",
-    "Limit cycle"
-])
+    "Limit cycle"])
 
 cbar.set_label(
-    "Classification"
-)
+    "Classification")
 
 
 fig.suptitle(
     "Rimless Wheel RoA vs. Number of Spokes",
-    fontsize=16
-)
+    fontsize=16)
 
 plt.tight_layout()
 
 plt.savefig(
     "RoA Spoke Sweep.png",
-    dpi=300
-)
+    dpi=300)
 
 plt.close()
 

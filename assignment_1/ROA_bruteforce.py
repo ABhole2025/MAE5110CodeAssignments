@@ -18,9 +18,9 @@ params["num_spokes"] = 8
 alpha = np.pi / params["num_spokes"]
 gamma = params["slope_angle"]
 
-theta_values = np.linspace(-np.pi, np.pi, 101, endpoint=False)
+theta_values = np.linspace(-np.pi, np.pi, 200, endpoint=False)
 
-theta_dot_values = np.linspace(0, 18, 101)
+theta_dot_values = np.linspace(-18, 18, 200)
 
 results = -np.ones(
     (len(theta_values), len(theta_dot_values))
@@ -46,7 +46,6 @@ def get_impact_velocities(initial_state, params, time_step, total_time):
             # Record velocity immediately before impact
             impact_velocities.append(wheel_state[1])
 
-            # Apply impact reset
             wheel_state = model.spoke_reset(wheel_state, params)
 
         wheel_state = rk4(
@@ -148,10 +147,11 @@ plt.imshow(
     plot_results.T,
     origin="lower",
     extent=[
-        np.rad2deg(theta_values[0]),
-        np.rad2deg(theta_values[-1]),
-        theta_dot_values[0],
-        theta_dot_values[-1]], aspect="auto", cmap=cmap, vmin=0, vmax=2)
+    -180,
+    180,
+    theta_dot_values[0],
+    theta_dot_values[-1]
+], aspect="auto", cmap=cmap, vmin=0, vmax=2)
 
 plt.xlabel(r"$\theta$ (degrees)")
 plt.ylabel(r"$\dot{\theta}$ (rad/s)")

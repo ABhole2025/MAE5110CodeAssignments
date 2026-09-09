@@ -15,7 +15,7 @@ params = model.generate_params()
 params["slope_angle"] = np.deg2rad(40)
 
 initial_state = np.array([
-    np.deg2rad(-40),
+    np.deg2rad(-20),
     0])
 
 # ============================================================
@@ -26,7 +26,7 @@ times, angles, angular_velocities = model.simulate_rimless_wheel(
     initial_state,
     params,
     time_step=0.001,
-    total_time=5.0
+    total_time=10.0
 )
 
 print("theta:", np.rad2deg(angles[:10]))
@@ -60,7 +60,7 @@ plt.close()
 params = model.generate_params()
 params["slope_angle"] = np.deg2rad(40)
 
-theta_deg = 10
+theta_deg = -20
 theta_dot = 0
 
 initial_state = np.array([

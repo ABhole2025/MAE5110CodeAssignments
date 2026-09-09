@@ -2,6 +2,13 @@ import numpy as np
 
 from integrators import rk4
 
+"""
+IMPORTANT note for this model
+
+theta is measured from the global upward vertical.
+Positive theta is counterclockwise; negative theta is clockwise.
+The downhill slope direction is clockwise.
+"""
 
 def generate_params():
     return {
@@ -24,7 +31,7 @@ def rimless_wheel_continuous(t, state, params):
     l = params["spoke_length"]
     gamma = params["slope_angle"]
 
-    theta_ddot = (g / l) * np.sin(theta + gamma)
+    theta_ddot = -(g / l) * np.sin(theta + gamma)
 
     return np.array([theta_dot, theta_ddot])
 
@@ -39,9 +46,9 @@ def detect_impact(wheel_state, params):
     alpha = np.pi / num_spokes
     gamma = params["slope_angle"]
 
-    impact_angle = -gamma + 2 * alpha
+    impact_angle = - gamma - alpha
 
-    return theta >= impact_angle and theta_dot > 0
+    return theta <= impact_angle and theta_dot < 0
 
 
 def spoke_reset(wheel_state, params):
@@ -52,8 +59,9 @@ def spoke_reset(wheel_state, params):
 
     num_spokes = params["num_spokes"]
     alpha = np.pi / num_spokes
+    gamma = params["slope_angle"]
 
-    new_theta = theta - 2 * alpha
+    new_theta = theta + gamma + 2 * alpha
     new_theta_dot = theta_dot * np.cos(2 * alpha)
 
     return np.array([new_theta, new_theta_dot])
@@ -93,6 +101,7 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
         current_time += time_step
 
     return times, angles, angular_velocities
+
 
 
 '''
