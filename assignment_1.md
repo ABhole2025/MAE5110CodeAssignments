@@ -29,7 +29,7 @@ For the current model, I use the following angle convention:
 - The angle between adjacent spokes is $2\alpha$, where
 
 $$
-\alpha = \frac{\pi}{N}.
+\alpha = \frac{\pi}{N}
 $$
 
 With this convention, the continuous dynamics while a single spoke is in contact with the ground are
@@ -45,7 +45,7 @@ $$
 \qquad
 \ddot{\theta}
 =
--\frac{g}{l}\sin(\theta+\gamma).
+-\frac{g}{l}\sin(\theta+\gamma)
 $$
 
 The $\gamma$ term appears because $\theta$ is measured relative to the **global vertical**, rather than relative to the slope normal.
@@ -55,13 +55,13 @@ The $\gamma$ term appears because $\theta$ is measured relative to the **global 
 An impact occurs when the next spoke reaches the slope. The pre-impact stance-spoke angle is
 
 $$
-\theta^- = -\gamma-\alpha.
+\theta^- = -\gamma-\alpha
 $$
 
 At this instant, the adjacent spoke becomes the new stance spoke. The new stance spoke is at $+\alpha$ relative to the global vertical, so the angular coordinate is shifted by
 
 $$
-\gamma+2\alpha.
+\gamma+2\alpha
 $$
 
 So the angle reset is
@@ -69,13 +69,13 @@ So the angle reset is
 $$
 \theta^+
 =
-\theta^-+\gamma+2\alpha.
+\theta^-+\gamma+2\alpha
 $$
 
 The new spoke then begins its trajectory at
 
 $$
-\theta^+ = \alpha.
+\theta^+ = \alpha
 $$
 
 The angular velocity is reset using conservation of angular momentum about the new contact point:
@@ -83,7 +83,7 @@ The angular velocity is reset using conservation of angular momentum about the n
 $$
 \dot{\theta}^+
 =
-\dot{\theta}^-\cos(2\alpha).
+\dot{\theta}^-\cos(2\alpha)
 $$
 
 Therefore, the complete impact/reset map used in the simulation is
@@ -130,7 +130,7 @@ $$
 and
 
 $$
-\dot{\theta}\in[-10,10]\text{ rad/s}.
+\dot{\theta}\in[-10,10]\text{ rad/s}
 $$
 
 The simulation produced:
@@ -147,13 +147,13 @@ The resulting classification shows a large region of initial conditions that con
 The equilibrium of the continuous dynamics occurs at
 
 $$
-(\theta,\dot{\theta})=(-\gamma,0).
+(\theta,\dot{\theta})=(-\gamma,0)
 $$
 
 For the $20^\circ$ slope used here,
 
 $$
-(\theta,\dot{\theta})=(-20^\circ,0).
+(\theta,\dot{\theta})=(-20^\circ,0)
 $$
 
 This equilibrium is not asymptotically stable. Instead, it lies within the portion of the state space that leads to bounded rocking behavior.
@@ -169,31 +169,31 @@ For $N=8$ spokes and a slope angle of $20^\circ$, I constructed a one-dimensiona
 The simulation began from
 
 $$
-(\theta,\dot{\theta})=(20^\circ,0).
+(\theta,\dot{\theta})=(20^\circ,0)
 $$
 
 The return map converged to the theoretical post-impact fixed point
 
 $$
-\dot{\theta}^{+\ast}=-1.913409\text{ rad/s}.
+\dot{\theta}^{+\ast}=-1.913409\text{ rad/s}
 $$
 
 Using a perturbation of
 
 $$
-\epsilon=0.01,
+\epsilon=0.01
 $$
 
 the return-map values were
 
 $$
-P(x^\ast-\epsilon)=-1.918250,
+P(x^\ast-\epsilon)=-1.918250
 $$
 
 and
 
 $$
-P(x^\ast+\epsilon)=-1.908324.
+P(x^\ast+\epsilon)=-1.908324
 $$
 
 The Floquet multiplier was
@@ -203,7 +203,7 @@ $$
 \frac{P(x^\ast+\epsilon)-P(x^\ast-\epsilon)}
 {2\epsilon}
 =
-0.496331.
+0.496331
 $$
 
 ![Return map with fixed point and identity line](assgn_1_Rimless_Wheel_Return_Map.png)
@@ -211,7 +211,7 @@ $$
 Because
 
 $$
-\lambda=0.496331<1,
+\lambda=0.496331<1
 $$
 
 the walking limit cycle is locally asymptotically stable. A perturbation from the periodic gait is therefore reduced from one step to the next.
@@ -223,19 +223,19 @@ The pre-impact and post-impact angular velocities are related by the impact map
 $$
 \dot{\theta}^{+}
 =
-\dot{\theta}^{-}\cos(2\alpha),
+\dot{\theta}^{-}\cos(2\alpha)
 $$
 
 where
 
 $$
-\alpha=\frac{\pi}{N}.
+\alpha=\frac{\pi}{N}
 $$
 
 For $N=8$,
 
 $$
-\alpha=22.5^\circ,
+\alpha=22.5^\circ
 $$
 
 so
@@ -244,7 +244,7 @@ $$
 \dot{\theta}^{-\ast}
 =
 \frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
-\approx-2.7060\text{ rad/s}.
+\approx-2.7060\text{ rad/s}
 $$
 
 Therefore, the periodic gait has approximately
@@ -328,7 +328,7 @@ The number of spokes has a much stronger effect on the Floquet multiplier than t
 For all tested values,
 
 $$
-|\lambda|<1,
+|\lambda|<1
 $$
 
 so the walking gait remains locally asymptotically stable. However, the multiplier increases from approximately $0.258$ for six spokes to $0.753$ for twelve spokes. Since a larger multiplier closer to one corresponds to slower decay of perturbations, the walking gait becomes less strongly locally stable as the number of spokes increases.
