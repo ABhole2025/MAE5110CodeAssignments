@@ -42,6 +42,10 @@ Therefore, the continuous-time state-space dynamics are
 
 $$
 \dot{\theta} = \dot{\theta},
+\qquad
+\ddot{\theta}
+=
+-\frac{g}{l}\sin(\theta+\gamma)
 $$
 
 The $\gamma$ term appears because $\theta$ is measured relative to the **global vertical**, rather than relative to the slope normal.
@@ -83,12 +87,10 @@ $$
 Therefore, the complete impact/reset map used in the simulation is
 
 $$
-\boxed{
 \theta^+ = \theta^-+\gamma+2\alpha,
 \qquad
 \dot{\theta}^+ =
 \dot{\theta}^-\cos(2\alpha)
-}
 $$
 
 These continuous dynamics and discrete impact/reset dynamics together define the hybrid rimless-wheel model used in the simulation.
@@ -244,13 +246,13 @@ $$
 Therefore, the periodic gait has approximately
 
 $$
-\boxed{\dot{\theta}^{-\ast}=-2.7060\text{ rad/s}}
+\dot{\theta}^{-\ast}=-2.7060\text{ rad/s}
 $$
 
 immediately before impact and
 
 $$
-\boxed{\dot{\theta}^{+\ast}=-1.9134\text{ rad/s}}
+\dot{\theta}^{+\ast}=-1.9134\text{ rad/s}
 $$
 
 immediately after impact.
