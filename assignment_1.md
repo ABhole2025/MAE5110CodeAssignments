@@ -16,8 +16,6 @@ Assignment 1 Deliverable - A markdown file reporting:
 
 ## 1. Sanity Checks
 
-## 1. Sanity Checks
-
 ### Model Notes
 
 For the current model, I use the following angle convention:
@@ -119,7 +117,7 @@ The phase portrait provides an additional qualitative check of the simulated dyn
 
 -------------------------------------------------------------------------
 
-2. Region of Attraction
+## 2. Region of Attraction
 
 I estimated the region of attraction (RoA) by simulating a grid of initial conditions and classifying each trajectory according to its long-term behavior. A trajectory was classified as converging to the walking limit cycle if its final five impact velocities differed by less than \(0.05\) rad/s. I also distinguished trajectories exhibiting bounded rocking behavior from those that remained unclassified.
 
@@ -155,7 +153,7 @@ This equilibrium is not asymptotically stable. Instead, it lies within the porti
 The equilibrium itself does not appear as one of the classified equilibrium points in the \(100\times100\) grid because the finite grid does not necessarily contain the exact state \(\theta=-\gamma,\dot{\theta}=0\). The resolution of the grid was not made finer than 100x100 due to computing constraints.
 -------------------------------------------------------------------------
 
-3. Return Map and Floquet Multiplier
+## 3. Return Map and Floquet Multiplier
 
 For \(N=8\) spokes and a slope angle of \(20^\circ\), I constructed a one-dimensional return map using the angular velocity immediately after each impact as the Poincaré-section variable. The trajectory was simulated until the post-impact velocity converged to a fixed point.
 
@@ -222,9 +220,9 @@ immediately after impact.
 The negative sign is consistent with the chosen coordinate convention: clockwise rotation corresponds to downhill motion.
 
 -------------------------------------------------------------------------
-## 4. Return Map and RoA Sweeps
+## 4. Floquet multiplier and RoA Sweeps
 
-### Slope Sweep
+### Floquet multiplier: Slope Sweep
 Slope Sweep
 
 I varied the slope angle from \(5^\circ\) to \(35^\circ\) while keeping the number of spokes fixed at \(N=8\). For each slope, I computed the pre-impact fixed point, post-impact fixed point, and Floquet multiplier.
@@ -246,67 +244,28 @@ In contrast, the Floquet multiplier remains close to \(0.5\) throughout the swee
 ![Slope sweep for Floquet multiplier](assgn_1_Floquet_vs_Slope.png)
 
 
+### Region of Attraction: Slope Sweep
+
+For the slope-angle sweep, I varied the slope angle from \(5^\circ\) to \(35^\circ\) while keeping the number of spokes fixed at \(N=8\). For each slope angle, I evaluated a \(100\times100\) grid of initial conditions, giving 10,000 initial conditions per sweep. The initial conditions were classified as equilibrium, bounded rocking, periodic rolling gait, or unclassified.
+
+|  Slope angle | Equilibrium | Bounded rocking |    Limit cycle |   Unclassified |
+| -----------: | ----------: | --------------: | -------------: | -------------: |
+|  \(5^\circ\) |   0 (0.00%) |     118 (1.18%) | 6,486 (64.86%) | 3,396 (33.96%) |
+| \(10^\circ\) |   0 (0.00%) |     118 (1.18%) | 6,532 (65.32%) | 3,350 (33.50%) |
+| \(15^\circ\) |   0 (0.00%) |     118 (1.18%) | 6,616 (66.16%) | 3,266 (32.66%) |
+| \(20^\circ\) |   0 (0.00%) |     120 (1.20%) | 6,624 (66.24%) | 3,256 (32.56%) |
+| \(25^\circ\) |   0 (0.00%) |     122 (1.22%) | 6,615 (66.15%) | 3,263 (32.63%) |
+| \(30^\circ\) |   0 (0.00%) |     118 (1.18%) | 6,647 (66.47%) | 3,235 (32.35%) |
+| \(35^\circ\) |   0 (0.00%) |     116 (1.16%) | 6,672 (66.72%) | 3,212 (32.12%) |
+
+The fraction of initial conditions classified as belonging to the periodic rolling gait increases overall as the slope angle increases, from \(64.86\%\) at \(5^\circ\) to \(66.72\%\) at \(35^\circ\). The bounded-rocking region remains relatively small, accounting for approximately \(1.2\%\) of the sampled state space throughout the sweep.
+
+The unclassified region decreases from \(33.96\%\) to \(32.12\%\) as the slope angle increases.
+
+![Slope sweep for RoA](RoA_Slope_Sweep.png)
 
 
-(THIS ROA STUFF IS OLD AND NEEDS TO BU EPDATED LEAVE IT FOR NOW)
-Each sweep used a $101\times101$ grid, for a total of 10,201 initial conditions.
-
-| Slope angle | Equilibrium | Limit cycle | Unclassified |
-|---:|---:|---:|---:|
-| $5^\circ$  | 0 (0.00%) | 8,909 (89.09%) | 1,091 (10.91%) |
-| $10^\circ$ | 0 (0.00%) | 8,960 (89.60%) | 1,040 (10.40%) |
-| $15^\circ$ | 0 (0.00%) | 9,005 (90.05%) | 995 (9.95%) |
-| $20^\circ$ | 0 (0.00%) | 9,055 (90.55%) | 945 (9.45%) |
-| $25^\circ$ | 0 (0.00%) | 9,101 (91.01%) | 899 (8.99%) |
-| $30^\circ$ | 0 (0.00%) | 9,147 (91.47%) | 853 (8.53%) |
-| $35^\circ$ | 0 (0.00%) | 9,200 (92.00%) | 800 (8.00%) |
-
-As the slope angle increased, the fraction of initial conditions classified as converging to the limit cycle increased from $89.09\%$ to $92.00\%$, while the unclassified fraction decreased from $10.91\%$ to $8.00\%$.
-
-Increasing the slope slightly increased the region classified as belonging to the walking limit cycle over the sampled state space. However, the Floquet multiplier remained approximately $0.480$, indicating that the slope had little effect on the local convergence rate of the limit cycle.
-
-![Slope sweep for RoA](assignment_1/RoA%20Slope%20Sweep.png)
-
-============================================================
-Slope SWEEP SUMMARY (newest, 100x100, velocity -18 to 18)
-============================================================
-Slope = 5
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5030 ( 50.30%)
-  Unclassified:  4970 ( 49.70%)
-
-Slope = 10
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5081 ( 50.81%)
-  Unclassified:  4919 ( 49.19%)
-
-Slope = 15
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5123 ( 51.23%)
-  Unclassified:  4877 ( 48.77%)
-
-Slope = 20
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5171 ( 51.71%)
-  Unclassified:  4829 ( 48.29%)
-
-Slope = 25
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5221 ( 52.21%)
-  Unclassified:  4779 ( 47.79%)
-
-Slope = 30
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5263 ( 52.63%)
-  Unclassified:  4737 ( 47.37%)
-
-Slope = 35
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5316 ( 53.16%)
-  Unclassified:  4684 ( 46.84%)
-
-
-### Number of Spokes Sweep
+### Floquet multiplier: Number of Spokes Sweep
 I next varied the number of spokes from \(N=6\) to \(N=12\), keeping the slope angle fixed at \(20^\circ\).
 
 | Number of spokes | Pre-impact fixed point (rad/s) | Post-impact fixed point (rad/s) | Floquet multiplier |
@@ -331,58 +290,20 @@ so the walking gait remains locally asymptotically stable. However, the multipli
 
 
 
-(ROA) (THIS ROA STUFF IS OLD AND NEEDS TO BU EPDATED LEAVE IT FOR NOW)
+### Region of Attraction: Number of Spokes Sweep
 
-| Number of spokes | Equilibrium | Limit cycle | Unclassified |
-|---:|---:|---:|---:|
-| 6  | 0 (0.00%) | 9,054 (90.54%) | 946 (9.46%) |
-| 7  | 0 (0.00%) | 9,055 (90.55%) | 945 (9.45%) |
-| 8  | 0 (0.00%) | 9,055 (90.55%) | 945 (9.45%) |
-| 9  | 0 (0.00%) | 9,055 (90.55%) | 945 (9.45%) |
-| 10 | 0 (0.00%) | 9,055 (90.55%) | 945 (9.45%) |
-| 11 | 0 (0.00%) | 9,055 (90.55%) | 945 (9.45%) |
-| 12 | 0 (0.00%) | 9,055 (90.55%) | 945 (9.45%) |
+I next varied the number of spokes from \(N=6\) to \(N=12\), keeping the slope angle fixed at \(20^\circ\). As in the slope sweep, each case used a \(100\times100\) grid, corresponding to 10,000 initial conditions.
 
-Over the sampled $101\times101$ state-space grid, changing the number of spokes from 6 to 12 produced almost no change in the fraction of states classified as converging to the limit cycle. The classification remained approximately $90.5\%$ limit-cycle states and $9.5\%$ unclassified states. This suggests that the global RoA, as measured by this particular grid and classification criterion, is relatively insensitive to the number of spokes.
+| Number of spokes | Equilibrium | Bounded rocking |    Limit cycle |   Unclassified |
+| ---------------: | ----------: | --------------: | -------------: | -------------: |
+|                6 |   0 (0.00%) |     210 (2.10%) | 6,290 (62.90%) | 3,500 (35.00%) |
+|                7 |   0 (0.00%) |     152 (1.52%) | 6,485 (64.85%) | 3,363 (33.63%) |
+|                8 |   0 (0.00%) |     120 (1.20%) | 6,624 (66.24%) | 3,256 (32.56%) |
+|                9 |   0 (0.00%) |      90 (0.90%) | 6,711 (67.11%) | 3,199 (31.99%) |
+|               10 |   0 (0.00%) |      78 (0.78%) | 6,740 (67.40%) | 3,182 (31.82%) |
+|               11 |   0 (0.00%) |      62 (0.62%) | 6,767 (67.67%) | 3,171 (31.71%) |
+|               12 |   0 (0.00%) |      52 (0.52%) | 6,789 (67.89%) | 3,159 (31.59%) |
 
-However, the number of spokes does affect the local stability of the walking cycle. The Floquet multiplier increased as the number of spokes increased, making $\lambda$ larger and closer to 1. Therefore, although the measured global RoA changed very little in this sweep, increasing the number of spokes causes perturbations to decay more slowly from one step to the next.
+Increasing the number of spokes produces a clearer change in the global classification than the slope-angle sweep. The fraction of initial conditions classified as belonging to the periodic rolling gait increases from \(62.90\%\) for \(N=6\) to \(67.89\%\) for \(N=12\). At the same time, the bounded-rocking region decreases from \(2.10\%\) to \(0.52\%\), while the unclassified fraction decreases from \(35.00\%\) to \(31.59\%\).
 
-![Number of spokes sweep for RoA](assignment_1/RoA%20Spoke%20Sweep.png)
-
-============================================================
-Number of spokes SWEEP SUMMARY (latest)
-============================================================
-Number of spokes = 6
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5170 ( 51.70%)
-  Unclassified:  4830 ( 48.30%)
-
-Number of spokes = 7
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5171 ( 51.71%)
-  Unclassified:  4829 ( 48.29%)
-
-Number of spokes = 8
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5171 ( 51.71%)
-  Unclassified:  4829 ( 48.29%)
-
-Number of spokes = 9
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5171 ( 51.71%)
-  Unclassified:  4829 ( 48.29%)
-
-Number of spokes = 10
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5171 ( 51.71%)
-  Unclassified:  4829 ( 48.29%)
-
-Number of spokes = 11
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5171 ( 51.71%)
-  Unclassified:  4829 ( 48.29%)
-
-Number of spokes = 12
-  Equilibrium:      0 (  0.00%)
-  Limit cycle:   5171 ( 51.71%)
-  Unclassified:  4829 ( 48.29%)
+![Number of spokes sweep for RoA](RoA_Spoke_Sweep.png)
