@@ -4,11 +4,7 @@ MAE 4110
 $$
 \dot{\theta}^{-\ast} =
 \frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
-$$
-
-$$
-\dot{\theta}^{-*} =
-\frac{\dot{\theta}^{+*}}{\cos(45^\circ)}
+\approx -2.7060
 $$
 
 
