@@ -117,6 +117,30 @@ The phase portrait provides an additional qualitative check of the simulated dyn
 
 **-------------------------------------------------------------------------**
 
+## Test
+
+Inline:
+
+$\ddot{\theta} = -\frac{g}{l}\sin(\theta+\gamma)$
+
+Block:
+
+$$
+\ddot{\theta} = -\frac{g}{l}\sin(\theta+\gamma)
+$$
+
+Another block:
+
+$$
+\dot{\theta}^{-\ast}
+=
+\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
+\approx -2.7060\text{ rad/s}
+$$
+
+
+----
+
 ## 2. Region of Attraction
 
 I estimated the region of attraction (RoA) by simulating a grid of initial conditions and classifying each trajectory according to its long-term behavior. A trajectory was classified as converging to the walking limit cycle if its final five impact velocities differed by less than $0.05$ rad/s. I also distinguished trajectories exhibiting bounded rocking behavior from those that remained unclassified.
