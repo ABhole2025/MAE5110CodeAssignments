@@ -2,14 +2,18 @@ Abha Bhole
 MAE 4110
 
 $$
-\dot{\theta}^{-\ast}
-=
-\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
+\dot{\theta}^{-\ast} = \dot{\theta}^{+\ast}
 $$
 
-\approx -2.7060
+$$
+\dot{\theta}^{-} = \dot{\theta}^{+}
+$$
 
-\text{ rad/s}
+$$
+a = \frac{b}{c}
+$$
+
+
 
 **-------------------------------------------------------------------------**
 
