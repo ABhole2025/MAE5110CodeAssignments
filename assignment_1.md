@@ -78,11 +78,9 @@ $$
 
 The angular velocity is reset using conservation of angular momentum about the new contact point:
 
-$$
-\dot{\theta}^+
-=
-\dot{\theta}^-\cos(2\alpha)
-$$
+\[
+\dot{\theta}^{+} = \dot{\theta}^{-}\cos(2\alpha)
+\]
 
 Therefore, the complete impact/reset map used in the simulation is
 
@@ -171,7 +169,7 @@ $$
 The return map converged to the theoretical post-impact fixed point
 
 $$
-\dot{\theta}^{+\ast}=-1.913409\text{ rad/s}
+\dot{\theta}^{+\ast}=-1.913409\text{rad/s}
 $$
 
 Using a perturbation of
@@ -198,8 +196,7 @@ $$
 \lambda =
 \frac{P(x^\ast+\epsilon)-P(x^\ast-\epsilon)}
 {2\epsilon}
-=
-0.496331
+=0.496331
 $$
 
 ![Return map with fixed point and identity line](assgn_1_Rimless_Wheel_Return_Map.png)
@@ -240,19 +237,19 @@ $$
 \dot{\theta}^{-\ast}
 =
 \frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
-\approx-2.7060\text{ rad/s}
+\approx-2.7060\text{rad/s}
 $$
 
 Therefore, the periodic gait has approximately
 
 $$
-\dot{\theta}^{-\ast}=-2.7060\text{ rad/s}
+\dot{\theta}^{-\ast}=-2.7060\text{rad/s}
 $$
 
 immediately before impact and
 
 $$
-\dot{\theta}^{+\ast}=-1.9134\text{ rad/s}
+\dot{\theta}^{+\ast}=-1.9134\text{rad/s}
 $$
 
 immediately after impact.
