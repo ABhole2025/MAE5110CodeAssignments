@@ -1,6 +1,16 @@
 Abha Bhole
 MAE 4110
 
+$$
+\dot{\theta}^{-\ast}
+=
+\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
+$$
+
+\approx -2.7060
+
+\text{ rad/s}
+
 **-------------------------------------------------------------------------**
 
 ## Assignment 1 Deliverable
@@ -67,9 +77,7 @@ $$
 So the angle reset is
 
 $$
-\theta^+
-=
-\theta^-+\gamma+2\alpha
+\theta^+=\theta^-+\gamma+2\alpha
 $$
 
 The new spoke then begins its trajectory at
@@ -116,33 +124,6 @@ I also plotted the trajectory in state space, using $\theta$ and $\dot{\theta}$ 
 The phase portrait provides an additional qualitative check of the simulated dynamics by showing how angular position and angular velocity evolve together during the continuous stance phase and across discrete impacts. The repeated trajectory associated with successive impacts also provides a visual indication of the wheel approaching its periodic rolling gait.
 
 **-------------------------------------------------------------------------**
-
-## Test
-
-$$
-\dot{\theta}
-$$
-
-$$
-\dot{\theta}^{-\ast}
-$$
-
-$$
-\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
-$$
-
-$$
-\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
-\approx -2.7060
-$$
-
-$$
-\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
-\approx -2.7060\text{ rad/s}
-$$
-
-
-----
 
 ## 2. Region of Attraction
 
