@@ -1,13 +1,12 @@
 Abha Bhole
 MAE 4110
-
 $$
-\dot{\theta}^{-\ast} =
-\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
-\approx -2.7060
+\dot{\theta} = \dot{\theta},
+\qquad
+\ddot{\theta}
+=
+-\frac{g}{l}\sin(\theta+\gamma)
 $$
-
-
 **-------------------------------------------------------------------------**
 
 ## Assignment 1 Deliverable
