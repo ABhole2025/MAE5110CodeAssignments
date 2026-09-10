@@ -119,21 +119,24 @@ The phase portrait provides an additional qualitative check of the simulated dyn
 
 ## Test
 
-Inline:
-
-$\ddot{\theta} = -\frac{g}{l}\sin(\theta+\gamma)$
-
-Block:
-
 $$
-\ddot{\theta} = -\frac{g}{l}\sin(\theta+\gamma)
+\dot{\theta}
 $$
-
-Another block:
 
 $$
 \dot{\theta}^{-\ast}
-=
+$$
+
+$$
+\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
+$$
+
+$$
+\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
+\approx -2.7060
+$$
+
+$$
 \frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
 \approx -2.7060\text{ rad/s}
 $$
