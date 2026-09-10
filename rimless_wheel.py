@@ -89,6 +89,7 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
             wheel_state = spoke_reset(wheel_state, params)
 
 
+
         wheel_state = rk4(
             current_time,
             wheel_state,
@@ -104,6 +105,7 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
     return times, angles, angular_velocities
 
 
+
 #SANITY CHECKS
 
 # ============================================================
@@ -115,8 +117,8 @@ params = generate_params()
 params["slope_angle"] = np.deg2rad(40)
 
 initial_state = np.array([
-    np.deg2rad(-20),
-    0])
+    np.deg2rad(10),
+    -5])
 
 # ============================================================
 # Sanity Check 1: Angle vs. time
@@ -145,7 +147,7 @@ plt.title("Rimless Wheel Angle")
 plt.grid()
 
 plt.savefig(
-    "Rimless Wheel Angle.png")
+    "Rimless Wheel Angle  assgn 1.png")
 
 plt.close()
 
@@ -158,10 +160,10 @@ plt.close()
 # Change these values when you want to test another state.
 
 params = generate_params()
-params["slope_angle"] = np.deg2rad(40)
+params["slope_angle"] = np.deg2rad(20)
 
-theta_deg = -20
-theta_dot = 0
+theta_deg = 10
+theta_dot = -5
 
 initial_state = np.array([
     np.deg2rad(theta_deg),
@@ -185,7 +187,7 @@ plt.title(
     f"Rimless Wheel Phase Portrait: "
     f"({theta_deg}°, {theta_dot} rad/s)")
 plt.grid()
-plt.savefig("Rimless Wheel Phase Portrait.png")
+plt.savefig("Rimless Wheel Phase Portrait assgn 1.png")
 plt.close()
 
 

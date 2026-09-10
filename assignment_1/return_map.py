@@ -177,14 +177,11 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "Rimless Wheel Return Map.png",
+    "assgn_1 Rimless Wheel Return Map.png",
     dpi=300
 )
 
 plt.close()
-
-
-
 
 
 # ---------------------------------------------------------
@@ -293,7 +290,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "Floquet vs Slope.png",
+    "assgn_1 Floquet vs Slope.png",
     dpi=300
 )
 
@@ -404,7 +401,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "Floquet vs Number of Spokes.png",
+    "assgn_1 Floquet vs Number of Spokes.png",
     dpi=300
 )
 

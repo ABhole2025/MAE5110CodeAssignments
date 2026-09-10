@@ -107,117 +107,148 @@ I first plotted the stance-spoke angle $\theta$ versus time to get a general sen
 
 The figure below shows (example)
 
-![Initial conditions](assignment_1/angle_time_plot.png)
+![Initial conditions (10 degrees, -5 rad/s)](Rimless_Wheel_Angle_assgn_1.png)
 
 ### 1.2 Phase Portrait
 
 I also plotted the trajectory in state space, using $\theta$ and $\dot{\theta}$ as the state variables. The initial condition for this test was $(\theta,\dot{\theta})=(10^\circ,0)$.
 
-![Phase portrait](assignment_1/phase_10_0_plot.png)
+![Initial conditions (10 degrees, -5 rad/s)](Rimless_Wheel_Phase_Portrait_assgn_1.png)
 
 The phase portrait provides an additional qualitative check of the simulated dynamics by showing how angular position and angular velocity evolve together during the continuous stance phase and across discrete impacts. The repeated trajectory associated with successive impacts also provides a visual indication of the wheel approaching its periodic rolling gait.
 
-
 -------------------------------------------------------------------------
 
-## 2. Region of Attraction
+2. Region of Attraction
 
-I estimated the region of attraction (RoA) by simulating a grid of initial conditions and classifying each trajectory based on its long-term behavior. A trajectory was classified as converging to the walking limit cycle if the final five impact velocities differed by less than $0.05$ rad/s.
+I estimated the region of attraction (RoA) by simulating a grid of initial conditions and classifying each trajectory according to its long-term behavior. A trajectory was classified as converging to the walking limit cycle if its final five impact velocities differed by less than \(0.05\) rad/s. I also distinguished trajectories exhibiting bounded rocking behavior from those that remained unclassified.
 
-For a $200\times200$ grid with
+For the \(20^\circ\) slope and \(N=8\) spokes, I used a \(100\times100\) grid of initial conditions with
 
-$$
-\theta\in[-\pi,\pi)
-$$
+$$ \theta\in[-\pi,\pi) $$
 
 and
 
-$$
-\dot{\theta}\in[-18,18]\text{ rad/s},
-$$
+$$ \dot{\theta}\in[-10,10]\text{ rad/s}. $$
 
-the simulation produced:
+The simulation produced:
 
-* **Equilibrium:** 0 points
-* **Limit cycle:** 20,732 points
-* **Unclassified:** 19,268 points
+Equilibrium: 0 points
+Bounded rocking: 120 points
+Limit cycle: 6,624 points
+Unclassified: 3,256 points
 
-![RoA, 200x200 grid](Rimless%20Wheel%20RoA_sep9_200x200.png)
+![RoA 100x100](RoA_with_bounded.png)
 
-The resulting plot shows a broad region of initial conditions that converge to the periodic walking gait. The unclassified region represents initial conditions for which the trajectory did not satisfy the limit-cycle classification criterion within the simulation time; therefore, these points are not necessarily unstable or divergent.
+The resulting classification shows a large region of initial conditions that converge to the periodic walking gait, along with a smaller region exhibiting bounded rocking behavior. The unclassified region consists of trajectories that did not satisfy either classification criterion within the simulation time and therefore cannot automatically be interpreted as unstable or divergent.
 
-### Equilibrium
+The equilibrium of the continuous dynamics occurs at
 
-I also identified an equilibrium of the continuous dynamics at
+$$ (\theta,\dot{\theta})=(-\gamma,0). $$
 
-$$
-(\theta,\dot{\theta})=(-\gamma,0).
-$$
+For the \(20^\circ\) slope used here,
 
-For the $20^\circ$ slope used in this particular simulation, this corresponds to approximately
+$$ (\theta,\dot{\theta})=(-20^\circ,0). $$
 
-$$
-(\theta,\dot{\theta})=(-20^\circ,0).
-$$
+This equilibrium is not asymptotically stable. Instead, it lies within the portion of the state space that leads to bounded rocking behavior.
 
-This equilibrium is **unstable**, so it is not an attractor and is therefore not part of the region of attraction of the walking limit cycle. I included it in the classification mainly as a reference point and as a useful check on the continuous dynamics.
-
-The equilibrium does not appear in the color map as one of the 200×200 grid points because the finite grid does not necessarily contain the exact value $\theta=-\gamma$. Therefore, the reported value of zero equilibrium points does **not** indicate that the equilibrium is absent from the system. A finer grid could sample the equilibrium more closely, but the 200×200 grid was used because of the computational cost of the simulations.
-
-
+The equilibrium itself does not appear as one of the classified equilibrium points in the \(100\times100\) grid because the finite grid does not necessarily contain the exact state \(\theta=-\gamma,\dot{\theta}=0\). The resolution of the grid was not made finer than 100x100 due to computing constraints.
 -------------------------------------------------------------------------
 
-## 3. Return Map and Floquet Multiplier
+3. Return Map and Floquet Multiplier
 
-For $N=8$ spokes and a slope angle of $20^\circ$, I constructed a one-dimensional return map using the pre-impact angular velocity as the Poincaré-section variable. The initial condition used to generate the trajectory was
+For \(N=8\) spokes and a slope angle of \(20^\circ\), I constructed a one-dimensional return map using the angular velocity immediately after each impact as the Poincaré-section variable. The trajectory was simulated until the post-impact velocity converged to a fixed point.
 
-$$
-(\theta,\dot{\theta})=(25^\circ,0).
-$$
+The simulation began from
 
-The resulting return map converged to a fixed point at
+$$ (\theta,\dot{\theta})=(20^\circ,0). $$
 
-$$
-\dot{\theta}^-_* = 3.394\ \text{rad/s},
-$$
+The return map converged to the theoretical post-impact fixed point
 
-where $\dot{\theta}^-$ denotes the angular velocity immediately before impact. The corresponding post-impact angular velocity was
+$$ \dot{\theta}^{+*}=-1.913409\text{ rad/s}. $$
 
-$$
-\dot{\theta}^+_* = 2.400\ \text{rad/s}.
-$$
+Using a perturbation of
 
-![Return map](assignment_1/Rimless%20Wheel%20Return%20Map.png)
+$$ \epsilon=0.01, $$
 
-To estimate the Floquet multiplier, I perturbed the post-impact fixed point by $\pm0.01$ rad/s and measured the resulting post-impact velocity at the next crossing. The perturbations produced
+the return-map values were
 
-$$
-2.3896 \rightarrow 2.3944\ \text{rad/s}
-$$
+$$ P(x^*-\epsilon)=-1.918250, $$
 
 and
 
-$$
-2.4096 \rightarrow 2.4040\ \text{rad/s}.
-$$
+$$ P(x^*+\epsilon)=-1.908324. $$
 
-Using the local slope of the return map gave an estimated Floquet multiplier of
+The Floquet multiplier was
 
-$$
-\lambda \approx 0.480.
-$$
+$$ \lambda = \frac{P(x^*+\epsilon)-P(x^*-\epsilon)} {2\epsilon} = 0.496331. $$
 
-Since $|\lambda|<1$, small perturbations from the fixed point decay from one step to the next, indicating that the rolling limit cycle is locally stable.
+![Return map](assgn_1_Rimless_Wheel_Return_Map.png)
+
+Because
+
+$$ \lambda=0.496331<1, $$
+
+the walking limit cycle is locally asymptotically stable. A perturbation from the periodic gait is therefore reduced from one step to the next.
+
+indicating that the simulated motion has reached the expected periodic walking gait.
+
+The pre-impact and post-impact angular velocities are related by the impact map
+
+$$ \dot{\theta}^{+} = \dot{\theta}^{-}\cos(2\alpha), $$
+
+where
+
+$$ \alpha=\frac{\pi}{N}. $$
+
+For \(N=8\),
+
+$$ \alpha=22.5^\circ, $$
+
+so
+
+$$ \dot{\theta}^{-*} = \frac{\dot{\theta}^{+*}}{\cos(45^\circ)} \approx-2.7060\text{ rad/s}. $$
+
+Therefore, the periodic gait has approximately
+
+$$ \boxed{\dot{\theta}^{-*}=-2.7060\text{ rad/s}} $$
+
+immediately before impact and
+
+$$ \boxed{\dot{\theta}^{+*}=-1.9134\text{ rad/s}} $$
+
+immediately after impact.
+
+The negative sign is consistent with the chosen coordinate convention: clockwise rotation corresponds to downhill motion.
 
 -------------------------------------------------------------------------
 ## 4. Return Map and RoA Sweeps
 
 ### Slope Sweep
+Slope Sweep
 
-The Floquet multiplier remained essentially constant as slope inclination was varied from $5^\circ$ to $35^\circ$. The numerical value was approximately $0.480$.
+I varied the slope angle from \(5^\circ\) to \(35^\circ\) while keeping the number of spokes fixed at \(N=8\). For each slope, I computed the pre-impact fixed point, post-impact fixed point, and Floquet multiplier.
 
-![Slope sweep for Floquet multiplier](assignment_1/Floquet%20vs%20Slope.png)
+|  Slope angle | Pre-impact fixed point (rad/s) | Post-impact fixed point (rad/s) | Floquet multiplier |
+| -----------: | -----------------------------: | ------------------------------: | -----------------: |
+|  \(5^\circ\) |                        -1.2028 |                         -0.8505 |           0.503190 |
+| \(10^\circ\) |                        -1.7772 |                         -1.2567 |           0.493510 |
+| \(15^\circ\) |                        -2.2631 |                         -1.6003 |           0.508878 |
+| \(20^\circ\) |                        -2.7060 |                         -1.9134 |           0.496331 |
+| \(25^\circ\) |                        -3.1214 |                         -2.2071 |           0.501953 |
+| \(30^\circ\) |                        -3.5164 |                         -2.4865 |           0.508047 |
+| \(35^\circ\) |                        -3.8948 |                         -2.7540 |           0.492653 |
 
+The fixed-point angular velocity increases in magnitude as the slope angle increases. This is consistent with the greater gravitational component driving the wheel downhill on steeper slopes.
+
+In contrast, the Floquet multiplier remains close to \(0.5\) throughout the sweep. All values remain well below one, indicating that the walking gait remains locally asymptotically stable across the tested slope range. The relatively small variation in the multiplier also suggests that the local convergence rate is not strongly affected by slope angle over this range.
+
+![Slope sweep for Floquet multiplier](assgn_1_Floquet_vs_Slope.png)
+
+
+
+
+(THIS ROA STUFF IS OLD AND NEEDS TO BU EPDATED LEAVE IT FOR NOW)
 Each sweep used a $101\times101$ grid, for a total of 10,201 initial conditions.
 
 | Slope angle | Equilibrium | Limit cycle | Unclassified |
@@ -276,11 +307,31 @@ Slope = 35
 
 
 ### Number of Spokes Sweep
+I next varied the number of spokes from \(N=6\) to \(N=12\), keeping the slope angle fixed at \(20^\circ\).
 
-The number of spokes was varied from 6 to 12 while keeping the slope angle fixed at $20^\circ$. The same $101\times101$ grid was used for each case.
+| Number of spokes | Pre-impact fixed point (rad/s) | Post-impact fixed point (rad/s) | Floquet multiplier |
+| ---------------: | -----------------------------: | ------------------------------: | -----------------: |
+|                6 |                        -2.4166 |                         -1.2083 |           0.258493 |
+|                7 |                        -2.5509 |                         -1.5905 |           0.391724 |
+|                8 |                        -2.7060 |                         -1.9134 |           0.496331 |
+|                9 |                        -2.8716 |                         -2.1997 |           0.592395 |
+|               10 |                        -3.0429 |                         -2.4617 |           0.654423 |
+|               11 |                        -3.2175 |                         -2.7067 |           0.710822 |
+|               12 |                        -3.3939 |                         -2.9392 |           0.752553 |
 
-![Number of spokes sweep for Floquet multiplier](assignment_1/Floquet%20vs%20Number%20of%20Spokes.png)
+The number of spokes has a much stronger effect on the Floquet multiplier than the slope angle. As the number of spokes increases, the magnitude of both the pre-impact and post-impact fixed-point velocities increases, while the Floquet multiplier also increases.
 
+For all tested values,
+
+$$ |\lambda|<1, $$
+
+so the walking gait remains locally asymptotically stable. However, the multiplier increases from approximately \(0.258\) for six spokes to \(0.753\) for twelve spokes. Since a larger multiplier closer to one corresponds to slower decay of perturbations, the walking gait becomes less strongly locally stable as the number of spokes increases.
+
+![Slope sweep for Floquet multiplier](assgn_1_Floquet_vs_Number_of_Spokes.png)
+
+
+
+(ROA) (THIS ROA STUFF IS OLD AND NEEDS TO BU EPDATED LEAVE IT FOR NOW)
 
 | Number of spokes | Equilibrium | Limit cycle | Unclassified |
 |---:|---:|---:|---:|
