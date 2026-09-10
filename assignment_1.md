@@ -2,17 +2,14 @@ Abha Bhole
 MAE 4110
 
 $$
-\dot{\theta}^{-\ast} = \dot{\theta}^{+\ast}
+\dot{\theta}^{-\ast} =
+\frac{\dot{\theta}^{+\ast}}{\cos(45^\circ)}
 $$
 
 $$
-\dot{\theta}^{-} = \dot{\theta}^{+}
+\dot{\theta}^{-*} =
+\frac{\dot{\theta}^{+*}}{\cos(45^\circ)}
 $$
-
-$$
-a = \frac{b}{c}
-$$
-
 
 
 **-------------------------------------------------------------------------**
