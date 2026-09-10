@@ -1,12 +1,6 @@
 Abha Bhole
 MAE 4110
-$$
-\dot{\theta} = \dot{\theta},
-\qquad
-\ddot{\theta}
-=
--\frac{g}{l}\sin(\theta+\gamma)
-$$
+
 **-------------------------------------------------------------------------**
 
 ## Assignment 1 Deliverable
@@ -48,10 +42,6 @@ Therefore, the continuous-time state-space dynamics are
 
 $$
 \dot{\theta} = \dot{\theta},
-\qquad
-\ddot{\theta}
-=
--\frac{g}{l}\sin(\theta+\gamma)
 $$
 
 The $\gamma$ term appears because $\theta$ is measured relative to the **global vertical**, rather than relative to the slope normal.
