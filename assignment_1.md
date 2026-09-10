@@ -34,7 +34,9 @@ $$
 
 With this convention, the continuous dynamics while a single spoke is in contact with the ground are
 
-$$\ddot{\theta}=-\frac{g}{l}\sin(\theta+\gamma).$$
+$$
+\ddot{\theta}=-\frac{g}{l}\sin(\theta+\gamma)
+$$
 
 Therefore, the continuous-time state-space dynamics are
 
