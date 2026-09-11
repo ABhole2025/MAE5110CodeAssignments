@@ -32,27 +32,13 @@ def theoretical_fixed_point(params):
 
     alpha = np.pi / params["num_spokes"]
 
-    energy_change = (
-        2 * g / l
-        * (
-            np.cos(gamma - alpha)
-            - np.cos(gamma + alpha)
-        )
-    )
+    energy_change = (2 * g / l * (np.cos(gamma - alpha) - np.cos(gamma + alpha)))
 
     impact_factor = np.cos(2 * alpha)
 
-    v_plus = (
-        impact_factor
-        * np.sqrt(
-            energy_change
-            / (1 - impact_factor**2)
-        )
-    )
+    v_plus = (impact_factor * np.sqrt(energy_change/ (1 - impact_factor**2)))
 
-    v_minus = np.sqrt(
-        v_plus**2 + energy_change
-    )
+    v_minus = np.sqrt(v_plus**2 + energy_change)
 
     return v_plus, v_minus
 
@@ -61,11 +47,7 @@ def theoretical_fixed_point(params):
 # Return map
 # ============================================================
 
-def get_next_post_impact_velocity(
-    post_impact_velocity,
-    params,
-    time_step=TIME_STEP
-):
+def get_next_post_impact_velocity(post_impact_velocity,params,time_step=TIME_STEP):
     """
     Simulate one stance phase and return the velocity
     immediately after the next impact.
@@ -75,27 +57,12 @@ def get_next_post_impact_velocity(
     alpha = np.pi / params["num_spokes"]
 
     # State immediately after impact
-    initial_state = np.array([
-        gamma - alpha,
-        post_impact_velocity
-    ])
+    initial_state = np.array([gamma - alpha,post_impact_velocity])
 
-    (
-        times,
-        angles,
-        angular_velocities,
-        impact_velocities
-    ) = model.simulate_rimless_wheel(
-        initial_state,
-        params,
-        time_step=time_step,
-        total_time=2.0
-    )
+    (times,angles,angular_velocities,impact_velocities) = model.simulate_rimless_wheel(initial_state,params,time_step=time_step,total_time=2.0)
 
     if len(impact_velocities) == 0:
-        raise RuntimeError(
-            "No impact detected during return-map simulation."
-        )
+        raise RuntimeError("No impact detected during return-map simulation.")
 
     # Convert pre-impact velocity to post-impact velocity
     v_minus = impact_velocities[0]
@@ -107,12 +74,7 @@ def get_next_post_impact_velocity(
 # Floquet multiplier
 # ============================================================
 
-def calculate_floquet_multiplier(
-    v_plus_star,
-    params,
-    epsilon=EPSILON,
-    time_step=TIME_STEP
-):
+def calculate_floquet_multiplier(v_plus_star,params,epsilon=EPSILON,time_step=TIME_STEP):
     """
     Estimate the Floquet multiplier using a centered
     finite difference of the return map.
@@ -121,21 +83,11 @@ def calculate_floquet_multiplier(
     v_low = v_plus_star - epsilon
     v_high = v_plus_star + epsilon
 
-    next_low = get_next_post_impact_velocity(
-        v_low,
-        params,
-        time_step
-    )
+    next_low = get_next_post_impact_velocity(v_low,params,time_step)
 
-    next_high = get_next_post_impact_velocity(
-        v_high,
-        params,
-        time_step
-    )
+    next_high = get_next_post_impact_velocity(v_high,params,time_step)
 
-    return (
-        next_high - next_low
-    ) / (2 * epsilon)
+    return (next_high - next_low) / (2 * epsilon)
 
 
 # ============================================================
@@ -148,27 +100,14 @@ print("Starting return-map test...")
 print("Theoretical pre-impact fixed point =", v_minus_star)
 print("Theoretical post-impact fixed point =", v_plus_star)
 
-v_next = get_next_post_impact_velocity(
-    v_plus_star,
-    params
-)
+v_next = get_next_post_impact_velocity(v_plus_star,params)
 
 print("Next post-impact velocity =", v_next)
 
 
-v_plus_values = np.linspace(
-    v_plus_star - 1.0,
-    v_plus_star + 1.0,
-    100
-)
+v_plus_values = np.linspace(v_plus_star - 1.0,v_plus_star + 1.0,100)
 
-v_next_values = np.array([
-    get_next_post_impact_velocity(
-        v_plus,
-        params
-    )
-    for v_plus in v_plus_values
-])
+v_next_values = np.array([get_next_post_impact_velocity(v_plus,params)for v_plus in v_plus_values])
 
 
 # ============================================================
@@ -208,7 +147,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "assgn_1 Rimless Wheel Return Map.png",
+    "Rimless Wheel Return Map.png",
     dpi=300
 )
 
@@ -219,12 +158,7 @@ plt.close()
 # Floquet multiplier at 20 degree slope
 # ============================================================
 
-floquet = calculate_floquet_multiplier(
-    v_plus_star,
-    params,
-    epsilon=0.01,
-    time_step=0.0001
-)
+floquet = calculate_floquet_multiplier(v_plus_star,params,epsilon=0.01,time_step=0.0001)
 
 print("\nSingle Floquet multiplier calculation")
 print("Slope angle:              20 degrees")
@@ -251,16 +185,9 @@ for slope_deg in slope_angles_deg:
 
     params["slope_angle"] = np.deg2rad(slope_deg)
 
-    v_plus_star, v_minus_star = theoretical_fixed_point(
-        params
-    )
+    v_plus_star, v_minus_star = theoretical_fixed_point(params)
 
-    floquet = calculate_floquet_multiplier(
-        v_plus_star,
-        params,
-        epsilon=EPSILON,
-        time_step=0.0001
-    )
+    floquet = calculate_floquet_multiplier(v_plus_star,params,epsilon=EPSILON,time_step=0.0001)
 
     floquet_values.append(floquet)
 
@@ -290,7 +217,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "assgn_1 Floquet vs Slope.png",
+    "Floquet vs Slope.png",
     dpi=300
 )
 
@@ -313,16 +240,9 @@ for num_spokes in spoke_numbers:
 
     params["num_spokes"] = num_spokes
 
-    v_plus_star, v_minus_star = theoretical_fixed_point(
-        params
-    )
+    v_plus_star, v_minus_star = theoretical_fixed_point(params)
 
-    floquet = calculate_floquet_multiplier(
-        v_plus_star,
-        params,
-        epsilon=EPSILON,
-        time_step=0.0001
-    )
+    floquet = calculate_floquet_multiplier(v_plus_star,params,epsilon=EPSILON,time_step=0.0001)
 
     floquet_values_spokes.append(floquet)
 
@@ -352,7 +272,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "assgn_1 Floquet vs Number of Spokes.png",
+    "Floquet vs Number of Spokes.png",
     dpi=300
 )
 

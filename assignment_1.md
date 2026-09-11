@@ -14,8 +14,6 @@ A markdown file reporting:
 
 ---
 
-# Assignment 1 Deliverable
-
 ## 1. Sanity Checks
 
 ### Model Notes
@@ -137,7 +135,6 @@ The colored region shows the initial conditions that converge to the stable peri
 ---
 
 # 3. Return Map and Floquet Multiplier
-# 3. Return Map and Floquet Multiplier
 
 The one-dimensional return map was constructed using the post-impact angular velocity as the Poincaré section variable. The fixed point of the return map corresponds to the periodic rolling gait.
 
@@ -195,149 +192,77 @@ the periodic rolling gait is locally stable. The value of approximately $0.5$ al
 
 ## Floquet Multiplier: Slope Sweep
 
-Sweeping slope = 5 degrees
-  Pre-impact fixed point:  1.6179 rad/s
-  Post-impact fixed point: 1.1440 rad/s
-  Floquet multiplier:      0.499977
-Sweeping slope = 10 degrees
-  Pre-impact fixed point:  2.2837 rad/s
-  Post-impact fixed point: 1.6148 rad/s
-  Floquet multiplier:      0.500275
-Sweeping slope = 15 degrees
-  Pre-impact fixed point:  2.7880 rad/s
-  Post-impact fixed point: 1.9714 rad/s
-  Floquet multiplier:      0.500008
-Sweeping slope = 20 degrees
-  Pre-impact fixed point:  3.2050 rad/s
-  Post-impact fixed point: 2.2663 rad/s
-  Floquet multiplier:      0.500003
-Sweeping slope = 25 degrees
-  Pre-impact fixed point:  3.5627 rad/s
-  Post-impact fixed point: 2.5192 rad/s
-  Floquet multiplier:      0.500006
-Sweeping slope = 30 degrees
-  Pre-impact fixed point:  3.8751 rad/s
-  Post-impact fixed point: 2.7401 rad/s
-  Floquet multiplier:      0.499979
-Sweeping slope = 35 degrees
-  Pre-impact fixed point:  4.1504 rad/s
-  Post-impact fixed point: 2.9348 rad/s
-  Floquet multiplier:      0.500010
+The slope angle was varied from 5 to 35 degrees while keeping the number of spokes fixed at 8. The fixed-point velocities and Floquet multipliers are shown below.
+
+| Slope Angle (degrees) | Pre-impact Fixed Point (rad/s) | Post-impact Fixed Point (rad/s) | Floquet Multiplier |
+|---:|---:|---:|---:|
+| 5  | 1.6179 | 1.1440 | 0.499977 |
+| 10 | 2.2837 | 1.6148 | 0.500275 |
+| 15 | 2.7880 | 1.9714 | 0.500008 |
+| 20 | 3.2050 | 2.2663 | 0.500003 |
+| 25 | 3.5627 | 2.5192 | 0.500006 |
+| 30 | 3.8751 | 2.7401 | 0.499979 |
+| 35 | 4.1504 | 2.9348 | 0.500010 |
 
 ![Floquet multiplier versus slope angle](assgn_1_plots/assgn_1_Floquet_vs_Slope.png)
 
+The Floquet multiplier remains approximately 0.50 for all tested slope angles. Therefore, the slope has little effect on the local convergence rate of the stable periodic gait.
+
 ## Region of Attraction: Slope Sweep
 
-============================================================
-Slope SWEEP SUMMARY
-============================================================
-Slope = 5
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  4519 ( 45.19%)
-  Unclassified:        5481 ( 54.81%)
+The RoA was also computed for each slope angle using a 100 × 100 state-space grid. The results are summarized below.
 
-Slope = 10
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5401 ( 54.01%)
-  Unclassified:        4599 ( 45.99%)
+| Slope Angle (degrees) | Stable Fixed Point | Stable Limit Cycle | Unclassified |
+|---:|---:|---:|---:|
+| 5  | 0 (0.00%) | 4686 (46.86%) | 5314 (53.14%) |
+| 10 | 0 (0.00%) | 5372 (53.72%) | 4628 (46.28%) |
+| 15 | 0 (0.00%) | 5771 (57.71%) | 4229 (42.29%) |
+| 20 | 0 (0.00%) | 6067 (60.67%) | 3933 (39.33%) |
+| 25 | 0 (0.00%) | 6335 (63.35%) | 3665 (36.65%) |
+| 30 | 0 (0.00%) | 6595 (65.95%) | 3405 (34.05%) |
+| 35 | 0 (0.00%) | 6853 (68.53%) | 3147 (31.47%) |
 
-Slope = 15
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5839 ( 58.39%)
-  Unclassified:        4161 ( 41.61%)
+![RoA across slope angles](assgn_1_plots/s11_RoA_Slope_Sweep.png)
 
-Slope = 20
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
+The RoA of the stable limit cycle increases as the slope angle increases. Overall, it seems like the slope has a strong effect on the size of the RoA but very little effect on local convergence, since the Floquet multiplier remains close to 0.50.
 
-Slope = 25
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
-
-Slope = 30
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
-
-Slope = 35
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
-
-![RoA classification across slope angles](assgn_1_plots/s11_RoA_Slope_Sweep.png)
 
 ## Floquet Multiplier: Number of Spokes Sweep
 
-Sweeping N = 6 spokes
-  Pre-impact fixed point:  2.9912 rad/s
-  Post-impact fixed point: 1.4956 rad/s
-  Floquet multiplier:      0.250071
-Sweeping N = 7 spokes
-  Pre-impact fixed point:  3.0865 rad/s
-  Post-impact fixed point: 1.9244 rad/s
-  Floquet multiplier:      0.388732
-Sweeping N = 8 spokes
-  Pre-impact fixed point:  3.2050 rad/s
-  Post-impact fixed point: 2.2663 rad/s
-  Floquet multiplier:      0.500003
-Sweeping N = 9 spokes
-  Pre-impact fixed point:  3.3331 rad/s
-  Post-impact fixed point: 2.5533 rad/s
-  Floquet multiplier:      0.586492
-Sweeping N = 10 spokes
-  Pre-impact fixed point:  3.4647 rad/s
-  Post-impact fixed point: 2.8030 rad/s
-  Floquet multiplier:      0.654468
-Sweeping N = 11 spokes
-  Pre-impact fixed point:  3.5967 rad/s
-  Post-impact fixed point: 3.0257 rad/s
-  Floquet multiplier:      0.707709
-Sweeping N = 12 spokes
-  Pre-impact fixed point:  3.7275 rad/s
-  Post-impact fixed point: 3.2281 rad/s
-  Floquet multiplier:      0.749979
+The number of spokes was varied from 6 to 12 while keeping the slope angle fixed at 20 degrees.
+
+| Number of Spokes | Pre-impact Fixed Point (rad/s) | Post-impact Fixed Point (rad/s) | Floquet Multiplier |
+|---:|---:|---:|---:|
+| 6  | 2.9912 | 1.4956 | 0.250071 |
+| 7  | 3.0865 | 1.9244 | 0.388732 |
+| 8  | 3.2050 | 2.2663 | 0.500003 |
+| 9  | 3.3331 | 2.5533 | 0.586492 |
+| 10 | 3.4647 | 2.8030 | 0.654468 |
+| 11 | 3.5967 | 3.0257 | 0.707709 |
+| 12 | 3.7275 | 3.2281 | 0.749979 |
 
 ![Floquet multiplier versus number of spokes](assgn_1_plots/assgn_1_Floquet_vs_Number_of_Spokes.png)
 
+Unlike the slope sweep, increasing the number of spokes has a clear effect on the Floquet multiplier. The multiplier increases from approximately 0.25 for 6 spokes to approximately 0.75 for 12 spokes. Since all of these values are less than 1 in magnitude, the periodic gait remains locally stable. However, a larger Floquet multiplier means that perturbations decay more slowly, so the local convergence becomes slower as the number of spokes increases.
+
 ## Region of Attraction: Number of Spokes Sweep
 
-============================================================
-Number of spokes SWEEP SUMMARY
-============================================================
-Number of spokes = 6
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
+The RoA was computed for 6 through 12 spokes at a fixed slope angle of 20 degrees.
 
-Number of spokes = 7
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
+| Number of Spokes | Stable Fixed Point | Stable Limit Cycle | Unclassified |
+|---:|---:|---:|---:|
+| 6  | 0 (0.00%) | 5948 (59.48%) | 4052 (40.52%) |
+| 7  | 0 (0.00%) | 6051 (60.51%) | 3949 (39.49%) |
+| 8  | 0 (0.00%) | 6067 (60.67%) | 3933 (39.33%) |
+| 9  | 0 (0.00%) | 6072 (60.72%) | 3928 (39.28%) |
+| 10 | 0 (0.00%) | 6072 (60.72%) | 3928 (39.28%) |
+| 11 | 0 (0.00%) | 6072 (60.72%) | 3928 (39.28%) |
+| 12 | 0 (0.00%) | 6073 (60.73%) | 3927 (39.27%) |
 
-Number of spokes = 8
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
+![RoA across number of spokes](assgn_1_plots/s11_RoA_Spoke_Sweep.png)
 
-Number of spokes = 9
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
+The RoA changes only slightly as the number of spokes increases. The stable limit-cycle region ranges from 59.48% for 6 spokes to 60.73% for 12 spokes. Therefore, over the range tested, the number of spokes has relatively little effect on the overall RoA.
 
-Number of spokes = 10
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
+However, the number of spokes has a much stronger effect on local convergence. As the number of spokes increases, the Floquet multiplier moves closer to 1, indicating slower convergence to the periodic gait. Thus, increasing the number of spokes produces a small change in the RoA but a significant decrease in the local convergence rate.
 
-Number of spokes = 11
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
-
-Number of spokes = 12
-  Stable fixed point:     0 (  0.00%)
-  Stable limit cycle:  5964 ( 59.64%)
-  Unclassified:        4036 ( 40.36%)
-![RoA classification across number of spokes](assgn_1_plots/s11_RoA_Spoke_Sweep.png)
+Overall, the sweeps show that slope angle and number of spokes affect the rimless wheel in different ways. Increasing the slope increases the RoA while leaving the local convergence rate nearly unchanged. Increasing the number of spokes has little effect on the RoA but causes slower local convergence, as indicated by the increasing Floquet multiplier.

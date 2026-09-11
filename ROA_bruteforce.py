@@ -24,33 +24,18 @@ gamma = params["slope_angle"]
 # State-space grid
 # ============================================================
 
-theta_values = np.linspace(
-    gamma - alpha,
-    gamma + alpha,
-    100
-)
+theta_values = np.linspace(gamma - alpha,gamma + alpha,100)
 
-theta_dot_values = np.linspace(
-    -5,
-    5,
-    100
-)
+theta_dot_values = np.linspace(-5,5,40)
 
-results = -np.ones(
-    (len(theta_values), len(theta_dot_values))
-)
+results = -np.ones((len(theta_values), len(theta_dot_values)))
 
 
 # ============================================================
 # Simulate and record impact velocities
 # ============================================================
 
-def get_impact_velocities(
-    initial_state,
-    params,
-    time_step,
-    total_time
-):
+def get_impact_velocities(initial_state,params,time_step,total_time):
 
     """
     Simulate the rimless wheel using the adaptive
@@ -58,37 +43,16 @@ def get_impact_velocities(
     velocity immediately before each impact.
     """
 
-    (
-        times,
-        angles,
-        angular_velocities,
-        impact_velocities
-    ) = model.simulate_rimless_wheel(
-        initial_state,
-        params,
-        time_step,
-        total_time
-    )
+    (times,angles,angular_velocities,impact_velocities) = model.simulate_rimless_wheel(initial_state,params,time_step,total_time)
 
-    return (
-        np.array(impact_velocities),
-        np.column_stack((
-            angles,
-            angular_velocities
-        ))
-    )
+    return (np.array(impact_velocities),np.column_stack((angles,angular_velocities)))
 
 
 # ============================================================
 # Classify initial condition
 # ============================================================
 
-def classify_state(
-    initial_state,
-    params,
-    time_step,
-    total_time
-):
+def classify_state(initial_state,params,time_step,total_time):
 
     """
     Classify an initial condition as:
@@ -98,23 +62,15 @@ def classify_state(
         1 = stable limit cycle
     """
 
-    impact_velocities, state_history = get_impact_velocities(
-        initial_state,
-        params,
-        time_step,
-        total_time
-    )
+    impact_velocities, state_history = get_impact_velocities(initial_state,params,time_step,total_time)
 
 
     # ========================================================
     # Check for convergence to a fixed point
     # ========================================================
 
-    # Use the final 20% of the simulation
 
-    num_tail_states = int(
-        0.2 * len(state_history)
-    )
+    num_tail_states = int(0.2 * len(state_history))
 
     tail_states = state_history[-num_tail_states:]
 
@@ -122,24 +78,11 @@ def classify_state(
 
     theta_dot_tail = tail_states[:, 1]
 
-    # A fixed point requires both theta and theta_dot
-    # to remain approximately constant.
+    theta_range = (np.max(theta_tail) - np.min(theta_tail))
 
-    theta_range = (
-        np.max(theta_tail) -
-        np.min(theta_tail)
-    )
+    theta_dot_range = (np.max(theta_dot_tail) - np.min(theta_dot_tail))
 
-    theta_dot_range = (
-        np.max(theta_dot_tail) -
-        np.min(theta_dot_tail)
-    )
-
-    if (
-        theta_range < 0.01
-        and theta_dot_range < 0.01
-        and np.max(np.abs(theta_dot_tail)) < 0.01
-    ):
+    if (theta_range < 0.01and theta_dot_range < 0.01and np.max(np.abs(theta_dot_tail)) < 0.01):
 
         return 0
 
@@ -175,66 +118,37 @@ unclassified_states = []
 
 for i, theta in enumerate(theta_values):
 
-    print(
-        f"Row {i + 1}/{len(theta_values)}"
-    )
+    print(f"Row {i + 1}/{len(theta_values)}")
 
     for j, theta_dot in enumerate(theta_dot_values):
 
-        initial_state = np.array([
-            theta,
-            theta_dot
-        ])
+        initial_state = np.array([theta,theta_dot])
 
-        classification = classify_state(
-            initial_state,
-            params,
-            time_step=0.01,
-            total_time=20.0
-        )
+        classification = classify_state(initial_state,params,time_step=0.01,total_time=20.0)
 
         results[i, j] = classification
 
-        if (
-            classification == -1
-            and len(unclassified_states) < 20
-        ):
+        if (classification == -1 and len(unclassified_states) < 20):
 
-            unclassified_states.append(
-                initial_state.copy()
-            )
+            unclassified_states.append(initial_state.copy())
 
 
 # ============================================================
 # Results
 # ============================================================
 
-print(
-    "Number of stable fixed-point points:",
-    np.sum(results == 0)
-)
+print("Number of stable fixed-point points:",np.sum(results == 0))
 
-print(
-    "Number of periodic rolling gait points:",
-    np.sum(results == 1)
-)
+print("Number of periodic rolling gait points:",np.sum(results == 1))
 
-print(
-    "Number of unclassified points:",
-    np.sum(results == -1)
-)
+print("Number of unclassified points:",np.sum(results == -1))
 
 
 print("\nExample unclassified states:")
 
 for state in unclassified_states:
 
-    print(
-        "theta =",
-        np.rad2deg(state[0]),
-        "theta_dot =",
-        state[1]
-    )
+    print("theta =",np.rad2deg(state[0]),"theta_dot =",state[1])
 
 
 # ============================================================
@@ -289,7 +203,7 @@ cbar.ax.set_yticklabels([
 cbar.set_label("Behavior")
 
 plt.savefig(
-    "s11_Rimless_Wheel_RoA.png",
+    "Rimless_Wheel_RoA.png",
     dpi=300
 )
 
