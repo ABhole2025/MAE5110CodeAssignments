@@ -89,13 +89,7 @@ def simulate_rimless_wheel(initial_state, params, time_step, total_time):
             wheel_state = spoke_reset(wheel_state, params)
 
 
-
-        wheel_state = rk4(
-            current_time,
-            wheel_state,
-            time_step,
-            rimless_wheel_continuous,
-            params)
+        wheel_state = rk4(current_time, wheel_state, time_step, rimless_wheel_continuous, params)
 
         wheel_state[0] = (
             (wheel_state[0] + np.pi) % (2 * np.pi) - np.pi)
@@ -156,9 +150,6 @@ plt.close()
 # Sanity Check 2: Theta vs. theta_dot
 # ============================================================
 
-# Choose ONE initial condition at a time here.
-# Change these values when you want to test another state.
-
 params = generate_params()
 params["slope_angle"] = np.deg2rad(20)
 
@@ -193,27 +184,3 @@ plt.close()
 
 
 
-'''
-### Running the rimless wheel
-
-Make sure `rimless_wheel.py` and the integrator you will use are in the same directory.
-
-```python
-import numpy as np
-import rimless_wheel as model
-
-I used rk4.py from 'integrators' which I implemented in assignment 0
-
-i.e.
-from integrators import rk4
-
-params = model.generate_params()
-
-initial_state = np.array([np.deg2rad(10),0.0])
-
-times, angles, angular_velocities = model.simulate_rimless_wheel(
-    initial_state,
-    params,
-    time_step=0.001,
-    total_time=10.0)
-'''

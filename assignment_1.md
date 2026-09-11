@@ -72,13 +72,13 @@ I first plotted the stance-spoke angle $\theta$ versus time to get a general sen
 
 The figure below shows an example:
 
-![Initial conditions (10 degrees, -5 rad/s)](Rimless_Wheel_Angle_assgn_1.png)
+![Initial conditions (10 degrees, -5 rad/s)](assgn_1_plots/Rimless_Wheel_Angle_assgn_1.png)
 
 ## 1.2 Phase Portrait
 
 I also plotted the trajectory in state space, using $\theta$ and $\dot{\theta}$ as the state variables. The initial condition for this test was $(\theta,\dot{\theta})=(10^\circ,0)$.
 
-![Initial conditions (10 degrees, 0 rad/s)](Rimless_Wheel_Phase_Portrait_assgn_1.png)
+![Initial conditions (10 degrees, 0 rad/s)](assgn_1_plots/Rimless_Wheel_Phase_Portrait_assgn_1.png)
 
 The phase portrait provides an additional qualitative check of the simulated dynamics by showing how angular position and angular velocity evolve together during the continuous stance phase and across discrete impacts. The repeated trajectory associated with successive impacts also provides a visual indication of the wheel approaching its periodic rolling gait.
 
@@ -103,7 +103,7 @@ The simulation produced:
 * Limit cycle: 6,624 points
 * Unclassified: 3,256 points
 
-![RoA classification for a 100x100 initial-condition grid](RoA_with_bounded.png)
+![RoA classification for a 100x100 initial-condition grid](assgn_1_plots/RoA_with_bounded.png)
 
 The resulting classification shows a large region of initial conditions that converge to the periodic walking gait, along with a smaller region exhibiting bounded rocking behavior. The unclassified region consists of trajectories that did not satisfy either classification criterion within the simulation time and therefore cannot automatically be interpreted as unstable or divergent.
 
@@ -149,7 +149,7 @@ The Floquet multiplier was estimated from the local slope of the return map:
 
 $\lambda = \frac{P(x^\ast+\epsilon)-P(x^\ast-\epsilon)}{2\epsilon}=0.496331$
 
-![Return map with fixed point and identity line](assgn_1_Rimless_Wheel_Return_Map.png)
+![Return map with fixed point and identity line](assgn_1_plots/assgn_1_Rimless_Wheel_Return_Map.png)
 
 Because
 
@@ -207,7 +207,7 @@ The fixed-point angular velocity increases in magnitude as the slope angle incre
 
 In contrast, the Floquet multiplier remains close to $0.5$ throughout the sweep. All values remain well below one, indicating that the walking gait remains locally asymptotically stable across the tested slope range. The relatively small variation in the multiplier also suggests that the local convergence rate is not strongly affected by slope angle over this range.
 
-![Floquet multiplier versus slope angle](assgn_1_Floquet_vs_Slope.png)
+![Floquet multiplier versus slope angle](assgn_1_plots/assgn_1_Floquet_vs_Slope.png)
 
 ## Region of Attraction: Slope Sweep
 
@@ -227,7 +227,7 @@ The fraction of initial conditions classified as belonging to the periodic rolli
 
 The unclassified region decreases from $33.96%$ to $32.12%$ as the slope angle increases.
 
-![RoA classification across slope angles](RoA_Slope_Sweep.png)
+![RoA classification across slope angles](assgn_1_plots/RoA_Slope_Sweep.png)
 
 ## Floquet Multiplier: Number of Spokes Sweep
 
@@ -251,7 +251,7 @@ $|\lambda|<1$
 
 so the walking gait remains locally asymptotically stable. However, the multiplier increases from approximately $0.258$ for six spokes to $0.753$ for twelve spokes. Since a larger multiplier closer to one corresponds to slower decay of perturbations, the walking gait becomes less strongly locally stable as the number of spokes increases.
 
-![Floquet multiplier versus number of spokes](assgn_1_Floquet_vs_Number_of_Spokes.png)
+![Floquet multiplier versus number of spokes](assgn_1_plots/assgn_1_Floquet_vs_Number_of_Spokes.png)
 
 ## Region of Attraction: Number of Spokes Sweep
 
@@ -269,4 +269,4 @@ I next varied the number of spokes from $N=6$ to $N=12$, keeping the slope angle
 
 Increasing the number of spokes produces a clearer change in the global classification than the slope-angle sweep. The fraction of initial conditions classified as belonging to the periodic rolling gait increases from $62.90%$ for $N=6$ to $67.89%$ for $N=12$. At the same time, the bounded-rocking region decreases from $2.10%$ to $0.52%$, while the unclassified fraction decreases from $35.00%$ to $31.59%.
 
-![RoA classification across number of spokes](RoA_Spoke_Sweep.png)
+![RoA classification across number of spokes](assgn_1_plots/RoA_Spoke_Sweep.png)
