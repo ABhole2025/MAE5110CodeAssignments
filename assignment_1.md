@@ -204,7 +204,7 @@ The slope angle was varied from 5 to 35 degrees while keeping the number of spok
 | 30 | 3.8751 | 2.7401 | 0.499979 |
 | 35 | 4.1504 | 2.9348 | 0.500010 |
 
-![Floquet multiplier versus slope angle](assgn_1_plots/assgn_1_Floquet_vs_Slope.png)
+![Floquet multiplier versus slope angle](assgn_1_plots/s11_Floquet_vs_Slope.png)
 
 The Floquet multiplier remains approximately 0.50 for all tested slope angles. Therefore, the slope has little effect on the local convergence rate of the stable periodic gait.
 
@@ -241,7 +241,7 @@ The number of spokes was varied from 6 to 12 while keeping the slope angle fixed
 | 11 | 3.5967 | 3.0257 | 0.707709 |
 | 12 | 3.7275 | 3.2281 | 0.749979 |
 
-![Floquet multiplier versus number of spokes](assgn_1_plots/assgn_1_Floquet_vs_Number_of_Spokes.png)
+![Floquet multiplier versus number of spokes](assgn_1_plots/s11_Floquet_vs_Number_of_Spokes.png)
 
 Unlike the slope sweep, increasing the number of spokes has a clear effect on the Floquet multiplier. The multiplier increases from approximately 0.25 for 6 spokes to approximately 0.75 for 12 spokes. Since all of these values are less than 1 in magnitude, the periodic gait remains locally stable. However, a larger Floquet multiplier means that perturbations decay more slowly, so the local convergence becomes slower as the number of spokes increases.
 
