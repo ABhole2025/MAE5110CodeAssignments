@@ -14,7 +14,7 @@ def angle_difference(a, b):
 # ============================================================
 
 params = model.generate_params()
-params["slope_angle"] = np.deg2rad(20)
+params["slope_angle"] = np.deg2rad(18)
 params["num_spokes"] = 8
 
 alpha = np.pi / params["num_spokes"]
