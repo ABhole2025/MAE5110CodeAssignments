@@ -29,10 +29,8 @@ def get_impact_velocities(initial_state, params, time_step, total_time):
 
         if model.detect_impact(wheel_state, params):
 
-            # Record velocity immediately before impact
             impact_velocities.append(wheel_state[1])
 
-            # Apply impact reset
             wheel_state = model.spoke_reset(wheel_state, params)
 
         wheel_state = rk4(
@@ -57,26 +55,18 @@ def get_next_post_impact_velocity(post_impact_velocity, params, time_step):
     num_spokes = params["num_spokes"]
     alpha = np.pi / num_spokes
 
-    # Immediately after impact, the new stance spoke has
-    # angle theta = alpha relative to the global vertical.
-    wheel_state = np.array([
-    alpha,
-    post_impact_velocity])
+    wheel_state = np.array([alpha, post_impact_velocity])
 
     current_time = 0.0
 
     while True:
 
-        # Check whether we have reached the next impact
         if model.detect_impact(wheel_state, params):
 
-            # Apply impact reset
             wheel_state = model.spoke_reset(wheel_state, params)
 
-            # Return the new post-impact velocity
             return wheel_state[1]
 
-        # Integrate one timestep
         wheel_state = rk4(
             current_time,
             wheel_state,
@@ -98,7 +88,8 @@ l = params["spoke_length"]
 
 alpha = np.pi / params["num_spokes"]
 
-# Theoretical fixed point for the model's sign convention
+
+# Theoretical fixed point
 
 K = (2 * g / l * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
 
@@ -109,30 +100,17 @@ v_minus_star = (-np.sqrt(v_plus_star**2 + K))
 print("Starting return-map test...")
 print("Theoretical fixed point =", v_plus_star)
 
-v_next = get_next_post_impact_velocity(
-    v_plus_star,
-    params,
-    time_step=0.001)
+v_next = get_next_post_impact_velocity(v_plus_star, params, time_step=0.001)
 
 print("Next post-impact velocity =", v_next)
 
-v_plus_values = np.linspace(
-    v_plus_star - 1.0,
-    v_plus_star + 1.0,
-    100
-)
+v_plus_values = np.linspace(v_plus_star - 1.0, v_plus_star + 1.0, 100)
 
 v_next_values = []
 
 for i, v_plus in enumerate(v_plus_values):
 
-    print(f"Return map {i+1}/100")
-
-    v_next = get_next_post_impact_velocity(
-        v_plus,
-        params,
-        time_step=0.001
-    )
+    v_next = get_next_post_impact_velocity(v_plus, params, time_step=0.001)
 
     v_next_values.append(v_next)
 
@@ -185,30 +163,18 @@ plt.close()
 
 
 # ---------------------------------------------------------
-# Floquet multiplier: single calculation at 20 degree slope
+# Floquet multiplier at 20 degree slope
 # ---------------------------------------------------------
 
-# Set the desired slope and number of spokes
 params["slope_angle"] = np.deg2rad(20)
 params["num_spokes"] = 8
 
 alpha = np.pi / params["num_spokes"]
 
 # Theoretical fixed point
-K = (
-    2 * g / l
-    * (
-        np.cos(alpha)
-        - np.cos(alpha + params["slope_angle"])
-    )
-)
+K = (2 * g / l * (np.cos(alpha)- np.cos(alpha + params["slope_angle"])))
 
-v_plus_star = (
-    -np.cos(2 * alpha)
-    * np.sqrt(
-        K / (1 - np.cos(2 * alpha)**2)
-    )
-)
+v_plus_star = (-np.cos(2 * alpha)* np.sqrt(K / (1 - np.cos(2 * alpha)**2)))
 
 # Perturb the post-impact fixed point on both sides
 epsilon = 0.01
@@ -216,23 +182,13 @@ epsilon = 0.01
 v_plus_low = v_plus_star - epsilon
 v_plus_high = v_plus_star + epsilon
 
-# Evaluate the return map at both perturbed points
-v_next_low = get_next_post_impact_velocity(
-    v_plus_low,
-    params,
-    time_step=0.0001
-)
 
-v_next_high = get_next_post_impact_velocity(
-    v_plus_high,
-    params,
-    time_step=0.0001
-)
+v_next_low = get_next_post_impact_velocity(v_plus_low,params,time_step=0.0001)
 
-# Finite-difference estimate of local slope
-floquet = (
-    v_next_high - v_next_low
-) / (2 * epsilon)
+v_next_high = get_next_post_impact_velocity(v_plus_high,params,time_step=0.0001)
+
+
+floquet = (v_next_high - v_next_low) / (2 * epsilon)
 
 print("\nSingle Floquet multiplier calculation")
 print("Slope angle:              20 degrees")
@@ -266,33 +222,17 @@ for slope_deg in slope_angles_deg:
 
     print(f"Sweeping slope = {slope_deg} degrees")
 
-    # Update slope
     params["slope_angle"] = np.deg2rad(slope_deg)
 
     # -----------------------------------------------------
     # Theoretical fixed point
     # -----------------------------------------------------
 
-    K = (
-        2 * g / l
-        * (
-            np.cos(alpha)
-            - np.cos(alpha + params["slope_angle"])
-        )
-    )
+    K = (2 * g / l * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
 
-    v_plus_star = (
-        -np.cos(2 * alpha)
-        * np.sqrt(
-            K / (1 - np.cos(2 * alpha)**2)
-        )
-    )
+    v_plus_star = (-np.cos(2 * alpha) * np.sqrt(K / (1 - np.cos(2 * alpha)**2)))
 
-    v_minus_star = (
-        -np.sqrt(
-            v_plus_star**2 + K
-        )
-    )
+    v_minus_star = (-np.sqrt(v_plus_star**2 + K))
 
     # -----------------------------------------------------
     # Perturb the post-impact fixed point
@@ -302,25 +242,15 @@ for slope_deg in slope_angles_deg:
     v_plus_high = v_plus_star + epsilon
 
     # One return-map step for each perturbation
-    v_next_low = get_next_post_impact_velocity(
-        v_plus_low,
-        params,
-        time_step
-    )
+    v_next_low = get_next_post_impact_velocity(v_plus_low,params,time_step)
 
-    v_next_high = get_next_post_impact_velocity(
-        v_plus_high,
-        params,
-        time_step
-    )
+    v_next_high = get_next_post_impact_velocity(v_plus_high, params, time_step)
 
     # -----------------------------------------------------
     # Finite-difference estimate of Floquet multiplier
     # -----------------------------------------------------
 
-    floquet = (
-        v_next_high - v_next_low
-    ) / (2 * epsilon)
+    floquet = (v_next_high - v_next_low) / (2 * epsilon)
 
     floquet_values.append(floquet)
 
@@ -356,11 +286,11 @@ plt.savefig(
 
 plt.close()
 
+
 # ---------------------------------------------------------
 # Floquet multiplier sweep: number of spokes
 # ---------------------------------------------------------
 
-# Fix slope angle
 params["slope_angle"] = np.deg2rad(20)
 
 spoke_numbers = np.arange(6, 13)
@@ -384,26 +314,11 @@ for N in spoke_numbers:
     # Theoretical fixed point
     # -----------------------------------------------------
 
-    K = (
-        2 * g / l
-        * (
-            np.cos(alpha)
-            - np.cos(alpha + params["slope_angle"])
-        )
-    )
+    K = (2 * g / l * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
 
-    v_plus_star = (
-        -np.cos(2 * alpha)
-        * np.sqrt(
-            K / (1 - np.cos(2 * alpha)**2)
-        )
-    )
+    v_plus_star = (-np.cos(2 * alpha) * np.sqrt(K / (1 - np.cos(2 * alpha)**2)))
 
-    v_minus_star = (
-        -np.sqrt(
-            v_plus_star**2 + K
-        )
-    )
+    v_minus_star = (-np.sqrt(v_plus_star**2 + K))
 
     # -----------------------------------------------------
     # Perturb the post-impact fixed point
@@ -413,25 +328,15 @@ for N in spoke_numbers:
     v_plus_high = v_plus_star + epsilon
 
     # One return-map step for each perturbation
-    v_next_low = get_next_post_impact_velocity(
-        v_plus_low,
-        params,
-        time_step
-    )
+    v_next_low = get_next_post_impact_velocity(v_plus_low, params, time_step)
 
-    v_next_high = get_next_post_impact_velocity(
-        v_plus_high,
-        params,
-        time_step
-    )
+    v_next_high = get_next_post_impact_velocity(v_plus_high, params, time_step)
 
     # -----------------------------------------------------
     # Finite-difference estimate of Floquet multiplier
     # -----------------------------------------------------
 
-    floquet = (
-        v_next_high - v_next_low
-    ) / (2 * epsilon)
+    floquet = (v_next_high - v_next_low) / (2 * epsilon)
 
     floquet_values_spokes.append(floquet)
 

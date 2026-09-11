@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
 import rimless_wheel as model
 from integrators import rk4
 
@@ -31,8 +32,7 @@ theta_values = np.linspace(-np.pi, np.pi, 100, endpoint=False)
 theta_dot_values = np.linspace(-10, 10, 100)
 
 results = -np.ones(
-    (len(theta_values), len(theta_dot_values))
-)
+    (len(theta_values), len(theta_dot_values)))
 
 
 # ============================================================
@@ -46,11 +46,7 @@ def stance_energy(state, params):
     l = params["spoke_length"]
     gamma = params["slope_angle"]
 
-    return (
-        0.5 * theta_dot**2
-        - (g / l) * np.cos(theta + gamma)
-    )
-
+    return (0.5 * theta_dot**2 - (g / l) * np.cos(theta + gamma))
 
 # ============================================================
 # Energy required to reach impact
@@ -69,12 +65,7 @@ def impact_energy(params):
 # Simulate and record impact velocities
 # ============================================================
 
-def get_impact_velocities(
-    initial_state,
-    params,
-    time_step,
-    total_time
-):
+def get_impact_velocities(initial_state, params, time_step, total_time):
 
     """
     Simulate the rimless wheel and record the angular velocity
@@ -118,12 +109,7 @@ def get_impact_velocities(
 # Classify initial condition
 # ============================================================
 
-def classify_state(
-    initial_state,
-    params,
-    time_step,
-    total_time
-):
+def classify_state(initial_state, params, time_step, total_time):
 
     gamma = params["slope_angle"]
 
@@ -133,10 +119,8 @@ def classify_state(
     # 0 = equilibrium
     # --------------------------------------------------------
 
-    if (
-        abs(angle_difference(theta0, -gamma)) < 1e-3
-        and abs(theta_dot0) < 1e-3
-    ):
+    if (abs(angle_difference(theta0, -gamma)) < 1e-3
+        and abs(theta_dot0) < 1e-3):
         return 0
 
     # --------------------------------------------------------
@@ -145,7 +129,7 @@ def classify_state(
     # If the initial energy is below the energy required to
     # reach the impact angle, the trajectory cannot impact.
     # Therefore it remains on the same spoke and rocks around
-    # the stable equilibrium.
+    # the equilibrium.
     # --------------------------------------------------------
 
     E = stance_energy(initial_state, params)
@@ -157,16 +141,10 @@ def classify_state(
     # --------------------------------------------------------
     # 2 = periodic rolling gait
     #
-    # This state has enough energy to reach impact. Simulate
-    # and check whether repeated impact velocities converge.
+    # This state has enough energy to reach impact.
     # --------------------------------------------------------
 
-    impact_velocities = get_impact_velocities(
-        initial_state,
-        params,
-        time_step,
-        total_time
-    )
+    impact_velocities = get_impact_velocities(initial_state, params, time_step, total_time)
 
     # Not enough impacts to establish a gait
     if len(impact_velocities) < 5:
@@ -194,64 +172,35 @@ for i, theta in enumerate(theta_values):
 
     for j, theta_dot in enumerate(theta_dot_values):
 
-        initial_state = np.array([
-            theta,
-            theta_dot
-        ])
+        initial_state = np.array([theta, theta_dot])
 
-        classification = classify_state(
-            initial_state,
-            params,
-            time_step=0.005,
-            total_time=20.0
-        )
+        classification = classify_state(initial_state, params, time_step=0.005, total_time=20.0)
 
         results[i, j] = classification
 
-        if (
-            classification == -1
-            and len(unclassified_states) < 20
-        ):
-            unclassified_states.append(
-                initial_state.copy()
-            )
+        if (classification == -1
+            and len(unclassified_states) < 20):
+            unclassified_states.append(initial_state.copy())
 
 
 # ============================================================
 # Results
 # ============================================================
 
-print(
-    "Number of equilibrium points:",
-    np.sum(results == 0)
-)
+print("Number of equilibrium points:", np.sum(results == 0))
 
-print(
-    "Number of bounded-rocking points:",
-    np.sum(results == 1)
-)
+print("Number of bounded-rocking points:",np.sum(results == 1))
 
-print(
-    "Number of limit-cycle points:",
-    np.sum(results == 2)
-)
+print("Number of limit-cycle points:",np.sum(results == 2))
 
-print(
-    "Number of unclassified points:",
-    np.sum(results == -1)
-)
+print("Number of unclassified points:",np.sum(results == -1))
 
 
 print("\nExample unclassified states:")
 
 for state in unclassified_states:
 
-    print(
-        "theta =",
-        np.rad2deg(state[0]),
-        "theta_dot =",
-        state[1]
-    )
+    print("theta =", np.rad2deg(state[0]), "theta_dot =", state[1])
 
 
 # ============================================================

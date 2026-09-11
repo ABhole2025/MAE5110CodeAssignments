@@ -1,15 +1,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.colors import ListedColormap
 
 import rimless_wheel as model
 from integrators import rk4
 
-from matplotlib.colors import ListedColormap
-
 
 def angle_difference(a, b):
     return (a - b + np.pi) % (2 * np.pi) - np.pi
-
 
 # ============================================================
 # Energy of the continuous stance dynamics
@@ -22,10 +20,7 @@ def stance_energy(state, params):
     l = params["spoke_length"]
     gamma = params["slope_angle"]
 
-    return (
-        0.5 * theta_dot**2
-        - (g / l) * np.cos(theta + gamma)
-    )
+    return (0.5 * theta_dot**2 - (g / l) * np.cos(theta + gamma))
 
 
 # ============================================================
@@ -45,12 +40,7 @@ def impact_energy(params):
 # Simulate and record impact velocities
 # ============================================================
 
-def get_impact_velocities(
-    initial_state,
-    params,
-    time_step,
-    total_time
-):
+def get_impact_velocities(initial_state, params, time_step, total_time):
     """
     Simulate the rimless wheel and record the angular velocity
     immediately before each impact.
@@ -67,22 +57,12 @@ def get_impact_velocities(
 
         if model.detect_impact(wheel_state, params):
 
-            # Record velocity immediately before impact
             impact_velocities.append(wheel_state[1])
 
-            # Apply impact reset
-            wheel_state = model.spoke_reset(
-                wheel_state,
-                params
-            )
 
-        wheel_state = rk4(
-            current_time,
-            wheel_state,
-            time_step,
-            model.rimless_wheel_continuous,
-            params
-        )
+            wheel_state = model.spoke_reset(wheel_state,params)
+
+        wheel_state = rk4(current_time, wheel_state, time_step, model.rimless_wheel_continuous, params)
 
         current_time += time_step
 
@@ -93,12 +73,7 @@ def get_impact_velocities(
 # Classify initial condition
 # ============================================================
 
-def classify_state(
-    initial_state,
-    params,
-    time_step,
-    total_time
-):
+def classify_state(initial_state, params, time_step, total_time):
     """
     Classification:
 
@@ -116,10 +91,8 @@ def classify_state(
     # 0 = equilibrium
     # --------------------------------------------------------
 
-    if (
-        abs(angle_difference(theta0, -gamma)) < 1e-3
-        and abs(theta_dot0) < 1e-3
-    ):
+    if (abs(angle_difference(theta0, -gamma)) < 1e-3
+        and abs(theta_dot0) < 1e-3):
         return 0
 
     # --------------------------------------------------------
@@ -128,13 +101,10 @@ def classify_state(
     # If the initial energy is below the energy required to
     # reach the impact angle, the trajectory cannot impact.
     # It therefore remains on the same spoke and rocks around
-    # the stable equilibrium.
+    # the equilibrium.
     # --------------------------------------------------------
 
-    E = stance_energy(
-        initial_state,
-        params
-    )
+    E = stance_energy(initial_state, params)
 
     E_impact = impact_energy(params)
 
@@ -145,26 +115,15 @@ def classify_state(
     # 2 = periodic rolling gait
     #
     # The trajectory has enough energy to reach impact.
-    # Simulate and check whether repeated impact velocities
-    # converge.
     # --------------------------------------------------------
 
-    impact_velocities = get_impact_velocities(
-        initial_state,
-        params,
-        time_step,
-        total_time
-    )
+    impact_velocities = get_impact_velocities(initial_state, params, time_step, total_time)
 
-    # Not enough impacts to establish a gait
     if len(impact_velocities) < 5:
         return -1
 
-    # Look at final five impact velocities
     tail = impact_velocities[-5:]
 
-    # Check convergence to approximately the same
-    # pre-impact velocity
     if np.max(tail) - np.min(tail) < 0.05:
         return 2
 
@@ -175,42 +134,23 @@ def classify_state(
 # Compute RoA classification over a state-space grid
 # ============================================================
 
-def compute_roa(
-    params,
-    theta_values,
-    theta_dot_values
-):
+def compute_roa(params, theta_values, theta_dot_values):
     """
     Compute the behavioral classification over the
     entire state-space grid.
     """
 
-    results = -np.ones(
-        (
-            len(theta_values),
-            len(theta_dot_values)
-        )
-    )
+    results = -np.ones((len(theta_values),len(theta_dot_values)))
 
     for i, theta in enumerate(theta_values):
 
-        print(
-            f"Row {i + 1}/{len(theta_values)}"
-        )
+        print(f"Row {i + 1}/{len(theta_values)}")
 
         for j, theta_dot in enumerate(theta_dot_values):
 
-            initial_state = np.array([
-                theta,
-                theta_dot
-            ])
+            initial_state = np.array([theta, theta_dot])
 
-            classification = classify_state(
-                initial_state,
-                params,
-                time_step=0.005,
-                total_time=20.0
-            )
+            classification = classify_state(initial_state, params, time_step=0.005, total_time=20.0)
 
             results[i, j] = classification
 
@@ -221,11 +161,7 @@ def compute_roa(
 # Print sweep summary
 # ============================================================
 
-def print_sweep_summary(
-    parameter_values,
-    results_list,
-    parameter_name
-):
+def print_sweep_summary(parameter_values, results_list, parameter_name):
     """
     Print summary statistics for an entire parameter sweep.
     """
@@ -237,70 +173,33 @@ def print_sweep_summary(
 
     total_states = results_list[0].size
 
-    for value, results in zip(
-        parameter_values,
-        results_list
-    ):
+    for value, results in zip(parameter_values, results_list):
 
-        num_equilibrium = np.sum(
-            results == 0
-        )
+        num_equilibrium = np.sum(results == 0)
 
-        num_bounded_rocking = np.sum(
-            results == 1
-        )
+        num_bounded_rocking = np.sum(results == 1)
 
-        num_limit_cycle = np.sum(
-            results == 2
-        )
+        num_limit_cycle = np.sum(results == 2)
 
-        num_unclassified = np.sum(
-            results == -1
-        )
+        num_unclassified = np.sum(results == -1)
 
-        equilibrium_percent = (
-            100 * num_equilibrium / total_states
-        )
+        equilibrium_percent = (100 * num_equilibrium / total_states)
 
-        bounded_rocking_percent = (
-            100 * num_bounded_rocking / total_states
-        )
+        bounded_rocking_percent = (100 * num_bounded_rocking / total_states)
 
-        limit_cycle_percent = (
-            100 * num_limit_cycle / total_states
-        )
+        limit_cycle_percent = (100 * num_limit_cycle / total_states)
 
-        unclassified_percent = (
-            100 * num_unclassified / total_states
-        )
+        unclassified_percent = (100 * num_unclassified / total_states)
 
-        print(
-            f"{parameter_name} = {value}"
-        )
+        print(f"{parameter_name} = {value}")
 
-        print(
-            f"  Equilibrium:      "
-            f"{num_equilibrium:5d} "
-            f"({equilibrium_percent:6.2f}%)"
-        )
+        print(f"  Equilibrium:      " f"{num_equilibrium:5d} " f"({equilibrium_percent:6.2f}%)")
 
-        print(
-            f"  Bounded rocking:  "
-            f"{num_bounded_rocking:5d} "
-            f"({bounded_rocking_percent:6.2f}%)"
-        )
+        print(f"  Bounded rocking:  " f"{num_bounded_rocking:5d} " f"({bounded_rocking_percent:6.2f}%)")
 
-        print(
-            f"  Limit cycle:      "
-            f"{num_limit_cycle:5d} "
-            f"({limit_cycle_percent:6.2f}%)"
-        )
+        print(f"  Limit cycle:      " f"{num_limit_cycle:5d} " f"({limit_cycle_percent:6.2f}%)")
 
-        print(
-            f"  Unclassified:     "
-            f"{num_unclassified:5d} "
-            f"({unclassified_percent:6.2f}%)"
-        )
+        print(f"  Unclassified:     " f"{num_unclassified:5d} " f"({unclassified_percent:6.2f}%)")
 
         print()
 
@@ -309,18 +208,9 @@ def print_sweep_summary(
 # State-space grid
 # ============================================================
 
-theta_values = np.linspace(
-    -np.pi,
-    np.pi,
-    100,
-    endpoint=False
-)
+theta_values = np.linspace(-np.pi, np.pi, 100, endpoint=False)
 
-theta_dot_values = np.linspace(
-    -10,
-    10,
-    100
-)
+theta_dot_values = np.linspace( -10, 10, 100)
 
 
 # ============================================================
@@ -349,33 +239,22 @@ cmap = ListedColormap([
 # SWEEP 1: Slope inclination
 # ============================================================
 
-slope_angles_deg = np.arange(
-    5,
-    36,
-    5
-)
+slope_angles_deg = np.arange(5,36,5)
 
 slope_results = []
 
 for slope_deg in slope_angles_deg:
 
     print("\n===================================")
-    print(
-        f"Slope = {slope_deg} degrees"
-    )
+    print(f"Slope = {slope_deg} degrees")
     print("===================================")
 
     params["slope_angle"] = np.deg2rad(
-        slope_deg
-    )
+        slope_deg)
 
     params["num_spokes"] = 8
 
-    results = compute_roa(
-        params,
-        theta_values,
-        theta_dot_values
-    )
+    results = compute_roa(params, theta_values, theta_dot_values)
 
     slope_results.append(results)
 
@@ -384,11 +263,7 @@ for slope_deg in slope_angles_deg:
 # Console summary: slope sweep
 # ============================================================
 
-print_sweep_summary(
-    slope_angles_deg,
-    slope_results,
-    "Slope"
-)
+print_sweep_summary(slope_angles_deg, slope_results, "Slope")
 
 
 # ============================================================
@@ -455,11 +330,9 @@ for k, slope_deg in enumerate(
     ])
 
 
-# Hide unused eighth subplot
 axes[-1].axis("off")
 
 
-# Shared colorbar
 cbar = fig.colorbar(
     im,
     ax=axes,
@@ -501,30 +374,21 @@ print("Saved: RoA Slope Sweep.png")
 # SWEEP 2: Number of spokes
 # ============================================================
 
-spoke_numbers = np.arange(
-    6,
-    13
-)
+spoke_numbers = np.arange(6, 13)
 
 spoke_results = []
 
 for N in spoke_numbers:
 
     print("\n===================================")
-    print(
-        f"Number of spokes = {N}"
-    )
+    print(f"Number of spokes = {N}")
     print("===================================")
 
     params["slope_angle"] = np.deg2rad(20)
 
     params["num_spokes"] = N
 
-    results = compute_roa(
-        params,
-        theta_values,
-        theta_dot_values
-    )
+    results = compute_roa(params, theta_values, theta_dot_values)
 
     spoke_results.append(results)
 
@@ -533,11 +397,7 @@ for N in spoke_numbers:
 # Console summary: spoke sweep
 # ============================================================
 
-print_sweep_summary(
-    spoke_numbers,
-    spoke_results,
-    "Number of spokes"
-)
+print_sweep_summary(spoke_numbers, spoke_results, "Number of spokes")
 
 
 # ============================================================
@@ -604,11 +464,9 @@ for k, N in enumerate(
     ])
 
 
-# Hide unused eighth subplot
 axes[-1].axis("off")
 
 
-# Shared colorbar
 cbar = fig.colorbar(
     im,
     ax=axes,
