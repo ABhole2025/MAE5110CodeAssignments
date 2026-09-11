@@ -153,8 +153,8 @@ plt.close()
 params = generate_params()
 params["slope_angle"] = np.deg2rad(20)
 
-theta_deg = 10
-theta_dot = -5
+theta_deg = -20
+theta_dot = 0
 
 initial_state = np.array([
     np.deg2rad(theta_deg),
