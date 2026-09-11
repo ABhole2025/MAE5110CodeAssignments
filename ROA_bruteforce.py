@@ -28,8 +28,8 @@ l = params["spoke_length"]
 # State-space grid
 # ============================================================
 
-theta_values = np.linspace(-np.pi, np.pi, 100, endpoint=False)
-theta_dot_values = np.linspace(-10, 10, 100)
+theta_values = np.linspace(-np.pi, np.pi, 50, endpoint=False)
+theta_dot_values = np.linspace(-10, 10, 50)
 
 results = -np.ones(
     (len(theta_values), len(theta_dot_values)))

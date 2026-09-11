@@ -208,9 +208,9 @@ def print_sweep_summary(parameter_values, results_list, parameter_name):
 # State-space grid
 # ============================================================
 
-theta_values = np.linspace(-np.pi, np.pi, 100, endpoint=False)
+theta_values = np.linspace(-np.pi, np.pi, 50, endpoint=False)
 
-theta_dot_values = np.linspace( -10, 10, 100)
+theta_dot_values = np.linspace( -10, 10, 50)
 
 
 # ============================================================
