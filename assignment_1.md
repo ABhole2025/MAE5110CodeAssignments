@@ -96,6 +96,7 @@ and
 
 $\dot{\theta}\in[-10,10]\text{ rad/s}$
 
+
 The simulation produced:
 
 * Equilibrium: 0 points
