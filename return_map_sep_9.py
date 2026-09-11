@@ -83,19 +83,19 @@ def get_next_post_impact_velocity(post_impact_velocity, params, time_step):
 params["slope_angle"] = np.deg2rad(20)
 params["num_spokes"] = 8
 
-g = params["gravity"]
-l = params["spoke_length"]
+gravity = params["gravity"]
+length = params["spoke_length"]
 
 alpha = np.pi / params["num_spokes"]
 
 
 # Theoretical fixed point
 
-K = (2 * g / l * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
+stance_energy_change = (2 * gravity / length * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
 
-v_plus_star = (-np.cos(2 * alpha) * np.sqrt(K / (1 - np.cos(2 * alpha)**2)))
+v_plus_star = (-np.cos(2 * alpha) * np.sqrt(stance_energy_change / (1 - np.cos(2 * alpha)**2)))
 
-v_minus_star = (-np.sqrt(v_plus_star**2 + K))
+v_minus_star = (-np.sqrt(v_plus_star**2 + stance_energy_change))
 
 print("Starting return-map test...")
 print("Theoretical fixed point =", v_plus_star)
@@ -172,9 +172,9 @@ params["num_spokes"] = 8
 alpha = np.pi / params["num_spokes"]
 
 # Theoretical fixed point
-K = (2 * g / l * (np.cos(alpha)- np.cos(alpha + params["slope_angle"])))
+stance_energy_change = (2 * gravity / length * (np.cos(alpha)- np.cos(alpha + params["slope_angle"])))
 
-v_plus_star = (-np.cos(2 * alpha)* np.sqrt(K / (1 - np.cos(2 * alpha)**2)))
+v_plus_star = (-np.cos(2 * alpha)* np.sqrt(stance_energy_change / (1 - np.cos(2 * alpha)**2)))
 
 # Perturb the post-impact fixed point on both sides
 epsilon = 0.01
@@ -204,8 +204,8 @@ print("Floquet multiplier:       ", floquet)
 # Floquet multiplier sweep: slope angle
 # ---------------------------------------------------------
 
-g = params["gravity"]
-l = params["spoke_length"]
+gravity = params["gravity"]
+length = params["spoke_length"]
 
 # Keep number of spokes fixed
 params["num_spokes"] = 8
@@ -228,11 +228,11 @@ for slope_deg in slope_angles_deg:
     # Theoretical fixed point
     # -----------------------------------------------------
 
-    K = (2 * g / l * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
+    stance_energy_change = (2 * gravity / length * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
 
-    v_plus_star = (-np.cos(2 * alpha) * np.sqrt(K / (1 - np.cos(2 * alpha)**2)))
+    v_plus_star = (-np.cos(2 * alpha) * np.sqrt(stance_energy_change / (1 - np.cos(2 * alpha)**2)))
 
-    v_minus_star = (-np.sqrt(v_plus_star**2 + K))
+    v_minus_star = (-np.sqrt(v_plus_star**2 + stance_energy_change))
 
     # -----------------------------------------------------
     # Perturb the post-impact fixed point
@@ -314,11 +314,11 @@ for N in spoke_numbers:
     # Theoretical fixed point
     # -----------------------------------------------------
 
-    K = (2 * g / l * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
+    stance_energy_change = (2 * gravity / length * (np.cos(alpha) - np.cos(alpha + params["slope_angle"])))
 
-    v_plus_star = (-np.cos(2 * alpha) * np.sqrt(K / (1 - np.cos(2 * alpha)**2)))
+    v_plus_star = (-np.cos(2 * alpha) * np.sqrt(stance_energy_change / (1 - np.cos(2 * alpha)**2)))
 
-    v_minus_star = (-np.sqrt(v_plus_star**2 + K))
+    v_minus_star = (-np.sqrt(v_plus_star**2 + stance_energy_change))
 
     # -----------------------------------------------------
     # Perturb the post-impact fixed point
