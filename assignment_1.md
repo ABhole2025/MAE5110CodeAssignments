@@ -163,7 +163,7 @@ $$
 
 The numerical return-map fixed point agreed with the theoretical value to within approximately $10^{-7}\ \mathrm{rad/s}$.
 
-![Return map with fixed point and identity line](s11_plots/assgn_1_Rimless_Wheel_Return_Map.png)
+![Return map with fixed point and identity line](assgn_1_plots/s11_Rimless_Wheel_Return_Map.png)
 
 The return map intersects the identity line at the periodic gait fixed point. The local Floquet multiplier was calculated using a finite difference about this fixed point:
 
