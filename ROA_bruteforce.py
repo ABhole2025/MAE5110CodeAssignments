@@ -1,12 +1,8 @@
 import matplotlib.pyplot as plt
+
 import numpy as np
 
-import rimless_wheel as model
-from integrators import rk4
-
-
-def angle_difference(a, b):
-    return (a - b + np.pi) % (2 * np.pi) - np.pi
+import rimless_wheel_1 as model
 
 
 # ============================================================
@@ -14,148 +10,159 @@ def angle_difference(a, b):
 # ============================================================
 
 params = model.generate_params()
-params["slope_angle"] = np.deg2rad(18)
+
+params["slope_angle"] = np.deg2rad(10)
+
 params["num_spokes"] = 8
 
 alpha = np.pi / params["num_spokes"]
-gamma = params["slope_angle"]
 
-g = params["gravity"]
-l = params["spoke_length"]
+gamma = params["slope_angle"]
 
 
 # ============================================================
 # State-space grid
 # ============================================================
 
-theta_values = np.linspace(-np.pi, np.pi, 40, endpoint=False)
-theta_dot_values = np.linspace(-10, 10, 40)
+theta_values = np.linspace(
+    gamma - alpha,
+    gamma + alpha,
+    100
+)
+
+theta_dot_values = np.linspace(
+    -5,
+    5,
+    100
+)
 
 results = -np.ones(
-    (len(theta_values), len(theta_dot_values)))
-
-
-# ============================================================
-# Energy of the continuous stance dynamics
-# ============================================================
-
-def stance_energy(state, params):
-    theta, theta_dot = state
-
-    g = params["gravity"]
-    l = params["spoke_length"]
-    gamma = params["slope_angle"]
-
-    return (0.5 * theta_dot**2 - (g / l) * np.cos(theta + gamma))
-
-# ============================================================
-# Energy required to reach impact
-# ============================================================
-
-def impact_energy(params):
-    alpha = np.pi / params["num_spokes"]
-
-    g = params["gravity"]
-    l = params["spoke_length"]
-
-    return -(g / l) * np.cos(alpha)
+    (len(theta_values), len(theta_dot_values))
+)
 
 
 # ============================================================
 # Simulate and record impact velocities
 # ============================================================
 
-def get_impact_velocities(initial_state, params, time_step, total_time):
+def get_impact_velocities(
+    initial_state,
+    params,
+    time_step,
+    total_time
+):
 
     """
-    Simulate the rimless wheel and record the angular velocity
-    immediately before each impact.
+    Simulate the rimless wheel using the adaptive
+    event-aware simulation and return the angular
+    velocity immediately before each impact.
     """
 
-    num_steps = int(total_time / time_step)
+    (
+        times,
+        angles,
+        angular_velocities,
+        impact_velocities
+    ) = model.simulate_rimless_wheel(
+        initial_state,
+        params,
+        time_step,
+        total_time
+    )
 
-    wheel_state = initial_state.copy()
-
-    impact_velocities = []
-
-    current_time = 0.0
-
-    for step in range(num_steps):
-
-        if model.detect_impact(wheel_state, params):
-
-            # Record velocity immediately before impact
-            impact_velocities.append(wheel_state[1])
-
-            wheel_state = model.spoke_reset(
-                wheel_state,
-                params
-            )
-
-        wheel_state = rk4(
-            current_time,
-            wheel_state,
-            time_step,
-            model.rimless_wheel_continuous,
-            params
-        )
-
-        current_time += time_step
-
-    return np.array(impact_velocities)
+    return (
+        np.array(impact_velocities),
+        np.column_stack((
+            angles,
+            angular_velocities
+        ))
+    )
 
 
 # ============================================================
 # Classify initial condition
 # ============================================================
 
-def classify_state(initial_state, params, time_step, total_time):
+def classify_state(
+    initial_state,
+    params,
+    time_step,
+    total_time
+):
 
-    gamma = params["slope_angle"]
+    """
+    Classify an initial condition as:
 
-    theta0, theta_dot0 = initial_state
+        -1 = unclassified
+        0 = stable fixed point
+        1 = stable limit cycle
+    """
 
-    # --------------------------------------------------------
-    # 0 = equilibrium
-    # --------------------------------------------------------
+    impact_velocities, state_history = get_impact_velocities(
+        initial_state,
+        params,
+        time_step,
+        total_time
+    )
 
-    if (abs(angle_difference(theta0, -gamma)) < 1e-3
-        and abs(theta_dot0) < 1e-3):
+
+    # ========================================================
+    # Check for convergence to a fixed point
+    # ========================================================
+
+    # Use the final 20% of the simulation
+
+    num_tail_states = int(
+        0.2 * len(state_history)
+    )
+
+    tail_states = state_history[-num_tail_states:]
+
+    theta_tail = tail_states[:, 0]
+
+    theta_dot_tail = tail_states[:, 1]
+
+    # A fixed point requires both theta and theta_dot
+    # to remain approximately constant.
+
+    theta_range = (
+        np.max(theta_tail) -
+        np.min(theta_tail)
+    )
+
+    theta_dot_range = (
+        np.max(theta_dot_tail) -
+        np.min(theta_dot_tail)
+    )
+
+    if (
+        theta_range < 0.01
+        and theta_dot_range < 0.01
+        and np.max(np.abs(theta_dot_tail)) < 0.01
+    ):
+
         return 0
 
-    # --------------------------------------------------------
-    # 1 = bounded rocking
-    #
-    # If the initial energy is below the energy required to
-    # reach the impact angle, the trajectory cannot impact.
-    # Therefore it remains on the same spoke and rocks around
-    # the equilibrium.
-    # --------------------------------------------------------
 
-    E = stance_energy(initial_state, params)
-    E_impact = impact_energy(params)
+    # ========================================================
+    # Check for convergence to a periodic rolling gait
+    # ========================================================
 
-    if E < E_impact:
-        return 1
+    # Need at least 10 impacts to establish a gait
 
-    # --------------------------------------------------------
-    # 2 = periodic rolling gait
-    #
-    # This state has enough energy to reach impact.
-    # --------------------------------------------------------
+    if len(impact_velocities) < 10:
 
-    impact_velocities = get_impact_velocities(initial_state, params, time_step, total_time)
-
-    # Not enough impacts to establish a gait
-    if len(impact_velocities) < 5:
         return -1
 
-    # Look at final few impact velocities
-    tail = impact_velocities[-5:]
+    # Use the final 10 impact velocities
 
-    # Check convergence to the same pre-impact velocity
+    tail = impact_velocities[-10:]
+
+    # Check whether the impact velocity has converged
+
     if np.max(tail) - np.min(tail) < 0.05:
-        return 2
+
+        return 1
 
     return -1
 
@@ -168,39 +175,66 @@ unclassified_states = []
 
 for i, theta in enumerate(theta_values):
 
-    print(f"Row {i + 1}/{len(theta_values)}")
+    print(
+        f"Row {i + 1}/{len(theta_values)}"
+    )
 
     for j, theta_dot in enumerate(theta_dot_values):
 
-        initial_state = np.array([theta, theta_dot])
+        initial_state = np.array([
+            theta,
+            theta_dot
+        ])
 
-        classification = classify_state(initial_state, params, time_step=0.005, total_time=20.0)
+        classification = classify_state(
+            initial_state,
+            params,
+            time_step=0.01,
+            total_time=20.0
+        )
 
         results[i, j] = classification
 
-        if (classification == -1
-            and len(unclassified_states) < 20):
-            unclassified_states.append(initial_state.copy())
+        if (
+            classification == -1
+            and len(unclassified_states) < 20
+        ):
+
+            unclassified_states.append(
+                initial_state.copy()
+            )
 
 
 # ============================================================
 # Results
 # ============================================================
 
-print("Number of equilibrium points:", np.sum(results == 0))
+print(
+    "Number of stable fixed-point points:",
+    np.sum(results == 0)
+)
 
-print("Number of bounded-rocking points:",np.sum(results == 1))
+print(
+    "Number of periodic rolling gait points:",
+    np.sum(results == 1)
+)
 
-print("Number of limit-cycle points:",np.sum(results == 2))
-
-print("Number of unclassified points:",np.sum(results == -1))
+print(
+    "Number of unclassified points:",
+    np.sum(results == -1)
+)
 
 
 print("\nExample unclassified states:")
 
 for state in unclassified_states:
 
-    print("theta =", np.rad2deg(state[0]), "theta_dot =", state[1])
+    print(
+        "theta =",
+        np.rad2deg(state[0]),
+        "theta_dot =",
+        state[1]
+    )
 
 
 # ============================================================
@@ -210,12 +244,10 @@ for state in unclassified_states:
 from matplotlib.colors import ListedColormap
 
 cmap = ListedColormap([
-    "gray",      # -1 = unclassified
-    "blue",      #  0 = equilibrium
-    "green",     #  1 = bounded rocking
-    "orange"     #  2 = periodic rolling gait
+    "gray",       # -1 = unclassified
+    "blue",       #  0 = stable fixed point
+    "orange"      #  1 = periodic rolling gait
 ])
-
 
 plot_results = results + 1
 
@@ -225,36 +257,39 @@ plt.imshow(
     plot_results.T,
     origin="lower",
     extent=[
-        -180,
-        180,
+        np.rad2deg(theta_values[0]),
+        np.rad2deg(theta_values[-1]),
         theta_dot_values[0],
         theta_dot_values[-1]
     ],
     aspect="auto",
     cmap=cmap,
     vmin=0,
-    vmax=3
+    vmax=2
 )
 
 plt.xlabel(r"$\theta$ (degrees)")
+
 plt.ylabel(r"$\dot{\theta}$ (rad/s)")
-plt.title("Rimless Wheel State-Space Classification")
+
+plt.title(
+    "Rimless Wheel State-Space Classification"
+)
 
 cbar = plt.colorbar(
-    ticks=[0, 1, 2, 3]
+    ticks=[0, 1, 2]
 )
 
 cbar.ax.set_yticklabels([
     "Unclassified",
-    "Equilibrium",
-    "Bounded rocking",
-    "Periodic rolling gait"
+    "Stable fixed point",
+    "Stable limit cycle"
 ])
 
 cbar.set_label("Behavior")
 
 plt.savefig(
-    "Rimless Wheel RoA.png",
+    "s11_Rimless_Wheel_RoA.png",
     dpi=300
 )
 

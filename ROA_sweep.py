@@ -2,130 +2,112 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
 
-import rimless_wheel as model
-from integrators import rk4
-
-
-def angle_difference(a, b):
-    return (a - b + np.pi) % (2 * np.pi) - np.pi
-
-# ============================================================
-# Energy of the continuous stance dynamics
-# ============================================================
-
-def stance_energy(state, params):
-    theta, theta_dot = state
-
-    g = params["gravity"]
-    l = params["spoke_length"]
-    gamma = params["slope_angle"]
-
-    return (0.5 * theta_dot**2 - (g / l) * np.cos(theta + gamma))
-
-
-# ============================================================
-# Energy required to reach impact
-# ============================================================
-
-def impact_energy(params):
-    alpha = np.pi / params["num_spokes"]
-
-    g = params["gravity"]
-    l = params["spoke_length"]
-
-    return -(g / l) * np.cos(alpha)
+import rimless_wheel_1 as model
 
 
 # ============================================================
 # Simulate and record impact velocities
 # ============================================================
 
-def get_impact_velocities(initial_state, params, time_step, total_time):
+def get_impact_velocities(
+    initial_state,
+    params,
+    time_step,
+    total_time
+):
     """
-    Simulate the rimless wheel and record the angular velocity
-    immediately before each impact.
+    Simulate the rimless wheel using the adaptive
+    event-aware simulation and return the angular
+    velocity immediately before each impact.
     """
 
-    num_steps = int(total_time / time_step)
+    (
+        times,
+        angles,
+        angular_velocities,
+        impact_velocities
+    ) = model.simulate_rimless_wheel(
+        initial_state,
+        params,
+        time_step,
+        total_time
+    )
 
-    wheel_state = initial_state.copy()
-    impact_velocities = []
-
-    current_time = 0.0
-
-    for step in range(num_steps):
-
-        if model.detect_impact(wheel_state, params):
-
-            impact_velocities.append(wheel_state[1])
-
-
-            wheel_state = model.spoke_reset(wheel_state,params)
-
-        wheel_state = rk4(current_time, wheel_state, time_step, model.rimless_wheel_continuous, params)
-
-        current_time += time_step
-
-    return np.array(impact_velocities)
+    return (
+        np.array(impact_velocities),
+        np.column_stack((
+            angles,
+            angular_velocities
+        ))
+    )
 
 
 # ============================================================
 # Classify initial condition
 # ============================================================
 
-def classify_state(initial_state, params, time_step, total_time):
+def classify_state(
+    initial_state,
+    params,
+    time_step,
+    total_time
+):
     """
-    Classification:
+    Classify an initial condition as:
 
         -1 = unclassified
-        0 = equilibrium
-        1 = bounded rocking
-        2 = periodic rolling gait
+        0 = stable fixed point
+        1 = stable limit cycle
     """
 
-    gamma = params["slope_angle"]
+    impact_velocities, state_history = get_impact_velocities(
+        initial_state,
+        params,
+        time_step,
+        total_time
+    )
 
-    theta0, theta_dot0 = initial_state
+    # ========================================================
+    # Check for convergence to a fixed point
+    # ========================================================
 
-    # --------------------------------------------------------
-    # 0 = equilibrium
-    # --------------------------------------------------------
+    num_tail_states = int(
+        0.2 * len(state_history)
+    )
 
-    if (abs(angle_difference(theta0, -gamma)) < 1e-3
-        and abs(theta_dot0) < 1e-3):
+    tail_states = state_history[-num_tail_states:]
+
+    theta_tail = tail_states[:, 0]
+    theta_dot_tail = tail_states[:, 1]
+
+    theta_range = (
+        np.max(theta_tail) -
+        np.min(theta_tail)
+    )
+
+    theta_dot_range = (
+        np.max(theta_dot_tail) -
+        np.min(theta_dot_tail)
+    )
+
+    if (
+        theta_range < 0.01
+        and theta_dot_range < 0.01
+        and np.max(np.abs(theta_dot_tail)) < 0.01
+    ):
         return 0
 
-    # --------------------------------------------------------
-    # 1 = bounded rocking
-    #
-    # If the initial energy is below the energy required to
-    # reach the impact angle, the trajectory cannot impact.
-    # It therefore remains on the same spoke and rocks around
-    # the equilibrium.
-    # --------------------------------------------------------
+    # ========================================================
+    # Check for convergence to a periodic rolling gait
+    # ========================================================
 
-    E = stance_energy(initial_state, params)
-
-    E_impact = impact_energy(params)
-
-    if E < E_impact:
-        return 1
-
-    # --------------------------------------------------------
-    # 2 = periodic rolling gait
-    #
-    # The trajectory has enough energy to reach impact.
-    # --------------------------------------------------------
-
-    impact_velocities = get_impact_velocities(initial_state, params, time_step, total_time)
-
-    if len(impact_velocities) < 5:
+    if len(impact_velocities) < 10:
         return -1
 
-    tail = impact_velocities[-5:]
+    tail = impact_velocities[-10:]
 
     if np.max(tail) - np.min(tail) < 0.05:
-        return 2
+        return 1
 
     return -1
 
@@ -134,23 +116,42 @@ def classify_state(initial_state, params, time_step, total_time):
 # Compute RoA classification over a state-space grid
 # ============================================================
 
-def compute_roa(params, theta_values, theta_dot_values):
+def compute_roa(
+    params,
+    theta_values,
+    theta_dot_values
+):
     """
-    Compute the behavioral classification over the
-    entire state-space grid.
+    Compute the behavioral classification over
+    the entire state-space grid.
     """
 
-    results = -np.ones((len(theta_values),len(theta_dot_values)))
+    results = -np.ones(
+        (
+            len(theta_values),
+            len(theta_dot_values)
+        )
+    )
 
     for i, theta in enumerate(theta_values):
 
-        print(f"Row {i + 1}/{len(theta_values)}")
+        print(
+            f"Row {i + 1}/{len(theta_values)}"
+        )
 
         for j, theta_dot in enumerate(theta_dot_values):
 
-            initial_state = np.array([theta, theta_dot])
+            initial_state = np.array([
+                theta,
+                theta_dot
+            ])
 
-            classification = classify_state(initial_state, params, time_step=0.005, total_time=20.0)
+            classification = classify_state(
+                initial_state,
+                params,
+                time_step=0.01,
+                total_time=20.0
+            )
 
             results[i, j] = classification
 
@@ -161,57 +162,103 @@ def compute_roa(params, theta_values, theta_dot_values):
 # Print sweep summary
 # ============================================================
 
-def print_sweep_summary(parameter_values, results_list, parameter_name):
+def print_sweep_summary(
+    parameter_values,
+    results_list,
+    parameter_name
+):
     """
-    Print summary statistics for an entire parameter sweep.
+    Print summary statistics for an entire
+    parameter sweep.
     """
 
-    print("\n\n")
+    print("\n")
     print("============================================================")
     print(f"{parameter_name} SWEEP SUMMARY")
     print("============================================================")
 
     total_states = results_list[0].size
 
-    for value, results in zip(parameter_values, results_list):
+    for value, results in zip(
+        parameter_values,
+        results_list
+    ):
 
-        num_equilibrium = np.sum(results == 0)
+        num_fixed_point = np.sum(
+            results == 0
+        )
 
-        num_bounded_rocking = np.sum(results == 1)
+        num_limit_cycle = np.sum(
+            results == 1
+        )
 
-        num_limit_cycle = np.sum(results == 2)
+        num_unclassified = np.sum(
+            results == -1
+        )
 
-        num_unclassified = np.sum(results == -1)
+        fixed_point_percent = (
+            100 * num_fixed_point / total_states
+        )
 
-        equilibrium_percent = (100 * num_equilibrium / total_states)
+        limit_cycle_percent = (
+            100 * num_limit_cycle / total_states
+        )
 
-        bounded_rocking_percent = (100 * num_bounded_rocking / total_states)
+        unclassified_percent = (
+            100 * num_unclassified / total_states
+        )
 
-        limit_cycle_percent = (100 * num_limit_cycle / total_states)
+        print(
+            f"{parameter_name} = {value}"
+        )
 
-        unclassified_percent = (100 * num_unclassified / total_states)
+        print(
+            f"  Stable fixed point: "
+            f"{num_fixed_point:5d} "
+            f"({fixed_point_percent:6.2f}%)"
+        )
 
-        print(f"{parameter_name} = {value}")
+        print(
+            f"  Stable limit cycle: "
+            f"{num_limit_cycle:5d} "
+            f"({limit_cycle_percent:6.2f}%)"
+        )
 
-        print(f"  Equilibrium:      " f"{num_equilibrium:5d} " f"({equilibrium_percent:6.2f}%)")
-
-        print(f"  Bounded rocking:  " f"{num_bounded_rocking:5d} " f"({bounded_rocking_percent:6.2f}%)")
-
-        print(f"  Limit cycle:      " f"{num_limit_cycle:5d} " f"({limit_cycle_percent:6.2f}%)")
-
-        print(f"  Unclassified:     " f"{num_unclassified:5d} " f"({unclassified_percent:6.2f}%)")
+        print(
+            f"  Unclassified:       "
+            f"{num_unclassified:5d} "
+            f"({unclassified_percent:6.2f}%)"
+        )
 
         print()
 
+
+params = model.generate_params()
+
+params["slope_angle"] = np.deg2rad(18)
+
+params["num_spokes"] = 8
+
+alpha = np.pi / params["num_spokes"]
+
+gamma = params["slope_angle"]
 
 # ============================================================
 # State-space grid
 # ============================================================
 
-theta_values = np.linspace(-np.pi, np.pi, 40, endpoint=False)
+# Fixed initial-condition grid for all sweeps
+theta_values = np.linspace(
+    np.deg2rad(18) - np.pi / 8,
+    np.deg2rad(18) + np.pi / 8,
+    100
+)
 
-theta_dot_values = np.linspace( -10, 10, 40)
-
+theta_dot_values = np.linspace(
+    -5,
+    5,
+    100
+)
 
 # ============================================================
 # Initial parameters
@@ -228,10 +275,9 @@ params["num_spokes"] = 8
 # ============================================================
 
 cmap = ListedColormap([
-    "gray",      # -1 = unclassified
-    "blue",      #  0 = equilibrium
-    "green",     #  1 = bounded rocking
-    "orange"     #  2 = limit cycle
+    "gray",       # -1 = unclassified
+    "blue",       #  0 = stable fixed point
+    "orange"      #  1 = stable limit cycle
 ])
 
 
@@ -239,7 +285,11 @@ cmap = ListedColormap([
 # SWEEP 1: Slope inclination
 # ============================================================
 
-slope_angles_deg = np.arange(5,36,5)
+slope_angles_deg = np.arange(
+    5,
+    36,
+    5
+)
 
 slope_results = []
 
@@ -250,11 +300,16 @@ for slope_deg in slope_angles_deg:
     print("===================================")
 
     params["slope_angle"] = np.deg2rad(
-        slope_deg)
+        slope_deg
+    )
 
     params["num_spokes"] = 8
 
-    results = compute_roa(params, theta_values, theta_dot_values)
+    results = compute_roa(
+        params,
+        theta_values,
+        theta_dot_values
+    )
 
     slope_results.append(results)
 
@@ -263,7 +318,11 @@ for slope_deg in slope_angles_deg:
 # Console summary: slope sweep
 # ============================================================
 
-print_sweep_summary(slope_angles_deg, slope_results, "Slope")
+print_sweep_summary(
+    slope_angles_deg,
+    slope_results,
+    "Slope"
+)
 
 
 # ============================================================
@@ -284,21 +343,23 @@ for k, slope_deg in enumerate(
 
     ax = axes[k]
 
-    plot_results = slope_results[k] + 1
+    plot_results = (
+        slope_results[k] + 1
+    )
 
     im = ax.imshow(
         plot_results.T,
         origin="lower",
         extent=[
-            -180,
-            180,
-            -10,
-            10
-        ],
+                np.rad2deg(theta_values[0]),
+                np.rad2deg(theta_values[-1]),
+                theta_dot_values[0],
+                theta_dot_values[-1]
+            ],
         aspect="auto",
         cmap=cmap,
         vmin=0,
-        vmax=3
+        vmax=2
     )
 
     ax.set_title(
@@ -336,16 +397,15 @@ axes[-1].axis("off")
 cbar = fig.colorbar(
     im,
     ax=axes,
-    ticks=[0, 1, 2, 3],
+    ticks=[0, 1, 2],
     shrink=0.85,
     pad=0.03
 )
 
 cbar.ax.set_yticklabels([
     "Unclassified",
-    "Equilibrium",
-    "Bounded rocking",
-    "Limit cycle"
+    "Stable fixed point",
+    "Stable limit cycle"
 ])
 
 cbar.set_label(
@@ -360,7 +420,7 @@ fig.suptitle(
 plt.tight_layout()
 
 plt.savefig(
-    "RoA%20Slope%20Sweep.png",
+    "s11_RoA_Slope_Sweep.png",
     dpi=300
 )
 
@@ -374,21 +434,30 @@ print("Saved: RoA Slope Sweep.png")
 # SWEEP 2: Number of spokes
 # ============================================================
 
-spoke_numbers = np.arange(6, 13)
+spoke_numbers = np.arange(
+    6,
+    13
+)
 
 spoke_results = []
 
-for N in spoke_numbers:
+for num_spokes in spoke_numbers:
 
     print("\n===================================")
-    print(f"Number of spokes = {N}")
+    print(
+        f"Number of spokes = {num_spokes}"
+    )
     print("===================================")
 
     params["slope_angle"] = np.deg2rad(20)
 
-    params["num_spokes"] = N
+    params["num_spokes"] = num_spokes
 
-    results = compute_roa(params, theta_values, theta_dot_values)
+    results = compute_roa(
+        params,
+        theta_values,
+        theta_dot_values
+    )
 
     spoke_results.append(results)
 
@@ -397,7 +466,11 @@ for N in spoke_numbers:
 # Console summary: spoke sweep
 # ============================================================
 
-print_sweep_summary(spoke_numbers, spoke_results, "Number of spokes")
+print_sweep_summary(
+    spoke_numbers,
+    spoke_results,
+    "Number of spokes"
+)
 
 
 # ============================================================
@@ -412,31 +485,33 @@ fig, axes = plt.subplots(
 
 axes = axes.flatten()
 
-for k, N in enumerate(
+for k, num_spokes in enumerate(
     spoke_numbers
 ):
 
     ax = axes[k]
 
-    plot_results = spoke_results[k] + 1
+    plot_results = (
+        spoke_results[k] + 1
+    )
 
     im = ax.imshow(
         plot_results.T,
         origin="lower",
         extent=[
-            -180,
-            180,
-            -10,
-            10
-        ],
+            np.rad2deg(theta_values[0]),
+            np.rad2deg(theta_values[-1]),
+            theta_dot_values[0],
+            theta_dot_values[-1]
+                    ],
         aspect="auto",
         cmap=cmap,
         vmin=0,
-        vmax=3
+        vmax=2
     )
 
     ax.set_title(
-        f"N = {N} spokes"
+        f"N = {num_spokes} spokes"
     )
 
     ax.set_xlabel(
@@ -470,16 +545,15 @@ axes[-1].axis("off")
 cbar = fig.colorbar(
     im,
     ax=axes,
-    ticks=[0, 1, 2, 3],
+    ticks=[0, 1, 2],
     shrink=0.85,
     pad=0.03
 )
 
 cbar.ax.set_yticklabels([
     "Unclassified",
-    "Equilibrium",
-    "Bounded rocking",
-    "Limit cycle"
+    "Stable fixed point",
+    "Stable limit cycle"
 ])
 
 cbar.set_label(
@@ -494,7 +568,7 @@ fig.suptitle(
 plt.tight_layout()
 
 plt.savefig(
-    "RoA%20Spoke%20Sweep.png",
+    "s11_RoA_Spoke_Sweep.png",
     dpi=300
 )
 

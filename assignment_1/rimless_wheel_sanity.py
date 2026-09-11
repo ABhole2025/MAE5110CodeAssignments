@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-import rimless_wheel as model
+import rimless_wheel_1 as model
 
 from integrators import rk4
 
