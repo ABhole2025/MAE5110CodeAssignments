@@ -151,7 +151,7 @@ params = model.generate_params()
 
 TIME_STEP = 0.01
 TOTAL_TIME = 20.0
-GRID_SIZE = 40
+GRID_SIZE = 100
 
 theta_dot_values = np.linspace(-5,5,GRID_SIZE)
 
@@ -268,7 +268,7 @@ fig.suptitle(
 plt.tight_layout()
 
 plt.savefig(
-    "RoA_Slope_Sweep.png",
+    "s11_RoA_Slope_Sweep.png",
     dpi=300
 )
 
@@ -382,7 +382,7 @@ fig.suptitle("Rimless Wheel RoA vs. Number of Spokes",fontsize=16)
 
 plt.tight_layout()
 
-plt.savefig("RoA_Spoke_Sweep.png",dpi=300)
+plt.savefig("s11_RoA_Spoke_Sweep.png",dpi=300)
 
 plt.close()
 

@@ -100,13 +100,13 @@ I first plotted the stance-spoke angle $\theta$ versus time to check the overall
 
 The simulation showed the expected repeated stance phases and discrete angle resets at impact. The resulting trajectory had the expected periodic behavior associated with the rolling gait.
 
-![Initial conditions (20 degrees, 0 rad/s)](assgn_1_plots/Rimless_Wheel_Angle_assgn_1.png)
+![Angle vs Time Initial conditions (20 degrees, 0 rad/s)](assgn_1_plots/Rimless_Wheel_Angle_assgn_1.png)
 
 ## 1.2 Phase Portrait
 
 ! also plotted the trajectory in state space using $\theta$ and $\dot{\theta}$. The initial condition for this test was $(\theta,\dot{\theta})=(10^\circ,0)$.
 
-![Phase portrait](assgn_1_plots/Rimless_Wheel_Phase_Portrait_assgn_1.png)
+![Phase Portrait Initial conditions (20 degrees, 0 rad/s)](assgn_1_plots/Rimless_Wheel_Phase_Portrait_assgn_1.png)
 
 The phase portrait shows the continuous evolution during each stance phase and the changes in state caused by impacts. The trajectory approaches a repeating pattern, providing a qualitative check that the simulation converges toward a periodic rolling gait.
 

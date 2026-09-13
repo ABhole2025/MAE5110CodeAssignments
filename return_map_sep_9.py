@@ -147,7 +147,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "Rimless Wheel Return Map.png",
+    "s11_Rimless_Wheel _Return_Map.png",
     dpi=300
 )
 
@@ -217,7 +217,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "Floquet vs Slope.png",
+    "s11_Floquet_vs_Slope.png",
     dpi=300
 )
 
@@ -272,7 +272,7 @@ plt.grid(True)
 plt.legend()
 
 plt.savefig(
-    "Floquet vs Number of Spokes.png",
+    "s11_Floquet_vs_Number_of_Spokes.png",
     dpi=300
 )
 

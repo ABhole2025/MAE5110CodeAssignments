@@ -232,7 +232,7 @@ if __name__ == "__main__":
     plt.title("Rimless Wheel Angle")
     plt.grid()
 
-    plt.savefig("Rimless Wheel Angle assgn 1.png")
+    plt.savefig("Rimless_Wheel_Angle_assgn_1.png")
 
     plt.close()
 
@@ -264,7 +264,7 @@ if __name__ == "__main__":
 
     plt.grid()
 
-    plt.savefig("Rimless Wheel Phase Portrait assgn 1.png")
+    plt.savefig("Rimless_Wheel_Phase_Portrait_assgn_1.png")
 
     plt.close()
 

@@ -26,7 +26,7 @@ gamma = params["slope_angle"]
 
 theta_values = np.linspace(gamma - alpha,gamma + alpha,100)
 
-theta_dot_values = np.linspace(-5,5,40)
+theta_dot_values = np.linspace(-5,5,100)
 
 results = -np.ones((len(theta_values), len(theta_dot_values)))
 
@@ -203,7 +203,7 @@ cbar.ax.set_yticklabels([
 cbar.set_label("Behavior")
 
 plt.savefig(
-    "Rimless_Wheel_RoA.png",
+    "s11_Rimless_Wheel_RoA.png",
     dpi=300
 )
 
