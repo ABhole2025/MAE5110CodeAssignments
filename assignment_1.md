@@ -104,7 +104,7 @@ The simulation showed the expected repeated stance phases and discrete angle res
 
 ## 1.2 Phase Portrait
 
-! also plotted the trajectory in state space using $\theta$ and $\dot{\theta}$. The initial condition for this test was $(\theta,\dot{\theta})=(10^\circ,0)$.
+! also plotted the trajectory in state space using $\theta$ and $\dot{\theta}$. The initial condition for this test was $(\theta,\dot{\theta})=(20^\circ,0)$.
 
 ![Phase Portrait Initial conditions (20 degrees, 0 rad/s)](assgn_1_plots/Rimless_Wheel_Phase_Portrait_assgn_1.png)
 
