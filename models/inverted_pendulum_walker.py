@@ -9,7 +9,14 @@ import numpy as np
 
 
 def generate_params():
-    pass
+    return {
+        "gravity": 9.81,
+        "mass": 1.0,
+        "length": 1.0,
+        "incline": 0.06, #radians
+        "angle_of_attack": np.pi / 8,
+        "ankle_torque": 0.0,
+    }
 
 
 def dynamics(t, state, params):
