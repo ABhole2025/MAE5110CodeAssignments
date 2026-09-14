@@ -30,7 +30,15 @@ def dynamics(t, state, params):
 
 
 def event_guard(previous_state, next_state, params):
-    pass
+    previous_theta = previous_state[0]
+    next_theta = next_state[0]
+
+    alpha = params["angle_of_attack"]
+    gamma = params["incline"]
+
+    impact_angle = alpha + gamma
+
+    return previous_theta < impact_angle and next_theta >= impact_angle
 
 
 def event_dynamics(state, params):
