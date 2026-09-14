@@ -20,8 +20,13 @@ def generate_params():
 
 
 def dynamics(t, state, params):
-    # TODO: implement the state derivative.
-    return np.array([0.0, 0.0])
+    theta, theta_dot = state
+    gravity = params["gravity"]
+    length = params["length"]
+    mass = params["mass"]
+    ankle_torque = params["ankle_torque"]
+    theta_ddot = ((gravity/length) * np.sin(theta) + ankle_torque / (mass * length**2))
+    return np.array([theta_dot, theta_ddot])
 
 
 def event_guard(previous_state, next_state, params):
