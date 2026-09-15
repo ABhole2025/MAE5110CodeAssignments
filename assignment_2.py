@@ -7,7 +7,6 @@ from matplotlib.animation import FuncAnimation, PillowWriter
 from models import inverted_pendulum_walker as model
 from assignment_2_control import feedback_linearizing_controller
 
-# Fixed controls for this visualization example.
 params = {
     "gravity": 9.81,  # m/s^2
     "length": 1.0,  # m
@@ -17,16 +16,22 @@ params = {
     "ankle_torque": 0.0,  # N m
 }
 
+initial_state = np.array([0.0, 3.0])
+timestep = 1e-4
+sim_time = 3.0
+desired_number_of_steps = 3
+
 kp = 4.0
 kd = 2.0
 
 alpha_min = np.pi / 8
 alpha_max = np.pi / 7
 
-initial_state = np.array([0.0, 3.0])
-timestep = 1e-4
-sim_time = 3.0
-desired_number_of_steps = 3
+# Temporary policy: use the minimum allowed angle of attack.
+params["angle_of_attack"] = alpha_min
+
+# Temporary setting while testing the ankle controller.
+standing_controller_active = True
 
 n_timesteps = round(sim_time / timestep) + 1
 time_traj = np.arange(n_timesteps) * timestep
@@ -34,21 +39,40 @@ state_traj = np.zeros((2, n_timesteps))
 state_traj[:, 0] = initial_state
 completed_steps = 0
 
-# Simulation loop. Replace this Euler step with your own integrator as needed.
+# Simulation loop.
 for step, t in enumerate(time_traj[:-1]):
     state = state_traj[:, step]
-    next_state = state + timestep * model.dynamics(t, state, params)
 
+    # Apply the ankle controller at every continuous-time timestep.
+    if standing_controller_active:
+        params["ankle_torque"] = feedback_linearizing_controller(state, params, kp, kd,)
+    else:
+        params["ankle_torque"] = 0.0
+
+    # Integrate the continuous dynamics.
+    next_state = state + timestep * model.dynamics(t, state, params,)
+
+    # Check touchdown using the current step's angle of attack.
     if model.event_guard(state, next_state, params):
         next_state = model.event_dynamics(next_state, params)
         completed_steps += 1
 
+        # Choose the next step's angle of attack.
+        # Temporary policy: always use the minimum allowed value.
+        params["angle_of_attack"] = alpha_min
+
     state_traj[:, step + 1] = next_state
+
     if completed_steps == desired_number_of_steps:
         break
 
 time_traj = time_traj[: step + 2]
 state_traj = state_traj[:, : step + 2]
+
+
+# ------------------------------------------------------------
+# Animation
+# ------------------------------------------------------------
 
 fig, ax = plt.subplots(figsize=(8, 5), layout="constrained")
 
