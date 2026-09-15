@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib.animation import FuncAnimation, PillowWriter
 
 from models import inverted_pendulum_walker as model
+from assignment_2_control import feedback_linearizing_controller
 
 # Fixed controls for this visualization example.
 params = {
@@ -15,6 +16,12 @@ params = {
     "angle_of_attack": np.pi / 8,  # rad
     "ankle_torque": 0.0,  # N m
 }
+
+kp = 4.0
+kd = 2.0
+
+alpha_min = np.pi / 8
+alpha_max = np.pi / 7
 
 initial_state = np.array([0.0, 3.0])
 timestep = 1e-4
