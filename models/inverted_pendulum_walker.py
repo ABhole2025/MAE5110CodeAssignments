@@ -42,11 +42,27 @@ def event_guard(previous_state, next_state, params):
 
 
 def event_dynamics(state, params):
-    pass
+    theta, theta_dot = state
+
+    alpha = params["angle_of_attack"]
+
+    theta_new = theta - 2 * alpha
+    theta_dot_new = theta_dot * np.cos(2 * alpha)
+
+    return np.array([theta_new, theta_dot_new])
 
 
 def calculate_energy(state, params):
-    pass
+    theta, theta_dot = state
+
+    gravity = params["gravity"]
+    length = params["length"]
+    mass = params["mass"]
+
+    kinetic_energy = 0.5 * mass * length**2 * theta_dot**2
+    potential_energy = mass * gravity * length * np.cos(theta)
+
+    return kinetic_energy + potential_energy
 
 
 def visualize(
