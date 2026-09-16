@@ -1,7 +1,8 @@
+from concurrent.futures import ProcessPoolExecutor
+
 import matplotlib.pyplot as plt
 import numpy as np
-
-from concurrent.futures import ProcessPoolExecutor
+from matplotlib.colors import ListedColormap
 
 from assignment_2_control import feedback_linearizing_controller
 from models import inverted_pendulum_walker as model
@@ -29,8 +30,8 @@ sim_time = 3.0
 
 # Initial-condition grid.
 resolution = 101 #odd number ensures 0,0 is included
-theta_grid = np.linspace(-0.10, 0.10, resolution)
-theta_dot_grid = np.linspace(-0.20, 0.20, resolution)
+theta_grid = np.linspace(-0.15, 0.07, resolution)
+theta_dot_grid = np.linspace(-0.25, 0.35, resolution)
 
 # A trajectory is classified as "stable" if its final states are
 # close to the upright equilibrium.
@@ -82,7 +83,7 @@ def simulate_standing_controller(initial_state):
 
 
 def classify_initial_condition(initial_condition):
-    initial_condition = row, column, theta_dot_initial, theta_initial
+    row, column, theta_dot_initial, theta_initial = initial_condition
     stable = simulate_standing_controller([theta_initial, theta_dot_initial])
     return row, column, stable
 
@@ -108,21 +109,24 @@ if __name__ == "__main__":
 
 
 
-# Plot the estimated RoA
+    # Plot
 
-theta_mesh, theta_dot_mesh = np.meshgrid(theta_grid, theta_dot_grid,)
+    theta_mesh, theta_dot_mesh = np.meshgrid(theta_grid, theta_dot_grid,)
 
-plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(8, 6))
 
-plt.pcolormesh(theta_mesh, theta_dot_mesh, stable_grid, shading="nearest",)
+    binary_cmap = ListedColormap(["lightcoral", "lightgreen",])
 
-plt.xlabel(r"$\theta$ [rad]")
-plt.ylabel(r"$\dot{\theta}$ [rad/s]")
-plt.title("Estimated RoA of the feedback-linearizing standing controller")
+    plt.pcolormesh(theta_mesh, theta_dot_mesh, stable_grid.astype(int), cmap=binary_cmap, vmin=0, vmax=1,shading="nearest",)
 
-colorbar = plt.colorbar()
-colorbar.set_label("Stable classification")
+    plt.xlabel(r"$\theta$ [rad]")
+    plt.ylabel(r"$\dot{\theta}$ [rad/s]")
+    plt.title("Estimated RoA of the feedback-linearizing standing controller")
 
-plt.tight_layout()
-plt.savefig("Estimated_RoA_of_the_feedback-linearizing_standing_controller")
-plt.show()
+    colorbar = plt.colorbar(ticks=[0, 1],)
+
+    colorbar.ax.set_yticklabels(["Not stable", "Stable",])
+
+    plt.tight_layout()
+    plt.savefig("Estimated_RoA_of_the_feedback-linearizing_standing_controller", dpi=300,)
+    plt.show()
