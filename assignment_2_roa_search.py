@@ -29,9 +29,9 @@ timestep = 1e-3
 sim_time = 3.0
 
 # Initial-condition grid.
-resolution = 101 #odd number ensures 0,0 is included
-theta_grid = np.linspace(-0.15, 0.07, resolution)
-theta_dot_grid = np.linspace(-0.25, 0.35, resolution)
+#odd number ensures 0,0 is included
+theta_grid = np.linspace(-0.20, 0.10, 101)
+theta_dot_grid = np.linspace(-0.5, 1.0, 151)
 
 # A trajectory is classified as "stable" if its final states are
 # close to the upright equilibrium.
@@ -108,6 +108,10 @@ if __name__ == "__main__":
                 print(f"Completed {count}/{len(initial_conditions)} states")
 
 
+    # Save RoA data for use by other scripts
+    np.savez("standing_roa.npz", stable_grid=stable_grid, theta_grid=theta_grid, theta_dot_grid=theta_dot_grid,)
+
+
 
     # Plot
 
@@ -130,3 +134,4 @@ if __name__ == "__main__":
     plt.tight_layout()
     plt.savefig("Estimated_RoA_of_the_feedback-linearizing_standing_controller", dpi=300,)
     plt.show()
+
