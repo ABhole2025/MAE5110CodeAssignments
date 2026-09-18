@@ -108,12 +108,87 @@ def build_state_action_table():
     return table
 
 
+def find_steps_to_roa(state_action_table):
+
+    steps_to_roa = np.full(num_state_points, -1, dtype=int)
+
+    best_alpha = np.full(num_state_points, np.nan)
+
+    for state_index, theta_dot in enumerate(state_grid):
+        if in_roa(theta_dot):
+            steps_to_roa[state_index] = 0
+
+    print(f"States already in RoA: "
+        f"{np.sum(steps_to_roa == 0)}")
+
+    current_step = 0
+
+    while True:
+
+        newly_reachable = 0
+
+        for state_index in range(num_state_points):
+
+            if steps_to_roa[state_index] != -1:
+                continue
+
+            for alpha_index, alpha in enumerate(alpha_grid):
+
+                theta_dot_next = state_action_table[state_index, alpha_index]
+
+                if not np.isfinite(theta_dot_next):
+                    continue
+
+                next_state_index = np.argmin(np.abs(state_grid - theta_dot_next))
+
+                if steps_to_roa[next_state_index] == current_step:
+
+                    steps_to_roa[state_index] = current_step + 1
+                    best_alpha[state_index] = alpha
+
+                    newly_reachable += 1
+                    break
+
+        if newly_reachable == 0:
+            break
+
+        current_step += 1
+
+        print(f"Found {newly_reachable} new states "f"requiring {current_step} steps")
+
+    return steps_to_roa, best_alpha
+
 
 if __name__ == "__main__":
 
     state_action_table = build_state_action_table()
 
     np.savez("poincare_state_action.npz",state_action_table=state_action_table,state_grid=state_grid,alpha_grid=alpha_grid,)
+
+
+
+    steps_to_roa, best_alpha = find_steps_to_roa(state_action_table)
+
+    print("\nSteps to RoA:")
+
+    for state_index, theta_dot in enumerate(state_grid):
+
+        if steps_to_roa[state_index] == -1:
+            print(f"theta_dot = {theta_dot:.3f}: "f"not reachable")
+        else:
+            print(f"theta_dot = {theta_dot:.3f}: "f"{steps_to_roa[state_index]} steps, "f"alpha = {best_alpha[state_index]:.4f}")
+
+    np.savez("poincare_reachability.npz",
+        steps_to_roa=steps_to_roa,
+        best_alpha=best_alpha,
+        state_grid=state_grid,)
+
+    valid_entries = np.isfinite(state_action_table)
+
+    print(f"Total state-action pairs: {state_action_table.size}")
+    print(f"Returning pairs: {np.sum(valid_entries)}")
+    print(f"No-return pairs: {np.sum(~valid_entries)}")
+    print(f"Fraction returning: "f"{np.mean(valid_entries):.3f}")
 
     plt.figure(figsize=(8, 6))
 
@@ -137,3 +212,16 @@ if __name__ == "__main__":
     plt.show()
 
 
+
+    plt.figure(figsize=(8, 6))
+
+    reachable = steps_to_roa >= 0
+
+    plt.scatter(state_grid[reachable],steps_to_roa[reachable],)
+
+    plt.xlabel(r"$\dot{\theta}_k$ (rad/s)")
+    plt.ylabel("Steps to RoA")
+    plt.title("Number of Steps Required to Reach the Standing RoA")
+
+    plt.savefig("Number of Steps Required to Reach the Standing RoA")
+    plt.show()

@@ -30,8 +30,11 @@ sim_time = 3.0
 
 # Initial-condition grid.
 #odd number ensures 0,0 is included
-theta_grid = np.linspace(-0.20, 0.10, 101)
-theta_dot_grid = np.linspace(-0.5, 1.0, 151)
+num_theta_points = 101
+num_theta_dot_points = 151
+
+theta_grid = np.linspace(-0.20, 0.10, num_theta_points)
+theta_dot_grid = np.linspace(-0.5, 1.0, num_theta_dot_points)
 
 # A trajectory is classified as "stable" if its final states are
 # close to the upright equilibrium.
@@ -98,6 +101,7 @@ if __name__ == "__main__":
 
     stable_grid = np.zeros((len(theta_dot_grid), len(theta_grid)), dtype=bool,)
 
+
     with ProcessPoolExecutor() as executor:
         results = executor.map(classify_initial_condition, initial_conditions,)
 
@@ -111,6 +115,12 @@ if __name__ == "__main__":
     # Save RoA data for use by other scripts
     np.savez("standing_roa.npz", stable_grid=stable_grid, theta_grid=theta_grid, theta_dot_grid=theta_dot_grid,)
 
+    num_stable = np.sum(stable_grid)
+    num_total = stable_grid.size
+    stable_fraction = num_stable / num_total
+
+    delta_theta = theta_grid[1] - theta_grid[0]
+    delta_theta_dot = theta_dot_grid[1] - theta_dot_grid[0]
 
 
     # Plot
@@ -125,13 +135,13 @@ if __name__ == "__main__":
 
     plt.xlabel(r"$\theta$ [rad]")
     plt.ylabel(r"$\dot{\theta}$ [rad/s]")
-    plt.title("Estimated RoA of the feedback-linearizing standing controller")
+    plt.title(f"Estimated_RoA_{num_theta_points}x{num_theta_dot_points}.png")
 
     colorbar = plt.colorbar(ticks=[0, 1],)
 
     colorbar.ax.set_yticklabels(["Not stable", "Stable",])
 
     plt.tight_layout()
-    plt.savefig("Estimated_RoA_of_the_feedback-linearizing_standing_controller", dpi=300,)
+    plt.savefig(f"Estimated_RoA_{num_theta_points}x{num_theta_dot_points}.png", dpi=300,)
     plt.show()
 
