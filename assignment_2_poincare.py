@@ -244,110 +244,59 @@ def compare_policies(coarse_result, fine_result):
 
     differences = np.array(differences)
 
-    coarse_alpha_grid = coarse_result["alpha_grid"]
-
-    delta_alpha = (coarse_alpha_grid[1]- coarse_alpha_grid[0])
-
-    fraction_large_change = np.mean(differences > delta_alpha)
-
     return {
-        "max_difference": np.max(differences),
         "mean_difference": np.mean(differences),
-        "fraction_large_change": fraction_large_change,
+        "max_difference": np.max(differences),
         "num_compared": len(differences),
     }
 
 
 
-
-
 if __name__ == "__main__":
+    alpha_range = np.pi / 7 - np.pi / 8
 
-    # TEST 1: Alpha-grid resolution
-    alpha_resolutions = [
-        (201, 5),
-        (201, 11),
-        (201, 21),
-        (201, 31),
-        (201, 41),
-        (201, 61),
-        (201, 81),
-    ]
+    convergence_tolerance = 0.01 * alpha_range
 
-    alpha_results = []
+    required_consecutive = 2
 
     print("\n========================================")
-    print("TEST 1: ALPHA-GRID RESOLUTION")
+    print("GRID REFINEMENT TEST")
     print("========================================")
 
-    for num_state_points, num_alpha_points in alpha_resolutions:
+    print(
+        f"Alpha range = {alpha_range:.6f} rad"
+    )
 
-        result = run_resolution_test(num_state_points,num_alpha_points,)
+    print(
+        f"Convergence tolerance = "
+        f"{convergence_tolerance:.6f} rad"
+    )
 
-        alpha_results.append(result)
+    print(
+        f"Criterion: mean |Delta alpha| < "
+        f"{convergence_tolerance:.6f} rad "
+        f"for {required_consecutive} consecutive refinements"
+    )
 
-        print(
-            f"\nRunning {num_state_points} state points "
-            f"x {num_alpha_points} alpha points")
-
-        print(
-            f"Reachable states: "
-            f"{result['reachable_states']}/"
-            f"{num_state_points}")
-
-    print("\nAlpha-grid policy convergence:")
-
-    alpha_policy_differences = []
-
-    for i in range(len(alpha_results) - 1):
-
-        coarse = alpha_results[i]
-        fine = alpha_results[i + 1]
-
-        comparison = compare_policies(coarse,fine,)
-
-        alpha_policy_differences.append(comparison["mean_difference"])
-
-        print(
-            f"{coarse['num_alpha_points']} -> "
-            f"{fine['num_alpha_points']}: "
-            f"mean |Delta alpha| = "
-            f"{comparison['mean_difference']:.6f} rad, "
-            f"fraction > 1 grid step = "
-            f"{comparison['fraction_large_change']:.3f}")
-
-
-    # TEST 2: State-grid resolution
-
-    fixed_num_alpha_points = 41
-
-    state_resolutions = [
-        (21, fixed_num_alpha_points),
-        (31, fixed_num_alpha_points),
-        (51, fixed_num_alpha_points),
-        (81, fixed_num_alpha_points),
-        (101, fixed_num_alpha_points),
-        (151, fixed_num_alpha_points),
-        (201, fixed_num_alpha_points),
-        (301, fixed_num_alpha_points),
-        (401, fixed_num_alpha_points),
+    resolutions = [
+        (21, 5),
+        (41, 9),
+        (81, 17),
+        (161, 33),
+        (321, 65),
     ]
 
-    state_results = []
+    results = []
 
-    print("\n========================================")
-    print("TEST 2: STATE-GRID RESOLUTION")
-    print("========================================")
+    consecutive_converged = 0
 
-    for num_state_points, num_alpha_points in state_resolutions:
+    for num_state_points, num_alpha_points in resolutions:
 
-        result = run_resolution_test(num_state_points,num_alpha_points,)
+        result = run_resolution_test(
+            num_state_points,
+            num_alpha_points,)
 
-        state_results.append(result)
-
-        print(
-            f"\nRunning {num_state_points} state points "
-            f"x {num_alpha_points} alpha points")
+        results.append(result)
 
         print(
             f"Reachable states: "
@@ -356,48 +305,143 @@ if __name__ == "__main__":
 
         print(
             f"Delta theta_dot: "
-            f"{result['delta_theta_dot']:.5f} rad/s")
+            f"{result['delta_theta_dot']:.6f} rad/s")
 
-    print("\nState-grid policy convergence:")
+        if len(results) > 1:
 
-    state_policy_differences = []
+            coarse = results[-2]
+            fine = results[-1]
 
-    for i in range(len(state_results) - 1):
+            comparison = compare_policies(
+                coarse,
+                fine,
+            )
 
-        coarse = state_results[i]
-        fine = state_results[i + 1]
+            mean_difference = comparison[
+                "mean_difference"
+            ]
 
-        comparison = compare_policies(coarse,fine,)
+            max_difference = comparison[
+                "max_difference"
+            ]
 
-        state_policy_differences.append(
-            comparison["mean_difference"])
+            print(
+                f"Mean |Delta alpha| = "
+                f"{mean_difference:.6f} rad"
+            )
+
+            print(
+                f"Max |Delta alpha| = "
+                f"{max_difference:.6f} rad"
+            )
+
+            print(
+                f"States compared = "
+                f"{comparison['num_compared']}"
+            )
+
+            if mean_difference < convergence_tolerance:
+
+                consecutive_converged += 1
+
+                print(
+                    f"Converged refinement "
+                    f"{consecutive_converged}/"
+                    f"{required_consecutive}"
+                )
+
+            else:
+
+                consecutive_converged = 0
+
+                print("Not converged.")
+
+            if (
+                consecutive_converged
+                >= required_consecutive
+            ):
+
+                print("\n========================================")
+                print("GRID CONVERGED")
+                print("========================================")
+
+                print(
+                    f"Selected grid: "
+                    f"{fine['num_state_points']} "
+                    f"state points x "
+                    f"{fine['num_alpha_points']} "
+                    f"alpha points"
+                )
+
+                print(
+                    f"Mean policy change = "
+                    f"{mean_difference:.6f} rad"
+                )
+
+                break
+
+    else:
+
+        print("\n========================================")
+        print("GRID DID NOT CONVERGE")
+        print("========================================")
 
         print(
-            f"{coarse['num_state_points']} -> "
-            f"{fine['num_state_points']}: "
-            f"mean |Delta alpha| = "
-            f"{comparison['mean_difference']:.6f} rad, "
-            f"fraction > 1 alpha-grid step = "
-            f"{comparison['fraction_large_change']:.3f}")
+            "The tested resolutions did not satisfy "
+            "the convergence criterion."
+        )
 
+    policy_differences = []
 
+    refinement_labels = []
 
-    # Plot
+    for i in range(1, len(results)):
 
-    state_counts = [result["num_state_points"]for result in state_results]
+        comparison = compare_policies(
+            results[i - 1],
+            results[i],
+        )
+
+        policy_differences.append(
+            comparison["mean_difference"]
+        )
+
+        refinement_labels.append(
+            results[i]["num_state_points"]
+        )
 
     plt.figure(figsize=(8, 5))
 
-    plt.plot(state_counts[1:],state_policy_differences,marker="o",)
+    plt.plot(
+        refinement_labels,
+        policy_differences,
+        marker="o",
+    )
 
-    plt.xlabel("Finer state-grid resolution (number of points)")
+    plt.axhline(
+        convergence_tolerance,
+        linestyle="--",
+        label="Convergence tolerance",
+    )
 
-    plt.ylabel("Mean |Delta alpha| between resolutions [rad]")
+    plt.xlabel(
+        "Finer state-grid resolution"
+    )
 
-    plt.title("State-Grid Policy Convergence")
+    plt.ylabel(
+        "Mean |Delta alpha| [rad]"
+    )
 
+    plt.title(
+        "Policy Convergence Under Joint Grid Refinement"
+    )
+
+    plt.legend()
     plt.grid(True)
 
-    plt.savefig("state_grid_policy_convergence.png",dpi=300,)
+    plt.savefig(
+        "joint_grid_policy_convergence.png",
+        dpi=300,
+    )
 
     plt.show()
