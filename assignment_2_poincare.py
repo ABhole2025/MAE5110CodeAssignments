@@ -23,13 +23,12 @@ l = params["length"]
 
 theta_dot_max = np.sqrt(2 * g / l)
 
-# Initial resolution -- to be tested
-num_state_points = 51
-num_alpha_points = 21
+def make_grids(num_state_points, num_alpha_points):
+    state_grid = np.linspace(0.0,theta_dot_max,num_state_points,)
 
-state_grid = np.linspace(0.0,theta_dot_max,num_state_points,)
+    alpha_grid = np.linspace(np.pi / 8,np.pi / 7,num_alpha_points,)
 
-alpha_grid = np.linspace(np.pi / 8,np.pi / 7,num_alpha_points,)
+    return state_grid, alpha_grid
 
 def poincare_section_crossed(previous_state, next_state):
     previous_theta = previous_state[0]
@@ -54,7 +53,7 @@ def simulate_one_step(theta_dot_initial, alpha):
         if model.event_guard(state, next_state, local_params):
             next_state = model.event_dynamics(next_state, local_params,)
 
-        # Check for the NEXT Poincaré-section crossing
+        # Check for the next Poincaré-section crossing
         if poincare_section_crossed(state, next_state):
             return next_state[1]
 
@@ -87,8 +86,8 @@ def in_roa(theta_dot):
     return stable_grid[theta_dot_index, theta_index]
 
 
-def build_state_action_table():
-    table = np.full((num_state_points, num_alpha_points),np.nan,)
+def build_state_action_table(state_grid, alpha_grid):
+    table = np.full((len(state_grid), len(alpha_grid)),np.nan,)
 
     tasks = [(theta_dot_initial, alpha)
         for theta_dot_initial in state_grid
@@ -108,26 +107,22 @@ def build_state_action_table():
     return table
 
 
-def find_steps_to_roa(state_action_table):
+def find_steps_to_roa(state_action_table, state_grid, alpha_grid):
 
-    steps_to_roa = np.full(num_state_points, -1, dtype=int)
-
-    best_alpha = np.full(num_state_points, np.nan)
+    steps_to_roa = np.full(len(state_grid), -1, dtype=int)
+    best_alpha = np.full(len(state_grid), np.nan)
 
     for state_index, theta_dot in enumerate(state_grid):
+
         if in_roa(theta_dot):
             steps_to_roa[state_index] = 0
-
-    print(f"States already in RoA: "
-        f"{np.sum(steps_to_roa == 0)}")
 
     current_step = 0
 
     while True:
-
         newly_reachable = 0
 
-        for state_index in range(num_state_points):
+        for state_index in range(len(state_grid)):
 
             if steps_to_roa[state_index] != -1:
                 continue
@@ -154,74 +149,271 @@ def find_steps_to_roa(state_action_table):
 
         current_step += 1
 
-        print(f"Found {newly_reachable} new states "f"requiring {current_step} steps")
-
     return steps_to_roa, best_alpha
+
+
+def run_resolution_test(num_state_points, num_alpha_points):
+
+    print(f"\nRunning {num_state_points} state points "f"x {num_alpha_points} alpha points")
+
+    state_grid, alpha_grid = make_grids(num_state_points,num_alpha_points,)
+
+    state_action_table = build_state_action_table(state_grid,alpha_grid,)
+
+    steps_to_roa, best_alpha = find_steps_to_roa(
+        state_action_table,
+        state_grid,
+        alpha_grid,)
+
+    reachable = steps_to_roa >= 0
+
+    delta_theta_dot = (state_grid[1] - state_grid[0])
+
+    # Physical range of states that are reachable
+    if np.any(reachable):
+
+        reachable_theta_dot_min = (state_grid[reachable].min())
+
+        reachable_theta_dot_max = (state_grid[reachable].max())
+
+    else:
+
+        reachable_theta_dot_min = np.nan
+        reachable_theta_dot_max = np.nan
+
+    return {
+        "num_state_points": num_state_points,
+        "num_alpha_points": num_alpha_points,
+
+        "total_pairs": (state_action_table.size),
+
+        "returning_pairs": np.sum(np.isfinite(state_action_table)),
+
+        "return_fraction": np.mean(np.isfinite(state_action_table)),
+
+        "reachable_states": np.sum(reachable),
+
+        "max_steps": (np.max(steps_to_roa[reachable])if np.any(reachable)else -1),
+
+        "steps_to_roa": steps_to_roa,
+        "best_alpha": best_alpha,
+        "state_grid": state_grid,
+        "alpha_grid": alpha_grid,
+
+        "delta_theta_dot": delta_theta_dot,
+
+        "reachable_theta_dot_min":
+            reachable_theta_dot_min,
+
+        "reachable_theta_dot_max":
+            reachable_theta_dot_max,
+    }
+
+
+def compare_policies(coarse_result, fine_result):
+
+    coarse_grid = coarse_result["state_grid"]
+    coarse_policy = coarse_result["best_alpha"]
+
+    fine_grid = fine_result["state_grid"]
+    fine_policy = fine_result["best_alpha"]
+
+    # Only compare states for which both
+    # policies have a defined action.
+    differences = []
+
+    for i, theta_dot in enumerate(
+        coarse_grid):
+
+        coarse_alpha = coarse_policy[i]
+
+        if not np.isfinite(coarse_alpha):
+            continue
+
+        # Find the closest state in the finer grid
+        fine_index = np.argmin(
+            np.abs(fine_grid- theta_dot))
+
+        fine_alpha = fine_policy[fine_index]
+
+        if not np.isfinite(fine_alpha):
+            continue
+
+        differences.append(abs(coarse_alpha- fine_alpha))
+
+    if len(differences) == 0:
+        return np.nan
+
+    return np.max(differences)
 
 
 if __name__ == "__main__":
 
-    state_action_table = build_state_action_table()
+    resolutions = [
+        (21, 21),
+        (31, 21),
+        (51, 21),
+        (81, 21),
+        (101, 21),
+        (151, 21),
+        (201, 21),
+        (301, 21),
+        (401, 21),
+    ]
 
-    np.savez("poincare_state_action.npz",state_action_table=state_action_table,state_grid=state_grid,alpha_grid=alpha_grid,)
+    results = []
 
+    for num_state_points, num_alpha_points in resolutions:
 
+        result = run_resolution_test(
+            num_state_points,
+            num_alpha_points,
+        )
 
-    steps_to_roa, best_alpha = find_steps_to_roa(state_action_table)
+        results.append(result)
 
-    print("\nSteps to RoA:")
+        print(
+            f"Reachable states: "
+            f"{result['reachable_states']}/"
+            f"{num_state_points}"
+        )
 
-    for state_index, theta_dot in enumerate(state_grid):
+        print(
+            f"Delta theta_dot: "
+            f"{result['delta_theta_dot']:.5f} "
+            f"rad/s"
+        )
 
-        if steps_to_roa[state_index] == -1:
-            print(f"theta_dot = {theta_dot:.3f}: "f"not reachable")
-        else:
-            print(f"theta_dot = {theta_dot:.3f}: "f"{steps_to_roa[state_index]} steps, "f"alpha = {best_alpha[state_index]:.4f}")
+        print(
+            f"Reachable theta_dot range: "
+            f"{result['reachable_theta_dot_min']:.5f} "
+            f"to "
+            f"{result['reachable_theta_dot_max']:.5f} "
+            f"rad/s"
+        )
 
-    np.savez("poincare_reachability.npz",
-        steps_to_roa=steps_to_roa,
-        best_alpha=best_alpha,
-        state_grid=state_grid,)
+    # ---------------------------------------------------------
+    # Compare each resolution with the next finer resolution
+    # ---------------------------------------------------------
 
-    valid_entries = np.isfinite(state_action_table)
+    policy_differences = []
 
-    print(f"Total state-action pairs: {state_action_table.size}")
-    print(f"Returning pairs: {np.sum(valid_entries)}")
-    print(f"No-return pairs: {np.sum(~valid_entries)}")
-    print(f"Fraction returning: "f"{np.mean(valid_entries):.3f}")
+    print("\nPolicy convergence:")
 
-    plt.figure(figsize=(8, 6))
+    for i in range(len(results) - 1):
 
-    plt.imshow(
-        state_action_table,
-        origin="lower",
-        aspect="auto",
-        extent=[
-            alpha_grid[0],
-            alpha_grid[-1],
-            state_grid[0],
-            state_grid[-1],],)
+        coarse = results[i]
+        fine = results[i + 1]
 
-    plt.colorbar(label=r"$\dot{\theta}_{k+1}$ (rad/s)")
+        max_difference = compare_policies(
+            coarse,
+            fine,
+        )
 
-    plt.xlabel(r"$\alpha$ (rad)")
-    plt.ylabel(r"$\dot{\theta}_k$ (rad/s)")
-    plt.title("Poincaré State-Action Map")
+        policy_differences.append(
+            max_difference
+        )
 
-    plt.savefig("Poincaré State-Action Map")
+        print(
+            f"{coarse['num_state_points']} -> "
+            f"{fine['num_state_points']}: "
+            f"max |Delta alpha| = "
+            f"{max_difference:.6f} rad"
+        )
+
+    # ---------------------------------------------------------
+    # Plot policy convergence
+    # ---------------------------------------------------------
+
+    state_resolution = [
+        results[i]["num_state_points"]
+        for i in range(len(results) - 1)
+    ]
+
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(
+        state_resolution,
+        policy_differences,
+        marker="o",
+    )
+
+    plt.xlabel(
+        "Number of state grid points"
+    )
+
+    plt.ylabel(
+        "Maximum |Δα| between resolutions [rad]"
+    )
+
+    plt.title(
+        "State-Grid Policy Convergence"
+    )
+
+    plt.grid(True)
+
+    plt.savefig(
+        "state_grid_policy_convergence.png",
+        dpi=300,
+    )
+
     plt.show()
 
+    # ---------------------------------------------------------
+    # Plot reachable boundaries
+    # ---------------------------------------------------------
 
+    reachable_min = [
+        result[
+            "reachable_theta_dot_min"
+        ]
+        for result in results
+    ]
 
-    plt.figure(figsize=(8, 6))
+    reachable_max = [
+        result[
+            "reachable_theta_dot_max"
+        ]
+        for result in results
+    ]
 
-    reachable = steps_to_roa >= 0
+    plt.figure(figsize=(8, 5))
 
-    plt.scatter(state_grid[reachable],steps_to_roa[reachable],)
+    plt.plot(
+        state_counts := [
+            result["num_state_points"]
+            for result in results
+        ],
+        reachable_min,
+        marker="o",
+        label="Minimum reachable θ̇",
+    )
 
-    plt.xlabel(r"$\dot{\theta}_k$ (rad/s)")
-    plt.ylabel("Steps to RoA")
-    plt.title("Number of Steps Required to Reach the Standing RoA")
+    plt.plot(
+        state_counts,
+        reachable_max,
+        marker="o",
+        label="Maximum reachable θ̇",
+    )
 
-    plt.savefig("Number of Steps Required to Reach the Standing RoA")
+    plt.xlabel(
+        "Number of state grid points"
+    )
+
+    plt.ylabel(
+        "θ̇ [rad/s]"
+    )
+
+    plt.title(
+        "Reachable State Boundary vs. Resolution"
+    )
+
+    plt.legend()
+    plt.grid(True)
+
+    plt.savefig(
+        "state_grid_reachable_boundary.png",
+        dpi=300,
+    )
+
     plt.show()
