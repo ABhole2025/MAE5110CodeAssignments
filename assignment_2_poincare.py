@@ -220,41 +220,35 @@ def compare_policies(coarse_result, fine_result):
 
     differences = []
 
-    for coarse_alpha, fine_alpha in zip(
-        coarse_policy,
-        fine_policy,
-    ):
+    for theta_dot, coarse_alpha in zip(coarse_grid,coarse_policy,):
 
         if not np.isfinite(coarse_alpha):
             continue
 
+        # Find the closest state in the finer grid
+        fine_index = np.argmin(np.abs(fine_grid - theta_dot))
+
+        fine_alpha = fine_policy[fine_index]
+
         if not np.isfinite(fine_alpha):
             continue
 
-        differences.append(
-            abs(coarse_alpha - fine_alpha)
-        )
+        differences.append(abs(coarse_alpha - fine_alpha))
 
     if len(differences) == 0:
         return {
             "max_difference": np.nan,
             "mean_difference": np.nan,
             "fraction_large_change": np.nan,
-            "num_compared": 0,
-        }
+            "num_compared": 0,}
 
     differences = np.array(differences)
 
-    # One step of the alpha grid
-    alpha_grid = coarse_result["alpha_grid"]
+    coarse_alpha_grid = coarse_result["alpha_grid"]
 
-    delta_alpha = (
-        alpha_grid[1] - alpha_grid[0]
-    )
+    delta_alpha = (coarse_alpha_grid[1]- coarse_alpha_grid[0])
 
-    fraction_large_change = np.mean(
-        differences > delta_alpha
-    )
+    fraction_large_change = np.mean(differences > delta_alpha)
 
     return {
         "max_difference": np.max(differences),
@@ -264,131 +258,146 @@ def compare_policies(coarse_result, fine_result):
     }
 
 
+
+
+
 if __name__ == "__main__":
 
-    resolutions = [
-    (201, 5),
-    (201, 11),
-    (201, 21),
-    (201, 31),
-    (201, 41),
-    (201, 61),
-    (201, 81),
-]
+    # TEST 1: Alpha-grid resolution
+    alpha_resolutions = [
+        (201, 5),
+        (201, 11),
+        (201, 21),
+        (201, 31),
+        (201, 41),
+        (201, 61),
+        (201, 81),
+    ]
 
-    results = []
+    alpha_results = []
 
-    for num_state_points, num_alpha_points in resolutions:
+    print("\n========================================")
+    print("TEST 1: ALPHA-GRID RESOLUTION")
+    print("========================================")
 
-        result = run_resolution_test(
-            num_state_points,
-            num_alpha_points,
-        )
+    for num_state_points, num_alpha_points in alpha_resolutions:
 
-        results.append(result)
+        result = run_resolution_test(num_state_points,num_alpha_points,)
+
+        alpha_results.append(result)
+
+        print(
+            f"\nRunning {num_state_points} state points "
+            f"x {num_alpha_points} alpha points")
 
         print(
             f"Reachable states: "
             f"{result['reachable_states']}/"
-            f"{num_state_points}"
-        )
+            f"{num_state_points}")
 
-        print(
-            f"Delta theta_dot: "
-            f"{result['delta_theta_dot']:.5f} "
-            f"rad/s"
-        )
+    print("\nAlpha-grid policy convergence:")
 
-        print(
-            f"Reachable theta_dot range: "
-            f"{result['reachable_theta_dot_min']:.5f} "
-            f"to "
-            f"{result['reachable_theta_dot_max']:.5f} "
-            f"rad/s"
-        )
+    alpha_policy_differences = []
 
-    # ---------------------------------------------------------
-    # Compare each resolution with the next finer resolution
-    # ---------------------------------------------------------
+    for i in range(len(alpha_results) - 1):
 
-    policy_differences = []
+        coarse = alpha_results[i]
+        fine = alpha_results[i + 1]
 
-    print("\nPolicy convergence:")
+        comparison = compare_policies(coarse,fine,)
 
-    for i in range(len(results) - 1):
-
-        coarse = results[i]
-        fine = results[i + 1]
-
-        comparison = compare_policies(
-            coarse,
-            fine,
-        )
-
-        policy_differences.append(
-            comparison["max_difference"]
-        )
+        alpha_policy_differences.append(comparison["mean_difference"])
 
         print(
             f"{coarse['num_alpha_points']} -> "
-            f"{fine['num_alpha_points']}:"
-        )
+            f"{fine['num_alpha_points']}: "
+            f"mean |Delta alpha| = "
+            f"{comparison['mean_difference']:.6f} rad, "
+            f"fraction > 1 grid step = "
+            f"{comparison['fraction_large_change']:.3f}")
+
+
+    # TEST 2: State-grid resolution
+
+    fixed_num_alpha_points = 41
+
+    state_resolutions = [
+        (21, fixed_num_alpha_points),
+        (31, fixed_num_alpha_points),
+        (51, fixed_num_alpha_points),
+        (81, fixed_num_alpha_points),
+        (101, fixed_num_alpha_points),
+        (151, fixed_num_alpha_points),
+        (201, fixed_num_alpha_points),
+        (301, fixed_num_alpha_points),
+        (401, fixed_num_alpha_points),
+    ]
+
+    state_results = []
+
+    print("\n========================================")
+    print("TEST 2: STATE-GRID RESOLUTION")
+    print("========================================")
+
+    for num_state_points, num_alpha_points in state_resolutions:
+
+        result = run_resolution_test(num_state_points,num_alpha_points,)
+
+        state_results.append(result)
 
         print(
-            f"    max |Delta alpha| = "
-            f"{comparison['max_difference']:.6f} rad"
-        )
+            f"\nRunning {num_state_points} state points "
+            f"x {num_alpha_points} alpha points")
 
         print(
-            f"    mean |Delta alpha| = "
-            f"{comparison['mean_difference']:.6f} rad"
-        )
+            f"Reachable states: "
+            f"{result['reachable_states']}/"
+            f"{num_state_points}")
 
         print(
-            f"    fraction changing by > 1 alpha-grid step = "
-            f"{comparison['fraction_large_change']:.3f}"
-        )
+            f"Delta theta_dot: "
+            f"{result['delta_theta_dot']:.5f} rad/s")
+
+    print("\nState-grid policy convergence:")
+
+    state_policy_differences = []
+
+    for i in range(len(state_results) - 1):
+
+        coarse = state_results[i]
+        fine = state_results[i + 1]
+
+        comparison = compare_policies(coarse,fine,)
+
+        state_policy_differences.append(
+            comparison["mean_difference"])
 
         print(
-            f"    states compared = "
-            f"{comparison['num_compared']}"
-        )
+            f"{coarse['num_state_points']} -> "
+            f"{fine['num_state_points']}: "
+            f"mean |Delta alpha| = "
+            f"{comparison['mean_difference']:.6f} rad, "
+            f"fraction > 1 alpha-grid step = "
+            f"{comparison['fraction_large_change']:.3f}")
 
-    # ---------------------------------------------------------
-    # Plot policy convergence
-    # ---------------------------------------------------------
 
-    alpha_resolution = [
-    results[i + 1]["num_alpha_points"]
-    for i in range(len(results) - 1)
-]
+
+    # Plot
+
+    state_counts = [result["num_state_points"]for result in state_results]
 
     plt.figure(figsize=(8, 5))
 
-    plt.plot(
-        alpha_resolution,
-        policy_differences,
-        marker="o",
-    )
+    plt.plot(state_counts[1:],state_policy_differences,marker="o",)
 
-    plt.xlabel(
-        "Number of alpha grid points"
-    )
+    plt.xlabel("Finer state-grid resolution (number of points)")
 
-    plt.ylabel(
-        "Maximum |Δα| between resolutions [rad]"
-    )
+    plt.ylabel("Mean |Delta alpha| between resolutions [rad]")
 
-    plt.title(
-        "alpha-Grid Policy Convergence"
-    )
+    plt.title("State-Grid Policy Convergence")
 
     plt.grid(True)
 
-    plt.savefig(
-        "alpha_grid_policy_convergence.png",
-        dpi=300,
-    )
+    plt.savefig("state_grid_policy_convergence.png",dpi=300,)
 
     plt.show()
-
