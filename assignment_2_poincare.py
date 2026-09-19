@@ -218,48 +218,63 @@ def compare_policies(coarse_result, fine_result):
     fine_grid = fine_result["state_grid"]
     fine_policy = fine_result["best_alpha"]
 
-    # Only compare states for which both
-    # policies have a defined action.
     differences = []
 
-    for i, theta_dot in enumerate(
-        coarse_grid):
-
-        coarse_alpha = coarse_policy[i]
+    for coarse_alpha, fine_alpha in zip(
+        coarse_policy,
+        fine_policy,
+    ):
 
         if not np.isfinite(coarse_alpha):
             continue
 
-        # Find the closest state in the finer grid
-        fine_index = np.argmin(
-            np.abs(fine_grid- theta_dot))
-
-        fine_alpha = fine_policy[fine_index]
-
         if not np.isfinite(fine_alpha):
             continue
 
-        differences.append(abs(coarse_alpha- fine_alpha))
+        differences.append(
+            abs(coarse_alpha - fine_alpha)
+        )
 
     if len(differences) == 0:
-        return np.nan
+        return {
+            "max_difference": np.nan,
+            "mean_difference": np.nan,
+            "fraction_large_change": np.nan,
+            "num_compared": 0,
+        }
 
-    return np.max(differences)
+    differences = np.array(differences)
+
+    # One step of the alpha grid
+    alpha_grid = coarse_result["alpha_grid"]
+
+    delta_alpha = (
+        alpha_grid[1] - alpha_grid[0]
+    )
+
+    fraction_large_change = np.mean(
+        differences > delta_alpha
+    )
+
+    return {
+        "max_difference": np.max(differences),
+        "mean_difference": np.mean(differences),
+        "fraction_large_change": fraction_large_change,
+        "num_compared": len(differences),
+    }
 
 
 if __name__ == "__main__":
 
     resolutions = [
-        (21, 21),
-        (31, 21),
-        (51, 21),
-        (81, 21),
-        (101, 21),
-        (151, 21),
-        (201, 21),
-        (301, 21),
-        (401, 21),
-    ]
+    (201, 5),
+    (201, 11),
+    (201, 21),
+    (201, 31),
+    (201, 41),
+    (201, 61),
+    (201, 81),
+]
 
     results = []
 
@@ -305,41 +320,59 @@ if __name__ == "__main__":
         coarse = results[i]
         fine = results[i + 1]
 
-        max_difference = compare_policies(
+        comparison = compare_policies(
             coarse,
             fine,
         )
 
         policy_differences.append(
-            max_difference
+            comparison["max_difference"]
         )
 
         print(
-            f"{coarse['num_state_points']} -> "
-            f"{fine['num_state_points']}: "
-            f"max |Delta alpha| = "
-            f"{max_difference:.6f} rad"
+            f"{coarse['num_alpha_points']} -> "
+            f"{fine['num_alpha_points']}:"
+        )
+
+        print(
+            f"    max |Delta alpha| = "
+            f"{comparison['max_difference']:.6f} rad"
+        )
+
+        print(
+            f"    mean |Delta alpha| = "
+            f"{comparison['mean_difference']:.6f} rad"
+        )
+
+        print(
+            f"    fraction changing by > 1 alpha-grid step = "
+            f"{comparison['fraction_large_change']:.3f}"
+        )
+
+        print(
+            f"    states compared = "
+            f"{comparison['num_compared']}"
         )
 
     # ---------------------------------------------------------
     # Plot policy convergence
     # ---------------------------------------------------------
 
-    state_resolution = [
-        results[i]["num_state_points"]
-        for i in range(len(results) - 1)
-    ]
+    alpha_resolution = [
+    results[i + 1]["num_alpha_points"]
+    for i in range(len(results) - 1)
+]
 
     plt.figure(figsize=(8, 5))
 
     plt.plot(
-        state_resolution,
+        alpha_resolution,
         policy_differences,
         marker="o",
     )
 
     plt.xlabel(
-        "Number of state grid points"
+        "Number of alpha grid points"
     )
 
     plt.ylabel(
@@ -347,73 +380,15 @@ if __name__ == "__main__":
     )
 
     plt.title(
-        "State-Grid Policy Convergence"
+        "alpha-Grid Policy Convergence"
     )
 
     plt.grid(True)
 
     plt.savefig(
-        "state_grid_policy_convergence.png",
+        "alpha_grid_policy_convergence.png",
         dpi=300,
     )
 
     plt.show()
 
-    # ---------------------------------------------------------
-    # Plot reachable boundaries
-    # ---------------------------------------------------------
-
-    reachable_min = [
-        result[
-            "reachable_theta_dot_min"
-        ]
-        for result in results
-    ]
-
-    reachable_max = [
-        result[
-            "reachable_theta_dot_max"
-        ]
-        for result in results
-    ]
-
-    plt.figure(figsize=(8, 5))
-
-    plt.plot(
-        state_counts := [
-            result["num_state_points"]
-            for result in results
-        ],
-        reachable_min,
-        marker="o",
-        label="Minimum reachable θ̇",
-    )
-
-    plt.plot(
-        state_counts,
-        reachable_max,
-        marker="o",
-        label="Maximum reachable θ̇",
-    )
-
-    plt.xlabel(
-        "Number of state grid points"
-    )
-
-    plt.ylabel(
-        "θ̇ [rad/s]"
-    )
-
-    plt.title(
-        "Reachable State Boundary vs. Resolution"
-    )
-
-    plt.legend()
-    plt.grid(True)
-
-    plt.savefig(
-        "state_grid_reachable_boundary.png",
-        dpi=300,
-    )
-
-    plt.show()
