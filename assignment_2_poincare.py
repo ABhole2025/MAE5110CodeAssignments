@@ -178,296 +178,46 @@ def find_steps_to_roa(state_action_table, state_grid, alpha_grid):
     return steps_to_roa, best_alpha
 
 
-def run_resolution_test(num_state_points, num_alpha_points):
 
-    print(f"\nRunning {num_state_points} state points "f"x {num_alpha_points} alpha points")
+if __name__ == "__main__":
+    alpha_range = np.pi / 7 - np.pi / 8
+
+    num_state_points = 361
+    num_alpha_points = 73
+
+    print("\n========================================")
+    print("FINAL POINCARE GRID")
+    print("========================================")
+
+    print(
+        f"Using {num_state_points} state points x "
+        f"{num_alpha_points} alpha points")
 
     state_grid, alpha_grid = make_grids(num_state_points,num_alpha_points,)
 
     state_action_table = build_state_action_table(state_grid,alpha_grid,)
 
-    steps_to_roa, best_alpha = find_steps_to_roa(
-        state_action_table,
-        state_grid,
-        alpha_grid,)
+    steps_to_roa, best_alpha = find_steps_to_roa(state_action_table,state_grid,alpha_grid,)
+
+    # Save the final policy
+    np.savez(
+        "final_poincare_policy.npz",
+        state_grid=state_grid,
+        alpha_grid=alpha_grid,
+        state_action_table=state_action_table,
+        steps_to_roa=steps_to_roa,
+        best_alpha=best_alpha,)
 
     reachable = steps_to_roa >= 0
 
-    delta_theta_dot = (state_grid[1] - state_grid[0])
-
-    # Physical range of states that are reachable
-    if np.any(reachable):
-
-        reachable_theta_dot_min = (state_grid[reachable].min())
-
-        reachable_theta_dot_max = (state_grid[reachable].max())
-
-    else:
-
-        reachable_theta_dot_min = np.nan
-        reachable_theta_dot_max = np.nan
-
-    return {
-        "num_state_points": num_state_points,
-        "num_alpha_points": num_alpha_points,
-
-        "total_pairs": (state_action_table.size),
-
-        "returning_pairs": np.sum(np.isfinite(state_action_table)),
-
-        "return_fraction": np.mean(np.isfinite(state_action_table)),
-
-        "reachable_states": np.sum(reachable),
-
-        "max_steps": (np.max(steps_to_roa[reachable])if np.any(reachable)else -1),
-
-        "steps_to_roa": steps_to_roa,
-        "best_alpha": best_alpha,
-        "state_grid": state_grid,
-        "alpha_grid": alpha_grid,
-
-        "delta_theta_dot": delta_theta_dot,
-
-        "reachable_theta_dot_min":
-            reachable_theta_dot_min,
-
-        "reachable_theta_dot_max":
-            reachable_theta_dot_max,
-    }
-
-
-def compare_policies(coarse_result, fine_result):
-
-    coarse_grid = coarse_result["state_grid"]
-    coarse_policy = coarse_result["best_alpha"]
-
-    fine_grid = fine_result["state_grid"]
-    fine_policy = fine_result["best_alpha"]
-
-    differences = []
-
-    for theta_dot, coarse_alpha in zip(coarse_grid,coarse_policy,):
-
-        if not np.isfinite(coarse_alpha):
-            continue
-
-        # Find the closest state in the finer grid
-        fine_index = np.argmin(np.abs(fine_grid - theta_dot))
-
-        fine_alpha = fine_policy[fine_index]
-
-        if not np.isfinite(fine_alpha):
-            continue
-
-        differences.append(abs(coarse_alpha - fine_alpha))
-
-    if len(differences) == 0:
-        return {
-            "max_difference": np.nan,
-            "mean_difference": np.nan,
-            "fraction_large_change": np.nan,
-            "num_compared": 0,}
-
-    differences = np.array(differences)
-
-    return {
-        "mean_difference": np.mean(differences),
-        "max_difference": np.max(differences),
-        "num_compared": len(differences),
-    }
-
-
-
-if __name__ == "__main__":
-    alpha_range = np.pi / 7 - np.pi / 8
-
-    convergence_tolerance = 0.01 * alpha_range
-
-    required_consecutive = 2
-
-    print("\n========================================")
-    print("GRID REFINEMENT TEST")
-    print("========================================")
+    print(
+        f"Reachable states: "
+        f"{np.sum(reachable)}/{num_state_points}")
 
     print(
-        f"Alpha range = {alpha_range:.6f} rad"
-    )
+        f"Delta theta_dot: "
+        f"{state_grid[1] - state_grid[0]:.6f} rad/s")
 
     print(
-        f"Convergence tolerance = "
-        f"{convergence_tolerance:.6f} rad"
-    )
-
-    print(
-        f"Criterion: mean |Delta alpha| < "
-        f"{convergence_tolerance:.6f} rad "
-        f"for {required_consecutive} consecutive refinements"
-    )
-
-    resolutions = [
-    (321, 65),
-    (341, 69),
-    (361, 73),
-    (381, 77),
-    (401, 81),
-    (421, 85),]
-
-    results = []
-
-    consecutive_converged = 0
-
-    for num_state_points, num_alpha_points in resolutions:
-
-        result = run_resolution_test(
-            num_state_points,
-            num_alpha_points,)
-
-        results.append(result)
-
-        print(
-            f"Reachable states: "
-            f"{result['reachable_states']}/"
-            f"{num_state_points}")
-
-        print(
-            f"Delta theta_dot: "
-            f"{result['delta_theta_dot']:.6f} rad/s")
-
-        if len(results) > 1:
-
-            coarse = results[-2]
-            fine = results[-1]
-
-            comparison = compare_policies(
-                coarse,
-                fine,
-            )
-
-            mean_difference = comparison[
-                "mean_difference"
-            ]
-
-            max_difference = comparison[
-                "max_difference"
-            ]
-
-            print(
-                f"Mean |Delta alpha| = "
-                f"{mean_difference:.6f} rad"
-            )
-
-            print(
-                f"Max |Delta alpha| = "
-                f"{max_difference:.6f} rad"
-            )
-
-            print(
-                f"States compared = "
-                f"{comparison['num_compared']}"
-            )
-
-            if mean_difference < convergence_tolerance:
-
-                consecutive_converged += 1
-
-                print(
-                    f"Converged refinement "
-                    f"{consecutive_converged}/"
-                    f"{required_consecutive}"
-                )
-
-            else:
-
-                consecutive_converged = 0
-
-                print("Not converged.")
-
-            if (
-                consecutive_converged
-                >= required_consecutive
-            ):
-
-                print("\n========================================")
-                print("GRID CONVERGED")
-                print("========================================")
-
-                print(
-                    f"Selected grid: "
-                    f"{fine['num_state_points']} "
-                    f"state points x "
-                    f"{fine['num_alpha_points']} "
-                    f"alpha points"
-                )
-
-                print(
-                    f"Mean policy change = "
-                    f"{mean_difference:.6f} rad"
-                )
-
-                break
-
-    else:
-
-        print("\n========================================")
-        print("GRID DID NOT CONVERGE")
-        print("========================================")
-
-        print(
-            "The tested resolutions did not satisfy "
-            "the convergence criterion."
-        )
-
-    policy_differences = []
-
-    refinement_labels = []
-
-    for i in range(1, len(results)):
-
-        comparison = compare_policies(
-            results[i - 1],
-            results[i],
-        )
-
-        policy_differences.append(
-            comparison["mean_difference"]
-        )
-
-        refinement_labels.append(
-            results[i]["num_state_points"]
-        )
-
-    plt.figure(figsize=(8, 5))
-
-    plt.plot(
-        refinement_labels,
-        policy_differences,
-        marker="o",
-    )
-
-    plt.axhline(
-        convergence_tolerance,
-        linestyle="--",
-        label="Convergence tolerance",
-    )
-
-    plt.xlabel(
-        "Finer state-grid resolution"
-    )
-
-    plt.ylabel(
-        "Mean |Delta alpha| [rad]"
-    )
-
-    plt.title(
-        "Policy Convergence Under Joint Grid Refinement - Zoomed In"
-    )
-
-    plt.legend()
-    plt.grid(True)
-
-    plt.savefig(
-        "joint_grid_policy_convergence_zoomed_in.png",
-        dpi=300,
-    )
-
-    plt.show()
+        f"Maximum steps to RoA: "
+        f"{np.max(steps_to_roa[reachable])}")
