@@ -1,3 +1,4 @@
+import time
 from concurrent.futures import ProcessPoolExecutor
 
 import matplotlib.pyplot as plt
@@ -93,6 +94,13 @@ def build_state_action_table(state_grid, alpha_grid):
         for theta_dot_initial in state_grid
         for alpha in alpha_grid]
 
+    total_tasks = len(tasks)
+    completed = 0
+
+    print(f"  Simulating {total_tasks:,} "f"state-action pairs...")
+
+    start_time = time.time()
+
     with ProcessPoolExecutor() as executor:
         results = executor.map(simulate_state_action,[task[0] for task in tasks],[task[1] for task in tasks],)
 
@@ -103,6 +111,24 @@ def build_state_action_table(state_grid, alpha_grid):
 
             if theta_dot_next is not None:
                 table[state_index, alpha_index] = theta_dot_next
+
+            completed += 1
+            # Print every 5%
+            if (completed % max(1, total_tasks // 20) == 0 or completed == total_tasks):
+
+                percent = (100 * completed / total_tasks)
+
+                elapsed = time.time() - start_time
+
+                print(
+                    f"\r  Progress: "
+                    f"{percent:5.1f}% "
+                    f"({completed:,}/{total_tasks:,}) "
+                    f"Elapsed: {elapsed / 60:.1f} min",
+                    end="",
+                    flush=True,)
+
+    print()
 
     return table
 
@@ -279,12 +305,12 @@ if __name__ == "__main__":
     )
 
     resolutions = [
-        (21, 5),
-        (41, 9),
-        (81, 17),
-        (161, 33),
-        (321, 65),
-    ]
+    (321, 65),
+    (341, 69),
+    (361, 73),
+    (381, 77),
+    (401, 81),
+    (421, 85),]
 
     results = []
 
@@ -433,14 +459,14 @@ if __name__ == "__main__":
     )
 
     plt.title(
-        "Policy Convergence Under Joint Grid Refinement"
+        "Policy Convergence Under Joint Grid Refinement - Zoomed In"
     )
 
     plt.legend()
     plt.grid(True)
 
     plt.savefig(
-        "joint_grid_policy_convergence.png",
+        "joint_grid_policy_convergence_zoomed_in.png",
         dpi=300,
     )
 
