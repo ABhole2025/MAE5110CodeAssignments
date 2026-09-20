@@ -178,6 +178,69 @@ def find_steps_to_roa(state_action_table, state_grid, alpha_grid):
     return steps_to_roa, best_alpha
 
 
+def simulate_controlled_trajectory(initial_theta_dot,initial_index,state_grid,alpha_grid,best_alpha,steps_to_roa,):
+    """
+    Simulate the walker while applying the Poincare policy.
+
+    Returns the complete continuous trajectory and the
+    Poincare-section crossing locations.
+    """
+
+    state = np.array([section_theta, initial_theta_dot],dtype=float,)
+
+    time_values = [0.0]
+    theta_values = [state[0]]
+    theta_dot_values = [state[1]]
+
+    section_states = [(0.0, state[0], state[1])]
+
+    current_index = initial_index
+    current_time = 0.0
+
+    number_of_steps = steps_to_roa[initial_index]
+
+    for step in range(number_of_steps):
+
+        alpha = best_alpha[current_index]
+
+        local_params = params.copy()
+        local_params["angle_of_attack"] = alpha
+
+        for _ in range(round(sim_time / timestep)):
+
+            next_state = (state+ timestep* model.dynamics(current_time,state,local_params,))
+
+            # Apply impact dynamics
+            if model.event_guard(state,next_state,local_params,):
+                next_state = model.event_dynamics(next_state,local_params,)
+
+            current_time += timestep
+
+            time_values.append(current_time)
+            theta_values.append(next_state[0])
+            theta_dot_values.append(next_state[1])
+
+            # Check for next Poincare crossing
+            if poincare_section_crossed(state,next_state,):
+
+                state = next_state
+
+                section_states.append((current_time,state[0],state[1],))
+
+                # Find nearest state-grid point
+                current_index = np.argmin(np.abs(state_grid - state[1]))
+
+                break
+
+            state = next_state
+
+    return (
+        np.array(time_values),
+        np.array(theta_values),
+        np.array(theta_dot_values),
+        np.array(section_states),)
+
+
 
 if __name__ == "__main__":
     alpha_range = np.pi / 7 - np.pi / 8
@@ -199,25 +262,90 @@ if __name__ == "__main__":
 
     steps_to_roa, best_alpha = find_steps_to_roa(state_action_table,state_grid,alpha_grid,)
 
-    # Save the final policy
-    np.savez(
-        "final_poincare_policy.npz",
-        state_grid=state_grid,
-        alpha_grid=alpha_grid,
-        state_action_table=state_action_table,
-        steps_to_roa=steps_to_roa,
-        best_alpha=best_alpha,)
 
+
+    # Trajectory
+
+    target_theta_dot = 4.05
+
+    initial_index = np.argmin(np.abs(state_grid - target_theta_dot))
+
+    initial_theta_dot = state_grid[initial_index]
+
+    print(
+        f"\nSelected initial condition: "
+        f"theta_dot = {initial_theta_dot:.6f} rad/s"
+    )
+
+    print(
+        f"Steps to RoA = "
+        f"{steps_to_roa[initial_index]}")
+
+    time_values, theta_values, theta_dot_values, section_states = (
+        simulate_controlled_trajectory(
+            initial_theta_dot,
+            initial_index,
+            state_grid,
+            alpha_grid,
+            best_alpha,
+            steps_to_roa,))
+
+    #PLOT trajectory
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(
+        theta_values,
+        theta_dot_values,
+        linewidth=1.5,
+        label="Walker trajectory",
+    )
+
+    plt.scatter(
+        section_states[:, 1],
+        section_states[:, 2],
+        zorder=3,
+        label="Poincaré crossings",
+    )
+
+    plt.xlabel(r"$\theta$ [rad]")
+    plt.ylabel(r"$\dot{\theta}$ [rad/s]")
+
+    plt.title(
+        "Controlled Walker Trajectory to the RoA"
+    )
+
+    plt.legend()
+    plt.grid(True)
+
+    plt.tight_layout()
+
+    plt.savefig(
+        "trajectory_to_roa.png",
+        dpi=300,
+    )
+
+    plt.show()
+
+
+    # Plot number of steps to reach the RoA
     reachable = steps_to_roa >= 0
 
-    print(
-        f"Reachable states: "
-        f"{np.sum(reachable)}/{num_state_points}")
+    plt.figure(figsize=(8, 5))
 
-    print(
-        f"Delta theta_dot: "
-        f"{state_grid[1] - state_grid[0]:.6f} rad/s")
+    plt.scatter(
+        state_grid[reachable],
+        steps_to_roa[reachable],
+    )
 
-    print(
-        f"Maximum steps to RoA: "
-        f"{np.max(steps_to_roa[reachable])}")
+    plt.xlabel(r"Initial $\dot{\theta}$ [rad/s]")
+    plt.ylabel("Steps to reach RoA")
+    plt.title("Steps Required to Reach the Region of Attraction")
+    plt.grid(True)
+
+    plt.savefig(
+        "steps_to_roa.png",
+        dpi=300,
+        bbox_inches="tight",
+    )
+
+    plt.show()
