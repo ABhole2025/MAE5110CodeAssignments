@@ -65,15 +65,7 @@ For each resolution, I computed the state-action map and selected the control in
 The difference between two policies was measured using the mean absolute change in the selected angle of attack:
 
 $$
-\mathrm{error}
-=
-\frac{1}{N}
-\sum_i
-\left|
-\alpha_i^{\mathrm{fine}}
--
-\alpha_i^{\mathrm{coarse}}
-\right|.
+\mathrm{error} = \frac{1}{N} \sum_i \left| \alpha_i^{\mathrm{fine}} - \alpha_i^{\mathrm{coarse}} \right|
 $$
 
 Choosing the convergence tolerance
@@ -83,21 +75,13 @@ I wanted the allowable policy error to be small relative to the total range of p
 The $\alpha$ range is
 
 $$
-\Delta\alpha_{\mathrm{range}}
-=
-\frac{\pi}{7}-\frac{\pi}{8}
-=
-0.05610\ \mathrm{rad}.
+\Delta\alpha_{\mathrm{range}} = \frac{\pi}{7} - \frac{\pi}{8} = 0.05610\ \mathrm{rad}
 $$
 
 I used $1%$ of this range as the convergence tolerance:
 
 $$
-\epsilon
-=
-0.01\Delta\alpha_{\mathrm{range}}
-=
-5.61\times10^{-4}\ \mathrm{rad}.
+\epsilon = 0.01\Delta\alpha_{\mathrm{range}} = 5.61\times10^{-4}\ \mathrm{rad}
 $$
 
 The grid was considered converged when the mean policy change was below this tolerance for two consecutive refinements.
@@ -107,19 +91,13 @@ Initial refinement
 I first used relatively large changes in resolution to see how the policy changed as the grid was refined:
 
 $$
-21\times5,\quad
-41\times9,\quad
-81\times17,\quad
-161\times33,\quad
-321\times65.
+21\times5,\quad 41\times9,\quad 81\times17,\quad 161\times33,\quad 321\times65
 $$
 
 The mean policy differences for the final three comparable refinements were
 
 $$
-0.020937,\qquad
-0.003506,\qquad
-0.001321\ \mathrm{rad}.
+0.020937,\qquad 0.003506,\qquad 0.001321\ \mathrm{rad}
 $$
 
 The policy was clearly becoming less sensitive to the grid resolution, but the $321\times65$ grid was still above the convergence tolerance of $0.000561$ rad.
@@ -133,19 +111,15 @@ Since the policy was changing more slowly at higher resolutions, I then refined 
 The resolutions tested were
 
 $$
-321\times65
-\rightarrow
-341\times69
-\rightarrow
-361\times73.
+321\times65 \rightarrow 341\times69 \rightarrow 361\times73
 $$
 
 The results were:
 
-| Refinement | Mean $|\Delta\alpha|$ |
-|---|---:|
-| $321\times65 \rightarrow 341\times69$ | $0.000311$ rad |
-| $341\times69 \rightarrow 361\times73$ | $0.000442$ rad |
+| Refinement                            | Mean change in $\alpha$ |
+| ------------------------------------- | ----------------------: |
+| $321\times65 \rightarrow 341\times69$ |          $0.000311$ rad |
+| $341\times69 \rightarrow 361\times73$ |          $0.000442$ rad |
 
 Both changes were below the $0.000561$-rad tolerance. Since this happened for two consecutive refinements, the convergence criterion was satisfied.
 
@@ -160,9 +134,7 @@ with 361 Poincaré-state points and 73 possible $\alpha$ values.
 At this resolution, the spacing between adjacent Poincaré states is
 
 $$
-\Delta\dot{\theta}
-=
-0.012304\ \mathrm{rad/s}.
+\Delta\dot{\theta} = 0.012304\ \mathrm{rad/s}
 $$
 
 (image)
