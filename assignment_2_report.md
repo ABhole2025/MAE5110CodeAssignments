@@ -2,17 +2,17 @@
 
 The walker was modeled as an inverted pendulum with an actuated ankle and a controllable angle of attack. The following sketches show the walker configuration and the variables used in the model.
 
-(image)
+![Sketch of walker](walker_sketch.jpg)
 
 The main state variables are the pendulum angle $\theta$ and angular velocity $\dot{\theta}$. The control input is the angle of attack $\alpha$.
 
-(image)
+![Sketch of walker state space](walker_state_space_sketch.jpg)
 
 # 2. Region of Attraction
 
 The first step was to determine the region of attraction (RoA) for the ankle controller. The RoA was computed in the $(\theta,\dot{\theta})$ state space and indicates the initial conditions from which the walker eventually reaches the standing equilibrium.
 
-(image)
+![RoA map](Estimated_RoA_101x151.png)
 
 The stable region is the set of states that eventually reach the standing equilibrium under the ankle controller. This RoA was also used when constructing the Poincaré-based policy: once a state reached the standing RoA, no additional walking steps were required.
 
@@ -102,7 +102,7 @@ $$
 
 The policy was clearly becoming less sensitive to the grid resolution, but the $321\times65$ grid was still above the convergence tolerance of $0.000561$ rad.
 
-(image)
+![Initial refinement](joint_grid_policy_convergence.png)
 
 Refinement near convergence
 
@@ -137,7 +137,7 @@ $$
 \Delta\dot{\theta} = 0.012304\ \mathrm{rad/s}
 $$
 
-(image)
+![Zoomed-in refinement](joint_grid_policy_convergence.png)
 
 The $321\times65$ grid was not used as the final resolution because the refinement from it still changed the policy by $0.000311$ rad, while the $361\times73$ grid gave a second consecutive refinement below the specified tolerance. This provided a numerical check that the selected resolution was not simply chosen because it was the largest grid tested.
 
@@ -178,6 +178,8 @@ The trajectory shows the walker being brought progressively closer to the standi
 
 The maximum number of walking steps found on the final grid was 4.
 
+![Trajectory to RoA](trajectory_to_roa.png)
+
 # 6. Number of Steps to Reach the RoA
 
 Finally, I visualized how many steps are required to reach the standing RoA for each initial Poincaré state.
@@ -201,6 +203,8 @@ $$
 $$
 
 is one of the states requiring four steps.
+
+![Steps to RoA](steps_to_roa.png)
 
 # Summary
 
