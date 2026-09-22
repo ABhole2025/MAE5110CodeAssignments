@@ -1,149 +1,165 @@
-Poincare grid resolution testing:
+1. Sketches
+The walker was modeled as an inverted pendulum with an actuated ankle and a controllable angle of attack. The following sketches show the walker configuration and the variables used in the model.
+(image)
+The main state variables are the pendulum angle \(\theta\) and angular velocity \(\dot{\theta}\). The control input is the angle of attack \(\alpha\).
+(image)
+
+2. Region of Attraction
+The first step was to determine the region of attraction (RoA) for the ankle controller. The RoA was computed in the \((\theta,\dot{\theta})\) state space and indicates the initial conditions from which the walker eventually reaches the standing equilibrium.
+(image)
+The stable region is the set of states that eventually reach the standing equilibrium under the ankle controller. This RoA was also used when constructing the Poincaré-based policy: once a state reached the standing RoA, no additional walking steps were required.
+
+3. Choice of Poincaré Section
+For the walking controller, I used a Poincaré section at
+\[
+\theta = 0.
+\]I considered crossings where the walker moves from
+\[
+\theta < 0
+\]to
+\[
+\theta \geq 0.
+\]At each crossing, the state can be represented by \(\dot{\theta}\). This reduces the state used by the walking policy from the full two-dimensional state \((\theta,\dot{\theta})\) to a one-dimensional Poincaré state.
+This was useful because the goal of the policy is to choose an angle of attack that moves the walker toward the standing RoA. Instead of building a policy over the full continuous trajectory, I only need to determine how each control input changes \(\dot{\theta}\) from one Poincaré crossing to the next.
+The resulting state-action relationship was
+\[
+\dot{\theta}_k,\alpha_k
+\longrightarrow
+\dot{\theta}_{k+1}.
+\]The angle of attack was restricted to
+\[
+\frac{\pi}{8} \leq \alpha \leq \frac{\pi}{7}.
+\]
 
 
-To select the numerical resolution of the state–action grid, a grid-refinement study was performed. The state was represented by \(\dot{\theta}\), and the control input was the angle of attack \(\alpha\). The ranges of both variables were kept fixed while the number of grid points was increased.
+4. Poincaré Grid Resolution
+The policy was computed on a grid of initial Poincaré states \(\dot{\theta}\) and control inputs \(\alpha\). I wanted to make sure that the selected grid was fine enough that increasing the resolution did not significantly change the resulting policy.
+The state range and \(\alpha\) range were kept fixed while the number of grid points was increased.
+For each resolution, I computed the state-action map and selected the control input that moves each state toward the standing RoA. I then compared the resulting policy with the policy from the next finer grid.
+The difference between two policies was measured using the mean absolute change in the selected angle of attack:
+\[
+\mathrm{error}
+=
+\frac{1}{N}
+\sum_i
+\left|
+\alpha_i^{\mathrm{fine}}
+-
+\alpha_i^{\mathrm{coarse}}
+\right|.
+\]Choosing the convergence tolerance
+I wanted the allowable policy error to be small relative to the total range of possible control inputs.
+The \(\alpha\) range is
+\[
+\Delta\alpha_{\mathrm{range}}
+=
+\frac{\pi}{7}-\frac{\pi}{8}
+=
+0.05610\ \mathrm{rad}.
+\]I used \(1\%\) of this range as the convergence tolerance:
+\[
+\epsilon
+=
+0.01\Delta\alpha_{\mathrm{range}}
+=
+5.61\times10^{-4}\ \mathrm{rad}.
+\]The grid was considered converged when the mean policy change was below this tolerance for two consecutive refinements.
+Initial refinement
+I first used relatively large changes in resolution to see how the policy changed as the grid was refined:
+\[
+21\times5,\quad
+41\times9,\quad
+81\times17,\quad
+161\times33,\quad
+321\times65.
+\]The mean policy differences for the final three comparable refinements were
+\[
+0.020937,\qquad
+0.003506,\qquad
+0.001321\ \mathrm{rad}.
+\]The policy was clearly becoming less sensitive to the grid resolution, but the \(321\times65\) grid was still above the convergence tolerance of \(0.000561\) rad.
 
-For each grid resolution,  the state–action map and was recomputed and the resulting policy was compared to the policy from the next finer grid. The difference between two policies was measured by the mean absolute change in the selected angle of attack:
+(image)
 
-$$ \mathrm{error} = \frac{1}{N} \sum_i |\alpha_i^{\mathrm{fine}}-\alpha_i^{\mathrm{coarse}}|. $$
-
-I wanted the allowable policy error to be small relative to the range of possible \(\alpha\) values, rather than just picking an arbitrary number. The total \(\alpha\) range is
-
-$$ \Delta\alpha_{\mathrm{range}} = \frac{\pi}{7}-\frac{\pi}{8} = 0.05610\ \mathrm{rad}, $$
-
-and the convergence tolerance was set to \(1\%\) of this range,
-
-$$ \epsilon = 0.01\Delta\alpha_{\mathrm{range}} = 5.61\times10^{-4}\ \mathrm{rad}. $$
-
-Basically, the resolution was considered 'good enough' when the average change in selected \(\alpha\) was less than \(0.000561\) rad for two consecutive refinements.
-
-
-Relatively large increments in resolution were swept first to see how the policy changed as the grid was made finer. The initial sequence was:
-
-$$ 21\times5,\quad 41\times9,\quad 81\times17,\quad 161\times33,\quad 321\times65. $$
-
-The mean policy difference decreased as the grid was refined:
-
-$$ 0.020937 \rightarrow 0.003506 \rightarrow 0.001321\ \mathrm{rad}. $$
-
-This showed that the policy was becoming less sensitive to the grid resolution, but the \(321\times65\) grid was still above the \(0.000561\)-rad tolerance.
-
-(PLOT FOR THIS SECTION)
-
-
-Zoomed-in refinement
-
-Since the policy difference was clearly decreasing, the grid was then refined in smaller increments near the apparent convergence region. Starting from \(321\times65\), the resolutions tested were:
-
-$$ 321\times65 \rightarrow 341\times69 \rightarrow 361\times73. $$
-
-The results were:
-
+Refinement near convergence
+Since the policy was changing more slowly at higher resolutions, I then refined the grid in smaller increments near the apparent convergence region.
+The resolutions tested were
+\[
+321\times65
+\rightarrow
+341\times69
+\rightarrow
+361\times73.
+\]The results were:
 | Refinement | Mean \(|\Delta\alpha|\) |
 |---|---:|
 | \(321\times65 \rightarrow 341\times69\) | \(0.000311\) rad |
 | \(341\times69 \rightarrow 361\times73\) | \(0.000442\) rad |
+Both changes were below the \(0.000561\)-rad tolerance. Since this happened for two consecutive refinements, the convergence criterion was satisfied.
+The final grid was therefore selected as
+\[
+\boxed{361\times73}
+\]with 361 Poincaré-state points and 73 possible \(\alpha\) values.
+At this resolution, the spacing between adjacent Poincaré states is
+\[
+\Delta\dot{\theta}
+=
+0.012304\ \mathrm{rad/s}.
+\]
 
-Both values are below the \(0.000561\)-rad tolerance. Therefore, the convergence criterion was satisfied for two consecutive refinements.
+(image)
 
-The selected grid resolution was therefore
+The \(321\times65\) grid was not used as the final resolution because the refinement from it still changed the policy by \(0.000311\) rad, while the \(361\times73\) grid gave a second consecutive refinement below the specified tolerance. This provided a numerical check that the selected resolution was not simply chosen because it was the largest grid tested.
 
-$$ \boxed{361\times73} $$
+5. Walking Trajectory and Maximum Number of Steps
+Using the final \(361\times73\) grid, I computed how many walking steps were required for each initial Poincaré state to reach the standing RoA.
+Out of the 361 Poincaré states in the final grid, 345 were reachable from the available state-action transitions.
+The largest number of steps required to reach the RoA was
+\[
+\boxed{4\text{ steps}}.
+\]There were several initial conditions requiring four steps. I selected
+\[
+\dot{\theta}_0 = 4.048022\ \mathrm{rad/s}
+\]as a representative example.
+The resulting policy was:
+Step	\(\dot{\theta}\)	\(\alpha\)	Next \(\dot{\theta}\)
+1	4.048022	0.392699	2.846056
+2	2.842228	0.392699	1.989288
+3	1.993251	0.430099	1.158812
+4	1.156578	0.448020	0.182238
 
-or 361 \(\dot{\theta}\) points and 73 \(\alpha\) points. At this resolution,
 
-$$ \Delta\dot{\theta}=0.012304\ \mathrm{rad/s}. $$
+After the fourth step, the walker reaches the region of attraction of the standing controller.
+The selected initial condition therefore satisfies the requirement of starting from a state that takes at least three steps, while also requiring the maximum number of steps found on the final grid.
+ 
+The trajectory shows the walker being brought progressively closer to the standing RoA. The first two steps use the lower end of the available angle-of-attack range, while the later steps use larger values of \(\alpha\) as the walker approaches the standing region.
+The maximum number of walking steps found on the final grid was 4.
+6. Number of Steps to Reach the RoA
+Finally, I visualized how many steps are required to reach the standing RoA for each initial Poincaré state.
+For each value of \(\dot{\theta}\), the policy calculation determines the minimum number of Poincaré transitions needed to reach a state that is already inside the standing RoA.
+ 
+The plot is shown as a scatter plot, with the horizontal axis representing the initial Poincaré state \(\dot{\theta}\) and the vertical axis representing the number of steps required to reach the RoA.
+A value of zero means that the initial state is already inside the standing RoA. Larger values indicate that additional walking steps are required before the standing controller can take over.
+For the final \(361\times73\) grid, the largest value was
+\[
+\boxed{4\text{ steps}}.
+\]The selected initial condition
+\[
+\dot{\theta}_0=4.048022\ \mathrm{rad/s}
+\]is one of the states requiring four steps.
+Summary
+The final Poincaré policy used a \(361\times73\) state-action grid. The grid-resolution study showed that two consecutive refinements produced mean policy changes below the \(0.000561\)-rad tolerance:
+\[
+0.000311\ \mathrm{rad},
+\qquad
+0.000442\ \mathrm{rad}.
+\]The final Poincaré-state spacing was
+\[
+\Delta\dot{\theta}=0.012304\ \mathrm{rad/s}.
+\]Using this policy, 345 of the 361 sampled Poincaré states were reachable, and the maximum number of walking steps required to reach the standing RoA was 4. A representative four-step trajectory was generated from
+\[
+\dot{\theta}_0=4.048022\ \mathrm{rad/s}.
+\]
 
-[Zoomed-in grid-refinement plot]
 
 
-
-
-(targer theta dot = 4.05)
-========================================
-FINAL POINCARE GRID
-========================================
-Using 361 state points x 73 alpha points
-  Simulating 26,353 state-action pairs...
-  Progress: 100.0% (26,353/26,353) Elapsed: 0.5 min
-Maximum steps to RoA: 4
-Candidate initial conditions:
-  theta_dot = 3.678902 rad/s
-  theta_dot = 3.691206 rad/s
-  theta_dot = 3.703510 rad/s
-  theta_dot = 3.715814 rad/s
-  theta_dot = 3.728118 rad/s
-  theta_dot = 3.740422 rad/s
-  theta_dot = 3.752726 rad/s
-  theta_dot = 3.765030 rad/s
-  theta_dot = 3.777334 rad/s
-  theta_dot = 3.789638 rad/s
-  theta_dot = 3.801942 rad/s
-  theta_dot = 3.814246 rad/s
-  theta_dot = 3.826550 rad/s
-  theta_dot = 3.838854 rad/s
-  theta_dot = 3.851158 rad/s
-  theta_dot = 3.863462 rad/s
-  theta_dot = 3.875766 rad/s
-  theta_dot = 3.888070 rad/s
-  theta_dot = 3.900374 rad/s
-  theta_dot = 3.912678 rad/s
-  theta_dot = 3.924982 rad/s
-  theta_dot = 3.937286 rad/s
-  theta_dot = 3.949590 rad/s
-  theta_dot = 3.961894 rad/s
-  theta_dot = 3.974198 rad/s
-  theta_dot = 3.986502 rad/s
-  theta_dot = 3.998806 rad/s
-  theta_dot = 4.011110 rad/s
-  theta_dot = 4.023414 rad/s
-  theta_dot = 4.035718 rad/s
-  theta_dot = 4.048022 rad/s
-  theta_dot = 4.060326 rad/s
-  theta_dot = 4.072630 rad/s
-  theta_dot = 4.084934 rad/s
-  theta_dot = 4.097238 rad/s
-  theta_dot = 4.109542 rad/s
-  theta_dot = 4.121846 rad/s
-  theta_dot = 4.134150 rad/s
-  theta_dot = 4.146454 rad/s
-  theta_dot = 4.158758 rad/s
-  theta_dot = 4.171063 rad/s
-  theta_dot = 4.183367 rad/s
-  theta_dot = 4.195671 rad/s
-  theta_dot = 4.207975 rad/s
-  theta_dot = 4.220279 rad/s
-  theta_dot = 4.232583 rad/s
-  theta_dot = 4.244887 rad/s
-  theta_dot = 4.257191 rad/s
-  theta_dot = 4.269495 rad/s
-  theta_dot = 4.281799 rad/s
-  theta_dot = 4.294103 rad/s
-  theta_dot = 4.306407 rad/s
-  theta_dot = 4.318711 rad/s
-  theta_dot = 4.331015 rad/s
-  theta_dot = 4.343319 rad/s
-  theta_dot = 4.355623 rad/s
-  theta_dot = 4.367927 rad/s
-  theta_dot = 4.380231 rad/s
-  theta_dot = 4.392535 rad/s
-  theta_dot = 4.404839 rad/s
-  theta_dot = 4.417143 rad/s
-  theta_dot = 4.429447 rad/s
-Reachable states: 345/361
-Delta theta_dot: 0.012304 rad/s
-Maximum steps to RoA: 4
-
-Selected initial condition: theta_dot = 4.048022 rad/s
-Steps to RoA = 4
-First control alpha = 0.392699 rad
-
-Policy sequence:
-Step 1: theta_dot = 4.048022 rad/s, alpha = 0.392699 rad
-         -> next theta_dot = 2.846056 rad/s
-Step 2: theta_dot = 2.842228 rad/s, alpha = 0.392699 rad
-         -> next theta_dot = 1.989288 rad/s
-Step 3: theta_dot = 1.993251 rad/s, alpha = 0.430099 rad
-         -> next theta_dot = 1.158812 rad/s
-Step 4: theta_dot = 1.156578 rad/s, alpha = 0.448020 rad
-         -> next theta_dot = 0.182238 rad/s
