@@ -78,7 +78,7 @@ $$
 \Delta\alpha_{\mathrm{range}} = \frac{\pi}{7} - \frac{\pi}{8} = 0.05610\ \mathrm{rad}
 $$
 
-I used $1%$ of this range as the convergence tolerance:
+I used $1 percent$ of this range as the convergence tolerance:
 
 $$
 \epsilon = 0.01\Delta\alpha_{\mathrm{range}} = 5.61\times10^{-4}\ \mathrm{rad}
@@ -158,8 +158,6 @@ There were several initial conditions requiring four steps. I selected
 $$
 \dot{\theta}_0 = 4.048022\ \mathrm{rad/s}
 $$
-
-as a representative example.
 
 The resulting policy was:
 
