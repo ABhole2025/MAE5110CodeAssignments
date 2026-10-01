@@ -11,6 +11,8 @@ import numpy as np
 def generate_params():
     pass
 
+def generate_initial_condition():
+    return np.array([0.0, 0.0])
 
 def dynamics(t, state, params):
     # TODO: implement the state derivative.
