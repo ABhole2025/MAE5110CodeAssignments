@@ -37,12 +37,12 @@ def _():
     from integrators import rk4 as integrator
     from models import pendulum as model
 
-    # Parameters and grid
+    # Define simulation parameters and state grid
     params = model.generate_params()
     initial_state = np.array([-np.pi, 0.0])  # start hanging down, at rest
     timestep = 0.01  # integration substep (s)
     control_steps = 4  # hold each torque for 0.04 s
-    sim_time = 20.0  # s
+    sim_time = 22.0  # s
     discount = 0.99
     SAVE_GIF = False  # Exporting every animation frame takes several seconds.
 
@@ -109,7 +109,6 @@ def _(
         state[0] = (state[0] + np.pi) % (2 * np.pi) - np.pi
         return state
 
-
     transition_matrix = build_transition_matrix(grid_points, actions, step)
 
     # Reward and value iteration
@@ -138,7 +137,7 @@ def _(
     timestep,
     upper,
 ):
-    # Simulate the policy on the continuous pendulum
+    # Simulate the continuous pendulum using the torque policy from value iteration
     if np.any(initial_state < lower) or np.any(initial_state > upper):
         raise ValueError("Choose an initial state inside the grid domain.")
     time_traj = np.arange(round(sim_time / timestep) + 1) * timestep
@@ -307,6 +306,7 @@ def _(
         print(f"Saved animation to {output / 'pendulum.gif'}.")
     draw_frame(0)
     plt.show()
+
     # Display playback controls when this cell is run in a notebook.
     plt.rcParams["animation.html"] = "jshtml"
     animation  # noqa: B018 — display the animation in the notebook
