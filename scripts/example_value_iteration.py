@@ -23,7 +23,7 @@ params = model.generate_params()
 initial_state = np.array([-np.pi, 0.0])  # start hanging down, at rest
 timestep = 0.01  # integration substep (s)
 control_steps = 4  # hold each torque for 0.04 s
-sim_time = 20.0  # s
+sim_time = 22.0  # s
 discount = 0.99
 SAVE_GIF = False  # Exporting every animation frame takes several seconds.
 
@@ -65,7 +65,7 @@ value, policy = value_iteration(transition_matrix, reward, discount=discount)
 
 
 # %%
-# Simulate the policy on the continuous pendulum
+# Simulate the continuous pendulum using the torque policy from value iteration
 if np.any(initial_state < lower) or np.any(initial_state > upper):
     raise ValueError("Choose an initial state inside the grid domain.")
 time_traj = np.arange(round(sim_time / timestep) + 1) * timestep
