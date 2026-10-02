@@ -6,6 +6,7 @@
 # It builds a transition matrix, solves for the control policy, simulates
 # the continuous pendulum, and visualizes the resulting trajectory.
 
+
 # %%
 # Imports and setup
 from pathlib import Path
@@ -52,7 +53,6 @@ def step(state, torque):
     state[0] = (state[0] + np.pi) % (2 * np.pi) - np.pi
     return state
 
-
 transition_matrix = build_transition_matrix(grid_points, actions, step)
 
 # Reward and value iteration
@@ -97,6 +97,7 @@ print(
     f"Final angle: {state_traj[0, -1]:.4f} rad; "
     f"angular velocity: {state_traj[1, -1]:.4f} rad/s."
 )
+
 
 # %%
 # Plot the value, policy, and continuous trajectory
@@ -203,6 +204,7 @@ if SAVE_GIF:
     print(f"Saved animation to {output / 'pendulum.gif'}.")
 draw_frame(0)
 plt.show()
+
 # Display playback controls when this cell is run in a notebook.
 plt.rcParams["animation.html"] = "jshtml"
 animation  # noqa: B018 — display the animation in the notebook
