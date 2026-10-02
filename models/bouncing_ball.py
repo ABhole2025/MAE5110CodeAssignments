@@ -33,6 +33,9 @@ def generate_params():
         "mass": 1.0
     }
 
+def generate_initial_condition():
+    return np.array([1.0, 0.0])
+
 #energy calculation
 
 def calculate_energy(state, params):
