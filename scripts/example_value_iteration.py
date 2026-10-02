@@ -23,13 +23,13 @@ initial_state = np.array([-np.pi, 0.0])  # start hanging down, at rest (theta=0,
 timestep = 0.01  # integration timestep (s)
 control_steps = 4  # hold each torque for four integration steps
 sim_time = 20.0  # # total simulation time (s)
-discount = 0.99
+discount = 0.99 # value iteration discount factor
 SAVE_GIF = False  # Set to True to export the animation as a GIF.
 
 angle_grid = np.linspace(-np.pi, np.pi, 69)
 velocity_grid = np.linspace(-10.0, 10.0, 121)
 grid_points = np.stack(np.meshgrid(angle_grid, velocity_grid, indexing="ij"), axis=-1)
-torque_limit = 7  # N m: enough to hold the pendulum at roughly pi/4
+torque_limit = 7  # maximum torque magnitude (N m) enought to hold at ~pi/4
 actions = np.linspace(-torque_limit, torque_limit, 3)
 # The solver chooses the first tied action; prefer smaller torques, including zero.
 actions = actions[np.argsort(np.abs(actions), kind="stable")]
