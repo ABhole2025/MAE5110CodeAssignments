@@ -19,12 +19,12 @@ from models import pendulum as model
 
 # Parameters and grid
 params = model.generate_params()
-initial_state = np.array([-np.pi, 0.0])  # start hanging down, at rest
-timestep = 0.01  # integration substep (s)
-control_steps = 4  # hold each torque for 0.04 s
-sim_time = 20.0  # s
+initial_state = np.array([-np.pi, 0.0])  # start hanging down, at rest (theta=0, thetadot=0)
+timestep = 0.01  # integration timestep (s)
+control_steps = 4  # hold each torque for four integration steps
+sim_time = 20.0  # # total simulation time (s)
 discount = 0.99
-SAVE_GIF = False  # Exporting every animation frame takes several seconds.
+SAVE_GIF = False  # Set to True to export the animation as a GIF.
 
 angle_grid = np.linspace(-np.pi, np.pi, 69)
 velocity_grid = np.linspace(-10.0, 10.0, 121)
